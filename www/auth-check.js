@@ -12,9 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // User is logged in
     if (loginLink) loginLink.style.display = "none"
     if (registerLink) registerLink.style.display = "none"
-    if (dashboardLink) dashboardLink.style.display = "inline"
+    if (dashboardLink) dashboardLink.style.display = "inline-flex" // Fixed: use inline-flex
     if (logoutBtn) {
-      logoutBtn.style.display = "inline"
+      logoutBtn.style.display = "inline-flex" // Fixed: use inline-flex
       logoutBtn.addEventListener("click", () => {
         localStorage.removeItem("token")
         localStorage.removeItem("user")
@@ -23,8 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   } else {
     // User is not logged in
-    if (loginLink) loginLink.style.display = "inline"
-    if (registerLink) registerLink.style.display = "inline"
+    if (loginLink) loginLink.style.display = "inline-flex" // Fixed: use inline-flex
+    if (registerLink) registerLink.style.display = "inline-flex" // Fixed: use inline-flex
     if (dashboardLink) dashboardLink.style.display = "none"
     if (logoutBtn) logoutBtn.style.display = "none"
   }

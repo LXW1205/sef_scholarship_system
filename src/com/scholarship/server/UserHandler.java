@@ -31,23 +31,22 @@ public class UserHandler implements HttpHandler {
         
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT userID, username, email, firstName, lastName, role FROM \"User\" ORDER BY userID")) {
+             // Removed firstName/lastName which are causing errors. Using username for name.
+             ResultSet rs = stmt.executeQuery("SELECT userID, username, email, role FROM \"User\" ORDER BY userID")) {
             
             boolean first = true;
             while (rs.next()) {
                 if (!first) json.append(",");
                 first = false;
                 
-                String fullName = (rs.getString("firstName") != null ? rs.getString("firstName") : "") + " " + 
-                                  (rs.getString("lastName") != null ? rs.getString("lastName") : "");
-                fullName = fullName.trim();
-                if (fullName.isEmpty()) fullName = rs.getString("username");
+                // Fallback to username since name columns are missing in current schema prototype
+                String fullName = rs.getString("username");
 
                 json.append(String.format("{\"id\": %d, \"username\": \"%s\", \"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"isActive\": true}",
                         rs.getInt("userID"),
                         escape(rs.getString("username")),
                         escape(rs.getString("email")),
-                        escape(fullName),
+                        escape(fullName), // Using username as name
                         escape(rs.getString("role"))
                 ));
             }

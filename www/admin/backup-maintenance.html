@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Backup & Maintenance - ScholarNet Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: 'hsl(222.2 47.4% 11.2%)', foreground: 'hsl(210 40% 98%)' },
+                        secondary: { DEFAULT: 'hsl(210 40% 96.1%)', foreground: 'hsl(222.2 47.4% 11.2%)' },
+                        muted: { DEFAULT: 'hsl(210 40% 96.1%)', foreground: 'hsl(215.4 16.3% 46.9%)' },
+                        background: 'hsl(0 0% 100%)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+    <nav class="bg-primary text-primary-foreground border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                    <h1 class="text-xl font-bold">ScholarNet Admin</h1>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="/admin/dashboard-admin.html"
+                        class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                        Dashboard
+                    </a>
+                    <button id="logoutBtn"
+                        class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="min-h-screen py-12">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <i data-lucide="database" class="w-6 h-6 text-primary"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold">Backup & Maintenance</h2>
+                    <p class="text-muted-foreground">Manage system backups and maintenance mode</p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-card bg-white rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold mb-4">Database Backup</h3>
+                    <p class="text-sm text-gray-500 mb-4">Last backup: 2 hours ago</p>
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">Create New
+                        Backup</button>
+                </div>
+                <div class="bg-card bg-white rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-red-600">Maintenance Mode</h3>
+                    <p class="text-sm text-gray-500 mb-4">Enable to prevent users from accessing the system during
+                        updates.</p>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="maintenance" class="w-5 h-5">
+                        <label for="maintenance">Enable Maintenance Mode</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>

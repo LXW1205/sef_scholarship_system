@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scholarships - Digital Scholarship Portal</title>
+  <title>Scholarships - ScholarNet</title>
   <!-- Using Tailwind CDN instead of Next.js CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Added Lucide icons CDN -->
@@ -44,21 +45,51 @@
     }
   </script>
 </head>
+
 <body class="font-sans antialiased">
   <!-- Navigation with Tailwind styling -->
   <nav class="bg-primary text-primary-foreground border-b border-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
-        <div class="flex items-center">
-          <h1 class="text-xl font-bold">Digital Scholarship Portal</h1>
+        <div class="flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">ScholarNet</h1>
         </div>
-        <div class="flex items-center gap-6" id="navLinks">
-          <a href="index.html" class="hover:text-muted-foreground transition-colors">Home</a>
-          <a href="scholarships.html" class="hover:text-muted-foreground transition-colors">Scholarships</a>
-          <a href="login.html" id="loginLink" class="hover:text-muted-foreground transition-colors">Login</a>
-          <a href="register.html" id="registerLink" class="hover:text-muted-foreground transition-colors">Register</a>
-          <a href="dashboard.html" id="dashboardLink" style="display: none;" class="hover:text-muted-foreground transition-colors">Dashboard</a>
-          <button id="logoutBtn" style="display: none;" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors">Logout</button>
+        <div class="flex items-center gap-8" id="navLinks">
+          <a href="index.html"
+            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
+            style="display: inline-flex; flex-direction: row; align-items: center;">
+            <i data-lucide="home" class="w-4 h-4"></i>
+            <span>Home</span>
+          </a>
+          <a href="scholarships.html"
+            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
+            style="display: inline-flex; flex-direction: row; align-items: center;">
+            <i data-lucide="book-open" class="w-4 h-4"></i>
+            <span>Scholarships</span>
+          </a>
+          <a href="login.html" id="loginLink"
+            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
+            style="display: inline-flex; flex-direction: row; align-items: center;">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span>Login</span>
+          </a>
+          <a href="register.html" id="registerLink"
+            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
+            style="display: inline-flex; flex-direction: row; align-items: center;">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>Register</span>
+          </a>
+          <a href="dashboard.html" id="dashboardLink" style="display: none; flex-direction: row; align-items: center;"
+            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>Dashboard</span>
+          </a>
+          <button id="logoutBtn" style="display: none; flex-direction: row; align-items: center;"
+            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors inline-flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span>Logout</span>
+          </button>
         </div>
       </div>
     </div>
@@ -82,7 +113,9 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div id="loadingMessage" class="text-center text-muted-foreground">Loading scholarships...</div>
         <div id="scholarshipsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        <div id="errorMessage" class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center" style="display: none;"></div>
+        <div id="errorMessage"
+          class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center"
+          style="display: none;"></div>
       </div>
     </section>
   </main>
@@ -147,5 +180,5 @@
     lucide.createIcons();
   </script>
 </body>
-</html>
 
+</html>

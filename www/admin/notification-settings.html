@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Settings - ScholarNet Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(222.2 84% 4.9%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+    <nav class="bg-primary text-primary-foreground border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                    <h1 class="text-xl font-bold">ScholarNet Admin</h1>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="/admin/dashboard-admin.html"
+                        class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                        Dashboard
+                    </a>
+                    <button id="logoutBtn"
+                        class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="min-h-screen py-12">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-6">Notification Settings</h2>
+            <div class="space-y-6">
+                <div class="bg-card rounded-xl border border-border p-6">
+                    <h3 class="text-lg font-semibold mb-4">Email Notifications</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium">Application Submitted</p>
+                                <p class="text-sm text-muted-foreground">Notify students when their application is
+                                    received</p>
+                            </div>
+                            <input type="checkbox" checked
+                                class="w-5 h-5 rounded border-input text-primary focus:ring-2 focus:ring-ring">
+                        </div>
+                        <!-- More settings here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

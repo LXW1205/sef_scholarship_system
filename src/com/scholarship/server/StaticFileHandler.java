@@ -60,6 +60,10 @@ public class StaticFileHandler implements HttpHandler {
         if (mimeType == null) mimeType = "application/octet-stream";
 
         exchange.getResponseHeaders().set("Content-Type", mimeType);
+        // Disable caching to ensure frontend changes are seen immediately
+        exchange.getResponseHeaders().set("Cache-Control", "no-cache, no-store, must-revalidate");
+        exchange.getResponseHeaders().set("Pragma", "no-cache");
+        exchange.getResponseHeaders().set("Expires", "0");
         exchange.sendResponseHeaders(200, file.length());
 
         try (OutputStream os = exchange.getResponseBody();

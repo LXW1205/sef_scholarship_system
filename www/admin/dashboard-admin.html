@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Digital Scholarship Portal</title>
+  <title>ScholarNet Admin - Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -54,8 +54,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center gap-2">
-          <i data-lucide="shield" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">Admin Portal</h1>
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">ScholarNet Admin</h1>
         </div>
         <div class="flex items-center gap-6">
           <a href="/admin/dashboard-admin.html"
@@ -77,6 +77,15 @@
             class="hover:text-muted-foreground transition-colors flex items-center gap-1">
             <i data-lucide="file-text" class="w-4 h-4"></i>
             Applications
+          </a>
+          <a href="/admin/reports.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+            Reports
+          </a>
+          <a href="/admin/system-settings.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            Settings
           </a>
           <button id="logoutBtn"
             class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
@@ -152,7 +161,7 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <a href="admin/users.html?action=create"
+          <a href="/admin/users-management.html?action=create"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
             <div class="flex items-center gap-4">
               <div
@@ -166,7 +175,7 @@
             </div>
           </a>
 
-          <a href="admin/scholarships.html?action=create"
+          <a href="/admin/scholarships-management.html?action=create"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
             <div class="flex items-center gap-4">
               <div
