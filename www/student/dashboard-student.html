@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - Digital Scholarship Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+  <!-- Student Navigation -->
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">Student Portal</h1>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="/student/dashboard-student.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            Dashboard
+          </a>
+          <a href="/student/scholarships.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            Scholarships
+          </a>
+          <a href="/student/my-applications.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            My Applications
+          </a>
+          <a href="/student/profile.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="user" class="w-4 h-4"></i>
+            Profile
+          </a>
+          <a href="/student/notifications.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span id="notificationBadge"
+              class="hidden absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full w-2 h-2"></span>
+          </a>
+          <button id="logoutBtn"
+            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen">
+    <!-- Welcome Header -->
+    <section class="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 bg-primary-foreground/10 rounded-full flex items-center justify-center">
+            <i data-lucide="user-circle" class="w-10 h-10"></i>
+          </div>
+          <div>
+            <h2 class="text-3xl font-bold" id="welcomeMessage">Welcome back!</h2>
+            <p class="text-primary-foreground/80 mt-1">Manage your scholarship applications and discover new
+              opportunities</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard Content -->
+    <section class="py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          <div class="bg-card rounded-xl border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="award" class="w-5 h-5 text-primary"></i>
+              </div>
+              <h3 class="font-semibold text-muted-foreground text-sm">Available</h3>
+            </div>
+            <p class="text-3xl font-bold" id="availableCount">-</p>
+          </div>
+
+          <div class="bg-card rounded-xl border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="send" class="w-5 h-5 text-success"></i>
+              </div>
+              <h3 class="font-semibold text-muted-foreground text-sm">Submitted</h3>
+            </div>
+            <p class="text-3xl font-bold" id="submittedCount">-</p>
+          </div>
+
+          <div class="bg-card rounded-xl border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="clock" class="w-5 h-5 text-yellow-600"></i>
+              </div>
+              <h3 class="font-semibold text-muted-foreground text-sm">Pending</h3>
+            </div>
+            <p class="text-3xl font-bold" id="pendingCount">-</p>
+          </div>
+
+          <div class="bg-card rounded-xl border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-5 h-5 text-success"></i>
+              </div>
+              <h3 class="font-semibold text-muted-foreground text-sm">Approved</h3>
+            </div>
+            <p class="text-3xl font-bold" id="approvedCount">-</p>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <a href="/student/scholarships.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <i data-lucide="search" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg mb-1">Browse Scholarships</h3>
+                <p class="text-sm text-muted-foreground">Find opportunities that match your profile</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/student/my-applications.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <i data-lucide="file-text" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg mb-1">My Applications</h3>
+                <p class="text-sm text-muted-foreground">Track your submission status</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/student/profile.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <i data-lucide="user-cog" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg mb-1">Update Profile</h3>
+                <p class="text-sm text-muted-foreground">Keep your information current</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="bg-card rounded-xl border border-border p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold">Recent Applications</h3>
+            <a href="/student/my-applications.html" class="text-primary hover:underline text-sm font-medium">View
+              All</a>
+          </div>
+          <div id="recentApplications">
+            <div class="flex items-center justify-center py-8">
+              <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-muted-foreground"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+    // TESTING MODE: Auth check disabled
+    // if (!token || user.role !== 'Student') {
+    //   window.location.href = '/login.html';
+    // }
+
+    document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.username || 'Student'}!`;
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    async function loadDashboardData() {
+      try {
+        const [appsResponse, scholarshipsResponse] = await Promise.all([
+          fetch('/api/applications', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch('/api/scholarships')
+        ]);
+
+        const appsData = await appsResponse.json();
+        const scholarshipsData = await scholarshipsResponse.json();
+
+        // Update stats
+        document.getElementById('availableCount').textContent = scholarshipsData.scholarships?.length || 0;
+        document.getElementById('submittedCount').textContent = appsData.applications?.length || 0;
+        document.getElementById('pendingCount').textContent = appsData.applications?.filter(a => a.status === 'Pending').length || 0;
+        document.getElementById('approvedCount').textContent = appsData.applications?.filter(a => a.status === 'Approved').length || 0;
+
+        // Display recent applications
+        const recentApps = appsData.applications?.slice(0, 5) || [];
+        const recentApplicationsDiv = document.getElementById('recentApplications');
+
+        if (recentApps.length > 0) {
+          recentApplicationsDiv.innerHTML = `
+            <div class="space-y-4">
+              ${recentApps.map(app => `
+                <div class="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <i data-lucide="award" class="w-5 h-5 text-primary"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold">${app.scholarship_title}</h4>
+                      <p class="text-sm text-muted-foreground">Submitted ${new Date(app.submissiondate).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Approved' ? 'bg-success/10 text-success' :
+              app.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
+                app.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
+                  'bg-muted text-muted-foreground'
+            }">${app.status}</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          recentApplicationsDiv.innerHTML = `
+            <div class="text-center py-8 text-muted-foreground">
+              <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>
+              <p>No applications yet. Browse scholarships to get started!</p>
+            </div>
+          `;
+        }
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error('[v0] Dashboard load error:', error);
+      }
+    }
+
+    loadDashboardData();
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

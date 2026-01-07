@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Application - Digital Scholarship Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans antialiased bg-muted/30">
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-2">
+          <i data-lucide="clipboard-check" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">Reviewer Portal</h1>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="reviewer/dashboard.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            Dashboard
+          </a>
+          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-6">
+        <a href="reviewer/assignments.html" class="inline-flex items-center gap-2 text-primary hover:underline">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          Back to Assignments
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Application Details -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Student Info -->
+          <div class="bg-card rounded-xl border border-border p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="user" class="w-5 h-5"></i>
+              Applicant Information
+            </h3>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div><span class="text-muted-foreground">Name:</span> <span class="font-medium">John Smith</span></div>
+              <div><span class="text-muted-foreground">Email:</span> <span class="font-medium">john.smith@email.com</span></div>
+              <div><span class="text-muted-foreground">Student ID:</span> <span class="font-medium">STU12345</span></div>
+              <div><span class="text-muted-foreground">GPA:</span> <span class="font-medium">3.85</span></div>
+              <div><span class="text-muted-foreground">Major:</span> <span class="font-medium">Computer Science</span></div>
+              <div><span class="text-muted-foreground">Year:</span> <span class="font-medium">Year 3</span></div>
+            </div>
+          </div>
+
+          <!-- Personal Statement -->
+          <div class="bg-card rounded-xl border border-border p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="file-text" class="w-5 h-5"></i>
+              Personal Statement
+            </h3>
+            <p class="text-sm text-muted-foreground leading-relaxed">
+              I am writing to express my strong interest in the Merit Award 2024 scholarship. Throughout my academic journey, I have demonstrated exceptional dedication to my studies while maintaining a GPA of 3.85. Beyond academics, I have actively participated in community service projects...
+            </p>
+          </div>
+
+          <!-- Documents -->
+          <div class="bg-card rounded-xl border border-border p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="paperclip" class="w-5 h-5"></i>
+              Supporting Documents
+            </h3>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+                  <span class="text-sm font-medium">Academic_Transcript.pdf</span>
+                </div>
+                <button class="px-3 py-1 bg-secondary text-secondary-foreground rounded text-sm hover:bg-secondary/80">
+                  View
+                </button>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="file-signature" class="w-5 h-5 text-primary"></i>
+                  <span class="text-sm font-medium">Recommendation_Letter.pdf</span>
+                </div>
+                <button class="px-3 py-1 bg-secondary text-secondary-foreground rounded text-sm hover:bg-secondary/80">
+                  View
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evaluation Form -->
+        <div class="lg:col-span-1">
+          <div class="bg-card rounded-xl border border-border p-6 sticky top-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+              Evaluation Form
+            </h3>
+
+            <form id="evaluationForm" class="space-y-6">
+              <!-- Academic Excellence -->
+              <div>
+                <label class="block text-sm font-medium mb-2">Academic Excellence (0-25)</label>
+                <input type="number" id="academicScore" min="0" max="25" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+
+              <!-- Leadership -->
+              <div>
+                <label class="block text-sm font-medium mb-2">Leadership (0-25)</label>
+                <input type="number" id="leadershipScore" min="0" max="25" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+
+              <!-- Community Service -->
+              <div>
+                <label class="block text-sm font-medium mb-2">Community Service (0-25)</label>
+                <input type="number" id="communityScore" min="0" max="25" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+
+              <!-- Personal Statement -->
+              <div>
+                <label class="block text-sm font-medium mb-2">Personal Statement (0-25)</label>
+                <input type="number" id="statementScore" min="0" max="25" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+
+              <!-- Total Score -->
+              <div class="bg-primary/5 rounded-lg p-4">
+                <div class="flex justify-between items-center">
+                  <span class="font-medium">Total Score:</span>
+                  <span id="totalScore" class="text-2xl font-bold text-primary">0</span>
+                  <span class="text-muted-foreground">/ 100</span>
+                </div>
+              </div>
+
+              <!-- Comments -->
+              <div>
+                <label class="block text-sm font-medium mb-2">Comments *</label>
+                <textarea id="comments" rows="4" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="Provide detailed feedback..."></textarea>
+              </div>
+
+              <!-- Recommendation -->
+              <div>
+                <label class="block text-sm font-medium mb-2">Recommendation *</label>
+                <select id="recommendation" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                  <option value="">Select Recommendation</option>
+                  <option value="Highly Recommend">Highly Recommend</option>
+                  <option value="Recommend">Recommend</option>
+                  <option value="Conditional">Conditional</option>
+                  <option value="Not Recommend">Not Recommend</option>
+                </select>
+              </div>
+
+              <div id="formSuccess" class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2" style="display: none;">
+                <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
+                <span>Evaluation saved successfully!</span>
+              </div>
+
+              <div class="space-y-2">
+                <button type="button" id="saveDraftBtn" class="w-full px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium">
+                  Save Draft
+                </button>
+                <button type="submit" class="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                  Submit Evaluation
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+    // TESTING MODE: Auth check disabled
+    // if (!token || user.role !== 'Reviewer') {
+    //   window.location.href = '/login.html';
+    // }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    // Calculate total score
+    const scoreInputs = ['academicScore', 'leadershipScore', 'communityScore', 'statementScore'];
+    scoreInputs.forEach(id => {
+      document.getElementById(id).addEventListener('input', calculateTotal);
+    });
+
+    function calculateTotal() {
+      const total = scoreInputs.reduce((sum, id) => {
+        return sum + (parseInt(document.getElementById(id).value) || 0);
+      }, 0);
+      document.getElementById('totalScore').textContent = total;
+    }
+
+    document.getElementById('saveDraftBtn').addEventListener('click', () => {
+      alert('Draft saved successfully!');
+    });
+
+    document.getElementById('evaluationForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const evaluation = {
+        academicScore: document.getElementById('academicScore').value,
+        leadershipScore: document.getElementById('leadershipScore').value,
+        communityScore: document.getElementById('communityScore').value,
+        statementScore: document.getElementById('statementScore').value,
+        comments: document.getElementById('comments').value,
+        recommendation: document.getElementById('recommendation').value,
+      };
+
+      console.log('[v0] Submitting evaluation:', evaluation);
+      
+      document.getElementById('formSuccess').style.display = 'flex';
+      lucide.createIcons();
+      
+      setTimeout(() => {
+        window.location.href = '/reviewer/assignments.html';
+      }, 2000);
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
+

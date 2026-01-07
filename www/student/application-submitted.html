@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Submitted - Digital Scholarship Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans antialiased bg-muted/30">
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">Student Portal</h1>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen flex items-center justify-center py-12">
+    <div class="max-w-2xl w-full mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-card rounded-xl border border-border p-12 text-center">
+        <!-- Success Icon -->
+        <div class="flex justify-center mb-6">
+          <div class="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center">
+            <i data-lucide="check-circle" class="w-12 h-12 text-success"></i>
+          </div>
+        </div>
+
+        <!-- Success Message -->
+        <h2 class="text-3xl font-bold mb-4">Application Submitted Successfully!</h2>
+        <p class="text-muted-foreground mb-6">
+          Your scholarship application has been received and is now under review.
+        </p>
+
+        <!-- Application ID -->
+        <div class="bg-muted/50 rounded-lg p-4 mb-6">
+          <p class="text-sm text-muted-foreground mb-1">Application ID</p>
+          <p id="applicationId" class="text-2xl font-bold text-primary">...</p>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="bg-primary/5 rounded-lg p-6 mb-8 text-left">
+          <h3 class="font-bold mb-3 flex items-center gap-2">
+            <i data-lucide="info" class="w-5 h-5"></i>
+            What Happens Next?
+          </h3>
+          <ul class="space-y-2 text-sm text-muted-foreground">
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-success mt-0.5 flex-shrink-0"></i>
+              <span>Your application will be reviewed by our scholarship committee</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-success mt-0.5 flex-shrink-0"></i>
+              <span>You will receive email notifications about your application status</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-success mt-0.5 flex-shrink-0"></i>
+              <span>The review process typically takes 2-4 weeks</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-success mt-0.5 flex-shrink-0"></i>
+              <span>You can track your application status in your dashboard</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-4 justify-center">
+          <a href="student/my-applications.html" 
+            class="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium flex items-center gap-2">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+            View My Applications
+          </a>
+          <a href="student/dashboard.html" 
+            class="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium flex items-center gap-2">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            Go to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const applicationId = urlParams.get('id');
+
+    if (applicationId) {
+      document.getElementById('applicationId').textContent = `#${applicationId}`;
+    }
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
+

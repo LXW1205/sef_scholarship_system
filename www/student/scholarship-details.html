@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholarship Details - Digital Scholarship Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans antialiased bg-muted/30">
+  <!-- Navigation -->
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">Student Portal</h1>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="student/dashboard.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            Dashboard
+          </a>
+          <a href="student/scholarships.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            Scholarships
+          </a>
+          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Back Button -->
+      <div class="mb-6">
+        <a href="student/scholarships.html" class="inline-flex items-center gap-2 text-primary hover:underline">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          Back to Scholarships
+        </a>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="flex items-center justify-center py-12">
+        <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-muted-foreground"></i>
+      </div>
+
+      <!-- Scholarship Details -->
+      <div id="scholarshipDetails" style="display: none;">
+        <!-- Header Card -->
+        <div class="bg-card rounded-xl border border-border p-8 mb-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="award" class="w-8 h-8 text-primary"></i>
+              </div>
+              <div>
+                <h2 id="scholarshipTitle" class="text-3xl font-bold mb-2"></h2>
+                <span id="statusBadge" class="px-3 py-1 text-sm font-medium rounded-full"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Info Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="coins" class="w-5 h-5 text-success"></i>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Amount</p>
+                <p id="scholarshipAmount" class="text-xl font-bold text-success"></p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="calendar" class="w-5 h-5 text-primary"></i>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Deadline</p>
+                <p id="scholarshipDeadline" class="text-xl font-bold"></p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="users" class="w-5 h-5 text-primary"></i>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Applicants</p>
+                <p id="applicantCount" class="text-xl font-bold"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details Tabs -->
+        <div class="bg-card rounded-xl border border-border p-6 mb-6">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+            Description
+          </h3>
+          <p id="scholarshipDescription" class="text-muted-foreground leading-relaxed"></p>
+        </div>
+
+        <!-- Eligibility Criteria -->
+        <div class="bg-card rounded-xl border border-border p-6 mb-6">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-5 h-5"></i>
+            Eligibility Criteria
+          </h3>
+          <div id="eligibilityCriteria" class="text-muted-foreground"></div>
+        </div>
+
+        <!-- Apply Section -->
+        <div class="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-xl p-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold mb-2">Ready to Apply?</h3>
+              <p class="text-primary-foreground/80">Submit your application before the deadline</p>
+            </div>
+            <button id="applyButton" class="px-8 py-3 bg-card text-foreground rounded-lg hover:bg-card/90 transition-colors font-medium flex items-center gap-2">
+              <i data-lucide="send" class="w-5 h-5"></i>
+              Apply Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+    // TESTING MODE: Auth check disabled
+    // if (!token || user.role !== 'Student') {
+    //   window.location.href = '/login.html';
+    // }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const scholarshipId = urlParams.get('id');
+
+    async function loadScholarshipDetails() {
+      try {
+        const response = await fetch(`/api/scholarships/${scholarshipId}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          const scholarship = data.scholarship;
+          
+          document.getElementById('scholarshipTitle').textContent = scholarship.title;
+          document.getElementById('scholarshipAmount').textContent = `$${scholarship.amount?.toLocaleString() || 'N/A'}`;
+          document.getElementById('scholarshipDeadline').textContent = scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'N/A';
+          document.getElementById('applicantCount').textContent = scholarship.applicant_count || '0';
+          document.getElementById('scholarshipDescription').textContent = scholarship.description || 'No description available';
+          
+          const statusBadge = document.getElementById('statusBadge');
+          statusBadge.textContent = scholarship.status;
+          statusBadge.className = `px-3 py-1 text-sm font-medium rounded-full ${
+            scholarship.status === 'Open' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
+          }`;
+
+          // Display eligibility criteria
+          const eligibilityDiv = document.getElementById('eligibilityCriteria');
+          if (scholarship.eligibilitycriteria) {
+            eligibilityDiv.innerHTML = `<p class="leading-relaxed">${scholarship.eligibilitycriteria}</p>`;
+          } else {
+            eligibilityDiv.innerHTML = '<p class="text-muted-foreground">No specific criteria listed</p>';
+          }
+
+          document.getElementById('loadingState').style.display = 'none';
+          document.getElementById('scholarshipDetails').style.display = 'block';
+          
+          lucide.createIcons();
+        } else {
+          throw new Error('Failed to load scholarship details');
+        }
+      } catch (error) {
+        console.error('[v0] Load scholarship error:', error);
+        document.getElementById('loadingState').innerHTML = `
+          <div class="text-center text-destructive">
+            <p>Failed to load scholarship details</p>
+            <a href="student/scholarships.html" class="text-primary hover:underline mt-4 inline-block">Back to Scholarships</a>
+          </div>
+        `;
+      }
+    }
+
+    document.getElementById('applyButton').addEventListener('click', () => {
+      window.location.href = `/student/application-form.html?id=${scholarshipId}`;
+    });
+
+    loadScholarshipDetails();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
+

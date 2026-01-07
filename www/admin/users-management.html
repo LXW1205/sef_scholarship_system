@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management - Digital Scholarship Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+  <!-- Admin Navigation -->
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">Admin Portal</h1>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="/admin/dashboard-admin.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            Dashboard
+          </a>
+          <a href="/admin/users-management.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1 font-semibold">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Users
+          </a>
+          <a href="/admin/scholarships-management.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            Scholarships
+          </a>
+          <button id="logoutBtn"
+            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Page Header -->
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h2 class="text-3xl font-bold mb-2">User Management</h2>
+          <p class="text-muted-foreground">Manage system users, reviewers, and committee members</p>
+        </div>
+        <button id="addUserBtn"
+          class="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-medium">
+          <i data-lucide="user-plus" class="w-5 h-5"></i>
+          Add New User
+        </button>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="bg-card rounded-xl border border-border p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="search" class="w-5 h-5 text-muted-foreground"></i>
+              </div>
+              <input type="text" id="searchInput" placeholder="Search by name, email, or username..."
+                class="w-full pl-10 pr-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+          </div>
+          <div>
+            <select id="roleFilter"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              <option value="">All Roles</option>
+              <option value="Student">Student</option>
+              <option value="Reviewer">Reviewer</option>
+              <option value="Committee">Committee</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="bg-card rounded-xl border border-border overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-muted/50 border-b border-border">
+              <tr>
+                <th class="px-6 py-4 text-left text-sm font-semibold">User</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold">Role</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody" class="divide-y divide-border">
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center">
+                  <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-muted-foreground mx-auto"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add/Edit User Modal -->
+  <div id="userModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style="display: none;">
+    <div class="bg-card rounded-xl border border-border p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold" id="modalTitle">Add New User</h3>
+        <button id="closeModalBtn" class="text-muted-foreground hover:text-foreground">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <form id="userForm" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="fullName" class="block text-sm font-medium mb-2">Full Name *</label>
+            <input type="text" id="fullName" required
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label for="username" class="block text-sm font-medium mb-2">Username *</label>
+            <input type="text" id="username" required
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium mb-2">Email *</label>
+            <input type="email" id="email" required
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label for="role" class="block text-sm font-medium mb-2">Role *</label>
+            <select id="role" required
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              <option value="">Select Role</option>
+              <option value="Reviewer">Reviewer</option>
+              <option value="CommitteeMember">Committee Member</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div>
+            <label for="password" class="block text-sm font-medium mb-2">Password *</label>
+            <input type="password" id="password" required minlength="8"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label for="department" class="block text-sm font-medium mb-2">Department</label>
+            <input type="text" id="department"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+        </div>
+
+        <div id="formError"
+          class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm flex items-center gap-2"
+          style="display: none;">
+          <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+          <span id="formErrorText"></span>
+        </div>
+
+        <div id="formSuccess"
+          class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2"
+          style="display: none;">
+          <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
+          <span id="formSuccessText"></span>
+        </div>
+
+        <div class="flex gap-4">
+          <button type="button" id="cancelBtn"
+            class="flex-1 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium">
+            Cancel
+          </button>
+          <button type="submit" id="submitBtn"
+            class="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
+            Create User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+    // TESTING MODE: Auth check disabled
+    // if (!token || user.role !== 'Admin') {
+    //   window.location.href = '/login.html';
+    // }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/users', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        renderUsers(data.users || []);
+      } catch (error) {
+        console.error('[v0] Load users error:', error);
+        document.getElementById('usersTableBody').innerHTML = `
+          <tr><td colspan="5" class="px-6 py-8 text-center text-destructive">Failed to load users</td></tr>
+        `;
+      }
+    }
+
+    function renderUsers(users) {
+      const tbody = document.getElementById('usersTableBody');
+
+      if (users.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-muted-foreground">
+              No users found
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = users.map(u => `
+        <tr class="hover:bg-muted/30 transition-colors">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <i data-lucide="user" class="w-5 h-5 text-primary"></i>
+              </div>
+              <div>
+                <p class="font-medium">${u.name}</p>
+                <p class="text-sm text-muted-foreground">@${u.username}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-muted-foreground">${u.email}</td>
+          <td class="px-6 py-4">
+            <span class="px-3 py-1 text-xs font-medium rounded-full ${u.role === 'Admin' ? 'bg-purple-500/10 text-purple-600' :
+          u.role === 'Reviewer' ? 'bg-blue-500/10 text-blue-600' :
+            u.role === 'Committee' ? 'bg-green-500/10 text-green-600' :
+              'bg-muted text-muted-foreground'
+        }">${u.role}</span>
+          </td>
+          <td class="px-6 py-4">
+            <span class="px-3 py-1 text-xs font-medium rounded-full ${u.isActive ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
+        }">${u.isActive ? 'Active' : 'Inactive'}</span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <button onclick="editUser(${u.id})" class="p-2 hover:bg-muted rounded-lg transition-colors" title="Edit">
+                <i data-lucide="edit" class="w-4 h-4"></i>
+              </button>
+              <button onclick="toggleUserStatus(${u.id})" class="p-2 hover:bg-muted rounded-lg transition-colors" title="${u.isActive ? 'Disable' : 'Enable'}">
+                <i data-lucide="${u.isActive ? 'user-x' : 'user-check'}" class="w-4 h-4"></i>
+              </button>
+              <button onclick="resetPassword(${u.id})" class="p-2 hover:bg-muted rounded-lg transition-colors" title="Reset Password">
+                <i data-lucide="key" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      lucide.createIcons();
+    } // end renderUsers
+
+    // loadUsers called at bottom instead of renderUsers(mockUsers)
+
+    // Modal handling
+    const modal = document.getElementById('userModal');
+    document.getElementById('addUserBtn').addEventListener('click', () => {
+      modal.style.display = 'flex';
+      lucide.createIcons();
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    // Form submission
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        fullName: document.getElementById('fullName').value,
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        role: document.getElementById('role').value,
+        password: document.getElementById('password').value,
+        department: document.getElementById('department').value,
+      };
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById('formSuccessText').textContent = 'User created successfully!';
+          document.getElementById('formSuccess').style.display = 'flex';
+          lucide.createIcons();
+
+          setTimeout(() => {
+            modal.style.display = 'none';
+            location.reload();
+          }, 2000);
+        } else {
+          document.getElementById('formErrorText').textContent = data.error || 'Failed to create user';
+          document.getElementById('formError').style.display = 'flex';
+          lucide.createIcons();
+        }
+      } catch (error) {
+        console.error('[v0] Create user error:', error);
+        document.getElementById('formErrorText').textContent = 'An error occurred';
+        document.getElementById('formError').style.display = 'flex';
+        lucide.createIcons();
+      }
+    });
+
+    window.editUser = function (id) {
+      alert('Edit user functionality - ID: ' + id);
+    };
+
+    window.toggleUserStatus = function (id) {
+      if (confirm('Are you sure you want to change this user\'s status?')) {
+        alert('Toggle status - ID: ' + id);
+      }
+    };
+
+    window.resetPassword = function (id) {
+      if (confirm('Send password reset link to this user?')) {
+        alert('Password reset sent - ID: ' + id);
+      }
+    };
+
+    loadUsers();
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

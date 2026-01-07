@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholarship Management - Digital Scholarship Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+  <!-- Admin Navigation -->
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">Admin Portal</h1>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="/admin/dashboard-admin.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            Dashboard
+          </a>
+          <a href="/admin/users-management.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Users
+          </a>
+          <a href="/admin/scholarships-management.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1 font-semibold">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            Scholarships
+          </a>
+          <button id="logoutBtn"
+            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Page Header -->
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h2 class="text-3xl font-bold mb-2">Scholarship Management</h2>
+          <p class="text-muted-foreground">Create and manage scholarship opportunities</p>
+        </div>
+        <button id="createScholarshipBtn"
+          class="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-medium">
+          <i data-lucide="plus-circle" class="w-5 h-5"></i>
+          Create Scholarship
+        </button>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="bg-card rounded-xl border border-border p-4 mb-6">
+        <div class="flex items-center gap-4">
+          <label class="text-sm font-medium">Filter by Status:</label>
+          <select id="statusFilter"
+            class="px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <option value="">All Scholarships</option>
+            <option value="Open">Open</option>
+            <option value="Closed">Closed</option>
+            <option value="Draft">Draft</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Scholarships Grid -->
+      <div id="scholarshipsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="col-span-full flex items-center justify-center py-12">
+          <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-muted-foreground"></i>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create/Edit Scholarship Modal -->
+  <div id="scholarshipModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4"
+    style="display: none;">
+    <div class="bg-card rounded-xl border border-border p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold">Create New Scholarship</h3>
+        <button id="closeModalBtn" class="text-muted-foreground hover:text-foreground">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <form id="scholarshipForm" class="space-y-6">
+        <div>
+          <label for="title" class="block text-sm font-medium mb-2">Scholarship Title *</label>
+          <input type="text" id="title" required
+            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+        </div>
+
+        <div>
+          <label for="description" class="block text-sm font-medium mb-2">Description *</label>
+          <textarea id="description" rows="4" required
+            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="amount" class="block text-sm font-medium mb-2">Amount ($) *</label>
+            <input type="number" id="amount" required min="0" step="100"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label for="deadline" class="block text-sm font-medium mb-2">Deadline *</label>
+            <input type="date" id="deadline" required
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+        </div>
+
+        <div>
+          <label for="eligibility" class="block text-sm font-medium mb-2">Eligibility Criteria *</label>
+          <textarea id="eligibility" rows="3" required
+            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="e.g., Minimum GPA 3.0, Full-time student, etc."></textarea>
+        </div>
+
+        <div>
+          <label for="status" class="block text-sm font-medium mb-2">Status *</label>
+          <select id="status" required
+            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <option value="Draft">Save as Draft</option>
+            <option value="Open">Publish (Open for Applications)</option>
+          </select>
+        </div>
+
+        <div id="formError"
+          class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm flex items-center gap-2"
+          style="display: none;">
+          <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+          <span id="formErrorText"></span>
+        </div>
+
+        <div id="formSuccess"
+          class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2"
+          style="display: none;">
+          <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
+          <span>Scholarship created successfully!</span>
+        </div>
+
+        <div class="flex gap-4">
+          <button type="button" id="cancelBtn"
+            class="flex-1 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium">
+            Cancel
+          </button>
+          <button type="submit" id="submitBtn"
+            class="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
+            Create Scholarship
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+    // TESTING MODE: Auth check disabled
+    // if (!token || user.role !== 'Admin') {
+    //   window.location.href = '/login.html';
+    // }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    let allScholarships = [];
+
+    async function loadScholarships() {
+      try {
+        const response = await fetch('/api/scholarships');
+        const data = await response.json();
+
+        allScholarships = data.scholarships || [];
+        displayScholarships(allScholarships);
+      } catch (error) {
+        console.error('[v0] Load scholarships error:', error);
+      }
+    }
+
+    function displayScholarships(scholarships) {
+      const grid = document.getElementById('scholarshipsGrid');
+
+      if (scholarships.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50"></i>
+            <p class="text-muted-foreground">No scholarships found</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = scholarships.map(s => `
+        <div class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+              <i data-lucide="award" class="w-6 h-6 text-primary"></i>
+            </div>
+            <span class="px-3 py-1 text-xs font-medium rounded-full ${s.status === 'Open' ? 'bg-success/10 text-success' :
+          s.status === 'Closed' ? 'bg-muted text-muted-foreground' :
+            'bg-yellow-500/10 text-yellow-600'
+        }">${s.status}</span>
+          </div>
+          <h3 class="text-xl font-bold mb-2">${s.title}</h3>
+          <p class="text-muted-foreground text-sm mb-4 line-clamp-2">${s.description}</p>
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center gap-2 text-sm">
+              <i data-lucide="coins" class="w-4 h-4 text-muted-foreground"></i>
+              <span class="font-semibold text-success">$${s.amount?.toLocaleString() || 'N/A'}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>Deadline: ${s.deadline ? new Date(s.deadline).toLocaleDateString() : 'N/A'}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+              <i data-lucide="users" class="w-4 h-4"></i>
+              <span>${s.applicant_count || 0} Applications</span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editScholarship(${s.scholarshipid})" class="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center justify-center gap-1">
+              <i data-lucide="edit" class="w-4 h-4"></i>
+              Edit
+            </button>
+            <button onclick="toggleScholarshipStatus(${s.scholarshipid}, '${s.status}')" class="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-1">
+              <i data-lucide="${s.status === 'Open' ? 'x-circle' : 'check-circle'}" class="w-4 h-4"></i>
+              ${s.status === 'Open' ? 'Close' : 'Open'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // Modal handling
+    const modal = document.getElementById('scholarshipModal');
+    document.getElementById('createScholarshipBtn').addEventListener('click', () => {
+      modal.style.display = 'flex';
+      lucide.createIcons();
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    // Form submission
+    document.getElementById('scholarshipForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        amount: parseFloat(document.getElementById('amount').value),
+        deadline: document.getElementById('deadline').value,
+        eligibilityCriteria: document.getElementById('eligibility').value,
+        status: document.getElementById('status').value,
+      };
+
+      // Mock API call
+      console.log('[v0] Creating scholarship:', formData);
+      document.getElementById('formSuccess').style.display = 'flex';
+      lucide.createIcons();
+
+      setTimeout(() => {
+        modal.style.display = 'none';
+        location.reload();
+      }, 2000);
+    });
+
+    document.getElementById('statusFilter').addEventListener('change', (e) => {
+      const filter = e.target.value;
+      const filtered = filter ? allScholarships.filter(s => s.status === filter) : allScholarships;
+      displayScholarships(filtered);
+    });
+
+    window.editScholarship = function (id) {
+      alert('Edit scholarship - ID: ' + id);
+    };
+
+    window.toggleScholarshipStatus = function (id, currentStatus) {
+      const newStatus = currentStatus === 'Open' ? 'Closed' : 'Open';
+      if (confirm(`Are you sure you want to ${newStatus.toLowerCase()} this scholarship?`)) {
+        alert(`Status changed to ${newStatus} - ID: ` + id);
+      }
+    };
+
+    loadScholarships();
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

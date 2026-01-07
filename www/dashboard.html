@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Digital Scholarship Portal</title>
+  <!-- Using Tailwind CDN instead of Next.js CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Added Lucide icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans antialiased">
+  <!-- Navigation with Tailwind styling -->
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <h1 class="text-xl font-bold">Digital Scholarship Portal</h1>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="index.html" class="hover:text-muted-foreground transition-colors">Home</a>
+          <a href="scholarships.html" class="hover:text-muted-foreground transition-colors">Scholarships</a>
+          <a href="dashboard.html" class="hover:text-muted-foreground transition-colors">Dashboard</a>
+          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Page header with personalized welcome -->
+    <section class="bg-muted/50 border-b border-border py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Added icon to the header -->
+        <div class="flex items-center gap-4 mb-4">
+          <i data-lucide="layout-dashboard" class="w-10 h-10 text-primary"></i>
+          <h2 class="text-3xl lg:text-4xl font-bold">My Dashboard</h2>
+        </div>
+        <p id="welcomeMessage" class="text-lg text-muted-foreground">Welcome back!</p>
+      </div>
+    </section>
+
+    <!-- Dashboard content with table styling -->
+    <section class="py-12 bg-background">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h3 class="text-2xl font-bold mb-6">My Applications</h3>
+        <div id="loadingMessage" class="text-center text-muted-foreground py-8">Loading your applications...</div>
+        <div id="applicationsList"></div>
+        <div id="errorMessage" class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center" style="display: none;"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Check authentication
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!token) {
+      window.location.href = '/login.html';
+    }
+
+    document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.username || 'User'}!`;
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/index.html';
+    });
+
+    async function loadApplications() {
+      const loadingMessage = document.getElementById('loadingMessage');
+      const applicationsList = document.getElementById('applicationsList');
+      const errorMessage = document.getElementById('errorMessage');
+
+      try {
+        const response = await fetch('/api/applications', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+        loadingMessage.style.display = 'none';
+
+        if (response.ok) {
+          if (data.applications.length > 0) {
+            applicationsList.innerHTML = `
+              <div class="bg-card rounded-xl border border-border overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead class="bg-muted/50 border-b border-border">
+                      <tr>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Scholarship</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Submission Date</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Deadline</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                      ${data.applications.map(app => `
+                        <tr class="hover:bg-muted/30 transition-colors">
+                          <td class="px-6 py-4 font-medium">${app.scholarship_title}</td>
+                          <td class="px-6 py-4 text-muted-foreground">${new Date(app.submissiondate).toLocaleDateString()}</td>
+                          <td class="px-6 py-4">
+                            <span class="px-3 py-1 text-xs font-medium rounded-full ${
+                              app.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                              app.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                              app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }">${app.status}</span>
+                          </td>
+                          <td class="px-6 py-4 text-muted-foreground">${app.deadline ? new Date(app.deadline).toLocaleDateString() : 'N/A'}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            `;
+          } else {
+            applicationsList.innerHTML = `
+              <div class="text-center py-12 bg-card rounded-xl border border-border">
+                <p class="text-muted-foreground mb-4">You haven't submitted any applications yet.</p>
+                <a href="scholarships.html" class="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">Browse Scholarships</a>
+              </div>
+            `;
+          }
+        } else {
+          errorMessage.textContent = data.error || 'Failed to load applications';
+          errorMessage.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('[v0] Load applications error:', error);
+        loadingMessage.style.display = 'none';
+        errorMessage.textContent = 'An error occurred. Please try again.';
+        errorMessage.style.display = 'block';
+      }
+    }
+
+    loadApplications();
+  </script>
+  <!-- Initialize Lucide icons -->
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
+

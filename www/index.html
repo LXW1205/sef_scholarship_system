@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Scholarship Portal</title>
+  <!-- Using Tailwind CDN for static HTML -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Added Lucide icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            accent: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans antialiased">
+  <!-- Replaced custom CSS with Tailwind utility classes -->
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <h1 class="text-xl font-bold">Digital Scholarship Portal</h1>
+        </div>
+        <div class="flex items-center gap-6" id="navLinks">
+          <a href="index.html" class="hover:text-muted-foreground transition-colors">Home</a>
+          <a href="scholarships.html" class="hover:text-muted-foreground transition-colors">Scholarships</a>
+          <a href="login.html" id="loginLink" class="hover:text-muted-foreground transition-colors">Login</a>
+          <a href="register.html" id="registerLink" class="hover:text-muted-foreground transition-colors">Register</a>
+          <a href="dashboard.html" id="dashboardLink" style="display: none;" class="hover:text-muted-foreground transition-colors">Dashboard</a>
+          <button id="logoutBtn" style="display: none;" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero section with Tailwind gradient and modern styling -->
+    <section class="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-20 lg:py-32">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <h2 class="text-4xl lg:text-6xl font-bold mb-6 text-balance">Find Your Future</h2>
+          <p class="text-xl lg:text-2xl mb-8 text-primary-foreground/90 leading-relaxed">Discover scholarship opportunities to support your academic journey</p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="scholarships.html" class="px-8 py-3 bg-background text-foreground rounded-lg hover:bg-background/90 transition-colors font-medium">Browse Scholarships</a>
+            <a href="register.html" class="px-8 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors font-medium">Get Started</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features grid with card components -->
+    <section class="py-16 lg:py-24 bg-muted/30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h3 class="text-3xl lg:text-4xl font-bold text-center mb-12">Why Choose Our Portal?</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Replaced emojis with Lucide icons -->
+          <div class="bg-card text-card-foreground p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
+            <i data-lucide="graduation-cap" class="w-12 h-12 text-primary mb-4"></i>
+            <h4 class="text-xl font-semibold mb-2">Easy Application</h4>
+            <p class="text-muted-foreground leading-relaxed">Submit applications to multiple scholarships with a streamlined process</p>
+          </div>
+          <div class="bg-card text-card-foreground p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
+            <i data-lucide="bar-chart-3" class="w-12 h-12 text-primary mb-4"></i>
+            <h4 class="text-xl font-semibold mb-2">Track Progress</h4>
+            <p class="text-muted-foreground leading-relaxed">Monitor your application status in real-time</p>
+          </div>
+          <div class="bg-card text-card-foreground p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
+            <i data-lucide="coins" class="w-12 h-12 text-primary mb-4"></i>
+            <h4 class="text-xl font-semibold mb-2">Multiple Opportunities</h4>
+            <p class="text-muted-foreground leading-relaxed">Access a wide range of scholarship programs</p>
+          </div>
+          <div class="bg-card text-card-foreground p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
+            <i data-lucide="bell" class="w-12 h-12 text-primary mb-4"></i>
+            <h4 class="text-xl font-semibold mb-2">Stay Updated</h4>
+            <p class="text-muted-foreground leading-relaxed">Get notifications about deadlines and application updates</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA section with clean styling -->
+    <section class="py-16 lg:py-24 bg-background">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h3 class="text-3xl lg:text-4xl font-bold mb-4">Ready to Apply?</h3>
+        <p class="text-xl text-muted-foreground mb-8 leading-relaxed">Join thousands of students who have found their scholarship opportunities</p>
+        <a href="register.html" class="inline-block px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">Create Account</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-muted/50 border-t border-border py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p class="text-center text-muted-foreground">&copy; 2026 Digital Scholarship Portal. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="auth-check.js"></script>
+  <!-- Initialize Lucide icons -->
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
+

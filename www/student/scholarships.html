@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Scholarships - Digital Scholarship Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+  <!-- Navigation (same as dashboard) -->
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">Student Portal</h1>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="/student/dashboard-student.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            Dashboard
+          </a>
+          <a href="/student/scholarships.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1 font-semibold">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            Scholarships
+          </a>
+          <a href="/student/my-applications.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            My Applications
+          </a>
+          <a href="/student/profile.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="user" class="w-4 h-4"></i>
+            Profile
+          </a>
+          <button id="logoutBtn"
+            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Page Header -->
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h2 class="text-3xl font-bold mb-2">Available Scholarships</h2>
+          <p class="text-muted-foreground">Find scholarships that match your profile and goals</p>
+        </div>
+        <a href="/student/dashboard-student.html"
+          class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-2">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          Back to Dashboard
+        </a>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="bg-card rounded-xl border border-border p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="search" class="w-5 h-5 text-muted-foreground"></i>
+              </div>
+              <input type="text" id="searchInput" placeholder="Search scholarships..."
+                class="w-full pl-10 pr-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+          </div>
+          <div>
+            <select id="statusFilter"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              <option value="">All Statuses</option>
+              <option value="Open">Open</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scholarships Grid -->
+      <div id="scholarshipsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="col-span-full flex items-center justify-center py-12">
+          <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-muted-foreground"></i>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+    // TESTING MODE: Auth check disabled
+    // if (!token || user.role !== 'Student') {
+    //   window.location.href = '/login.html';
+    // }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    let allScholarships = [];
+
+    async function loadScholarships() {
+      try {
+        const response = await fetch('/api/scholarships');
+        const data = await response.json();
+
+        allScholarships = data.scholarships || [];
+        displayScholarships(allScholarships);
+      } catch (error) {
+        console.error('[v0] Load scholarships error:', error);
+        document.getElementById('scholarshipsGrid').innerHTML = `
+          <div class="col-span-full text-center text-destructive py-8">
+            Failed to load scholarships. Please try again.
+          </div>
+        `;
+      }
+    }
+
+    function displayScholarships(scholarships) {
+      const grid = document.getElementById('scholarshipsGrid');
+
+      if (scholarships.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50"></i>
+            <p class="text-muted-foreground">No scholarships found</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = scholarships.map(scholarship => `
+        <div class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+              <i data-lucide="award" class="w-6 h-6 text-primary"></i>
+            </div>
+            <span class="px-3 py-1 text-xs font-medium rounded-full ${scholarship.status === 'Open' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
+        }">${scholarship.status}</span>
+          </div>
+          <h3 class="text-xl font-bold mb-2">${scholarship.title}</h3>
+          <p class="text-muted-foreground text-sm mb-4 line-clamp-3">${scholarship.description}</p>
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center gap-2 text-sm">
+              <i data-lucide="coins" class="w-4 h-4 text-muted-foreground"></i>
+              <span class="font-semibold text-success">$${scholarship.amount?.toLocaleString() || 'N/A'}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>Deadline: ${scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'N/A'}</span>
+            </div>
+          </div>
+          <a href="student/scholarship-details.html?id=${scholarship.scholarshipid}" 
+            class="block w-full px-4 py-2 bg-primary text-primary-foreground text-center rounded-lg hover:bg-primary/90 transition-colors font-medium">
+            View Details
+          </a>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // Search and filter functionality
+    document.getElementById('searchInput').addEventListener('input', filterScholarships);
+    document.getElementById('statusFilter').addEventListener('change', filterScholarships);
+
+    function filterScholarships() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+
+      const filtered = allScholarships.filter(scholarship => {
+        const matchesSearch = scholarship.title.toLowerCase().includes(searchTerm) ||
+          scholarship.description.toLowerCase().includes(searchTerm);
+        const matchesStatus = !statusFilter || scholarship.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+      });
+
+      displayScholarships(filtered);
+    }
+
+    loadScholarships();
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Form - Digital Scholarship Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(214.3 31.8% 91.4%)',
+            input: 'hsl(214.3 31.8% 91.4%)',
+            ring: 'hsl(222.2 84% 4.9%)',
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            primary: {
+              DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            secondary: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+            },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
+            muted: {
+              DEFAULT: 'hsl(210 40% 96.1%)',
+              foreground: 'hsl(215.4 16.3% 46.9%)',
+            },
+            card: {
+              DEFAULT: 'hsl(0 0% 100%)',
+              foreground: 'hsl(222.2 84% 4.9%)',
+            },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans antialiased bg-muted/30">
+  <nav class="bg-primary text-primary-foreground border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          <h1 class="text-xl font-bold">Student Portal</h1>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="student/dashboard.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            Dashboard
+          </a>
+          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Progress Steps -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">1</div>
+            <p class="text-sm mt-2 font-medium">Application Form</p>
+          </div>
+          <div class="flex-1 h-1 bg-muted"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 bg-muted text-muted-foreground rounded-full flex items-center justify-center font-bold">2</div>
+            <p class="text-sm mt-2 text-muted-foreground">Upload Documents</p>
+          </div>
+          <div class="flex-1 h-1 bg-muted"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 bg-muted text-muted-foreground rounded-full flex items-center justify-center font-bold">3</div>
+            <p class="text-sm mt-2 text-muted-foreground">Review & Submit</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-card rounded-xl border border-border p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+            <i data-lucide="file-edit" class="w-6 h-6 text-primary"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold">Scholarship Application</h2>
+            <p id="scholarshipTitle" class="text-muted-foreground"></p>
+          </div>
+        </div>
+
+        <form id="applicationForm" class="space-y-6">
+          <!-- Personal Information -->
+          <div class="border-b border-border pb-6">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="user" class="w-5 h-5"></i>
+              Personal Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="fullName" class="block text-sm font-medium mb-2">Full Name *</label>
+                <input type="text" id="fullName" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-medium mb-2">Email *</label>
+                <input type="email" id="email" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+              <div>
+                <label for="phone" class="block text-sm font-medium mb-2">Phone Number</label>
+                <input type="tel" id="phone"
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+              <div>
+                <label for="studentId" class="block text-sm font-medium mb-2">Student ID *</label>
+                <input type="text" id="studentId" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+            </div>
+          </div>
+
+          <!-- Academic Information -->
+          <div class="border-b border-border pb-6">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+              Academic Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="major" class="block text-sm font-medium mb-2">Major/Program *</label>
+                <input type="text" id="major" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+              <div>
+                <label for="gpa" class="block text-sm font-medium mb-2">GPA/CGPA *</label>
+                <input type="number" id="gpa" step="0.01" min="0" max="4" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+              <div>
+                <label for="yearOfStudy" class="block text-sm font-medium mb-2">Year of Study *</label>
+                <select id="yearOfStudy" required
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                  <option value="">Select Year</option>
+                  <option value="1">Year 1</option>
+                  <option value="2">Year 2</option>
+                  <option value="3">Year 3</option>
+                  <option value="4">Year 4</option>
+                  <option value="Graduate">Graduate</option>
+                </select>
+              </div>
+              <div>
+                <label for="expectedGraduation" class="block text-sm font-medium mb-2">Expected Graduation</label>
+                <input type="month" id="expectedGraduation"
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+            </div>
+          </div>
+
+          <!-- Essay/Statement -->
+          <div class="border-b border-border pb-6">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="pen-tool" class="w-5 h-5"></i>
+              Personal Statement
+            </h3>
+            <div>
+              <label for="essay" class="block text-sm font-medium mb-2">
+                Why should you be awarded this scholarship? * (Minimum 100 words)
+              </label>
+              <textarea id="essay" rows="8" required minlength="100"
+                class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Share your story, achievements, goals, and why you deserve this scholarship..."></textarea>
+              <p class="text-sm text-muted-foreground mt-1">
+                <span id="wordCount">0</span> words
+              </p>
+            </div>
+          </div>
+
+          <!-- Financial Information (Optional) -->
+          <div class="pb-6">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="wallet" class="w-5 h-5"></i>
+              Financial Information (Optional)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="familyIncome" class="block text-sm font-medium mb-2">Annual Family Income</label>
+                <input type="number" id="familyIncome"
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+              <div>
+                <label for="otherScholarships" class="block text-sm font-medium mb-2">Other Scholarships Received</label>
+                <input type="text" id="otherScholarships" placeholder="e.g., Merit Scholarship, Dean's List Award"
+                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div id="errorMessage" class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm flex items-center gap-2" style="display: none;">
+            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+            <span id="errorText"></span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-4">
+            <button type="button" onclick="history.back()" 
+              class="flex-1 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium flex items-center justify-center gap-2">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i>
+              Back
+            </button>
+            <button type="button" id="saveDraftBtn"
+              class="flex-1 px-6 py-3 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors font-medium flex items-center justify-center gap-2">
+              <i data-lucide="save" class="w-5 h-5"></i>
+              Save Draft
+            </button>
+            <button type="submit" id="nextBtn"
+              class="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium flex items-center justify-center gap-2">
+              Next: Upload Documents
+              <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+    // TESTING MODE: Auth check disabled
+    // if (!token || user.role !== 'Student') {
+    //   window.location.href = '/login.html';
+    // }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const scholarshipId = urlParams.get('id');
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    // Load scholarship title
+    async function loadScholarshipInfo() {
+      try {
+        const response = await fetch(`/api/scholarships/${scholarshipId}`);
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('scholarshipTitle').textContent = data.scholarship.title;
+        }
+      } catch (error) {
+        console.error('[v0] Load scholarship error:', error);
+      }
+    }
+
+    // Word count
+    document.getElementById('essay').addEventListener('input', (e) => {
+      const words = e.target.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+      document.getElementById('wordCount').textContent = words;
+    });
+
+    // Save form data to sessionStorage
+    function saveFormData() {
+      const formData = {
+        fullName: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        studentId: document.getElementById('studentId').value,
+        major: document.getElementById('major').value,
+        gpa: document.getElementById('gpa').value,
+        yearOfStudy: document.getElementById('yearOfStudy').value,
+        expectedGraduation: document.getElementById('expectedGraduation').value,
+        essay: document.getElementById('essay').value,
+        familyIncome: document.getElementById('familyIncome').value,
+        otherScholarships: document.getElementById('otherScholarships').value,
+      };
+      sessionStorage.setItem(`applicationDraft_${scholarshipId}`, JSON.stringify(formData));
+    }
+
+    // Load draft if exists
+    function loadFormData() {
+      const draft = sessionStorage.getItem(`applicationDraft_${scholarshipId}`);
+      if (draft) {
+        const formData = JSON.parse(draft);
+        Object.keys(formData).forEach(key => {
+          const element = document.getElementById(key);
+          if (element) element.value = formData[key];
+        });
+        // Trigger word count update
+        document.getElementById('essay').dispatchEvent(new Event('input'));
+      }
+    }
+
+    document.getElementById('saveDraftBtn').addEventListener('click', () => {
+      saveFormData();
+      alert('Draft saved successfully!');
+    });
+
+    document.getElementById('applicationForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      saveFormData();
+      window.location.href = `/student/upload-documents.html?id=${scholarshipId}`;
+    });
+
+    loadScholarshipInfo();
+    loadFormData();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
+
