@@ -1,14 +1,12 @@
 package com.scholarship.server;
 
-import com.scholarship.db.DatabaseConnection;
+import com.scholarship.model.Scholarship;
+import com.scholarship.model.Student;
+import com.scholarship.utils.JsonUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ScholarshipHandler implements HttpHandler {
@@ -28,23 +26,23 @@ public class ScholarshipHandler implements HttpHandler {
     }
 
     private String getScholarshipsJson() {
-        // Simple manual JSON construction for prototype to avoid dependencies
         StringBuilder json = new StringBuilder("{\"scholarships\": [");
         
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM Scholarship WHERE isActive = true ORDER BY deadline")) {
+        try {
+            // In a real app, we would get the student from the authenticated user context
+            Student student = new Student(); 
+            List<Scholarship> scholarships = student.viewAvailableScholarships();
             
             boolean first = true;
-            while (rs.next()) {
+            for (Scholarship s : scholarships) {
                 if (!first) json.append(",");
                 first = false;
                 
                 json.append(String.format("{\"id\": %d, \"title\": \"%s\", \"deadline\": \"%s\", \"status\": \"%s\"}",
-                        rs.getInt("scholarshipID"),
-                        escape(rs.getString("title")),
-                        rs.getDate("deadline"),
-                        rs.getBoolean("isActive") ? "Active" : "Closed"
+                        s.getScholarshipID(),
+                        JsonUtils.escape(s.getTitle()),
+                        s.getDeadline(),
+                        s.isActive() ? "Active" : "Closed"
                 ));
             }
         } catch (Exception e) {
@@ -54,10 +52,5 @@ public class ScholarshipHandler implements HttpHandler {
         
         json.append("]}");
         return json.toString();
-    }
-    
-    private String escape(String s) {
-        if (s == null) return "";
-        return s.replace("\"", "\\\"");
     }
 }

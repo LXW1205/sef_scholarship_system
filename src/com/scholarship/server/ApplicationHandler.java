@@ -1,13 +1,13 @@
 package com.scholarship.server;
 
-import com.scholarship.db.DatabaseConnection;
+import com.scholarship.model.Application;
+import com.scholarship.model.Student;
+import com.scholarship.utils.JsonUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.List;
 
 public class ApplicationHandler implements HttpHandler {
 
@@ -29,25 +29,20 @@ public class ApplicationHandler implements HttpHandler {
     private String getApplicationsJson() {
         StringBuilder json = new StringBuilder("{\"applications\": [");
         
-        String sql = "SELECT a.appID, s.title as scholarship_title, a.submissionDate, a.status " +
-                     "FROM Application a " +
-                     "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
-                     "ORDER BY a.submissionDate DESC";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try {
+            Student student = new Student();
+            List<Application> apps = student.viewAppHistory();
             
             boolean first = true;
-            while (rs.next()) {
+            for (Application a : apps) {
                 if (!first) json.append(",");
                 first = false;
                 
                 json.append(String.format("{\"id\": %d, \"scholarship_title\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\"}",
-                        rs.getInt("appID"),
-                        escape(rs.getString("scholarship_title")),
-                        rs.getTimestamp("submissionDate"),
-                        rs.getString("status")
+                        a.getAppID(),
+                        JsonUtils.escape(a.getScholarshipTitle()),
+                        a.getSubmissionDate(),
+                        JsonUtils.escape(a.getStatus())
                 ));
             }
         } catch (Exception e) {
@@ -57,10 +52,5 @@ public class ApplicationHandler implements HttpHandler {
         
         json.append("]}");
         return json.toString();
-    }
-
-    private String escape(String s) {
-        if (s == null) return "";
-        return s.replace("\"", "\\\"");
     }
 }

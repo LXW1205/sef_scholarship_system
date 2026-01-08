@@ -3,12 +3,27 @@ package com.scholarship.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 public class DatabaseConnection {
-    // Replace with your actual database credentials
-    private static final String URL = "jdbc:postgresql://127.0.0.1:5432/sef_scholarship_system";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "Xiuwei0!";
+    private static String URL;
+    private static String USER;
+    private static String PASSWORD;
+
+    static {
+        Properties prop = new Properties();
+        try (FileInputStream input = new FileInputStream("db.properties")) {
+            prop.load(input);
+            URL = prop.getProperty("db.url");
+            USER = prop.getProperty("db.user");
+            PASSWORD = prop.getProperty("db.password");
+        } catch (IOException ex) {
+            System.err.println("Could not load db.properties file: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
 
     public static Connection getConnection() throws SQLException {
         try {

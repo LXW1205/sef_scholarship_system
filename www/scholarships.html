@@ -39,6 +39,10 @@
               DEFAULT: 'hsl(0 0% 100%)',
               foreground: 'hsl(222.2 84% 4.9%)',
             },
+            success: {
+              DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+              foreground: 'hsl(355.7 100% 97.3%)',
+            },
           },
         }
       }
@@ -46,7 +50,7 @@
   </script>
 </head>
 
-<body class="font-sans antialiased">
+<body class="font-sans antialiased bg-muted/30">
   <!-- Navigation with Tailwind styling -->
   <nav class="bg-primary text-primary-foreground border-b border-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -135,29 +139,38 @@
 
         if (response.ok && data.scholarships.length > 0) {
           scholarshipsList.innerHTML = data.scholarships.map(scholarship => `
-            <div class="bg-card text-card-foreground rounded-xl border border-border p-6 hover:shadow-lg transition-shadow">
-              <div class="flex justify-between items-start mb-4">
-                <h3 class="text-xl font-semibold">${scholarship.title}</h3>
-                <span class="px-3 py-1 text-xs font-medium rounded-full ${scholarship.isactive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
-                  ${scholarship.isactive ? 'Active' : 'Inactive'}
+            <div class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg">
+              <div class="flex items-start justify-between mb-4">
+                <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <i data-lucide="award" class="w-6 h-6 text-primary"></i>
+                </div>
+                <span class="px-3 py-1 text-xs font-medium rounded-full ${scholarship.status === 'Active' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}">
+                  ${scholarship.status || 'Active'}
                 </span>
               </div>
-              <p class="text-muted-foreground mb-4 leading-relaxed">${scholarship.description || 'No description available'}</p>
-              <div class="space-y-2 mb-6 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-muted-foreground">Deadline:</span>
-                  <span class="font-medium">${scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'N/A'}</span>
+              <h3 class="text-xl font-bold mb-2">${scholarship.title}</h3>
+              <p class="text-muted-foreground text-sm mb-4 line-clamp-2">${scholarship.description || 'No description available'}</p>
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center gap-2 text-sm">
+                  <i data-lucide="coins" class="w-4 h-4 text-muted-foreground"></i>
+                  <span class="font-semibold text-success">$${scholarship.amount?.toLocaleString() || 'N/A'}</span>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-muted-foreground">Criteria:</span>
-                  <span class="font-medium">${scholarship.criteria_count} items</span>
+                <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                  <i data-lucide="calendar" class="w-4 h-4"></i>
+                  <span>Deadline: ${scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'N/A'}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                  <i data-lucide="users" class="w-4 h-4"></i>
+                  <span>${scholarship.applicant_count || 0} Applications</span>
                 </div>
               </div>
-              <button class="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium" onclick="viewScholarship(${scholarship.scholarshipid})">
+              <button class="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium flex items-center justify-center gap-2" onclick="viewScholarship(${scholarship.scholarshipid || scholarship.id})">
+                <i data-lucide="eye" class="w-4 h-4"></i>
                 View Details
               </button>
             </div>
           `).join('');
+          lucide.createIcons();
         } else {
           scholarshipsList.innerHTML = '<div class="col-span-full text-center text-muted-foreground py-12">No scholarships available at this time.</div>';
         }

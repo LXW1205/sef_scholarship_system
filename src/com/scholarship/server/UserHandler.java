@@ -1,15 +1,17 @@
 package com.scholarship.server;
 
-import com.scholarship.db.DatabaseConnection;
+import com.scholarship.dao.UserDAO;
+import com.scholarship.model.*;
+import com.scholarship.utils.JsonUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.List;
 
 public class UserHandler implements HttpHandler {
+
+    private final UserDAO userDAO = new UserDAO();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -29,25 +31,43 @@ public class UserHandler implements HttpHandler {
     private String getUsersJson() {
         StringBuilder json = new StringBuilder("{\"users\": [");
         
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             // Removed firstName/lastName which are causing errors. Using username for name.
-             ResultSet rs = stmt.executeQuery("SELECT userID, username, email, role FROM \"User\" ORDER BY userID")) {
+        try {
+            List<User> users = userDAO.findAll();
             
             boolean first = true;
-            while (rs.next()) {
+            for (User user : users) {
                 if (!first) json.append(",");
                 first = false;
                 
-                // Fallback to username since name columns are missing in current schema prototype
-                String fullName = rs.getString("username");
+                if (!first) json.append(",");
+                first = false;
+                
+                String detailedJson = "";
+                if (user instanceof Student) {
+                    Student s = (Student) user;
+                    detailedJson = String.format(", \"studentID\": \"%s\", \"fullName\": \"%s\", \"cgpa\": %.2f", 
+                        JsonUtils.escape(s.getStudentID()), JsonUtils.escape(s.getFullName()), s.getCgpa());
+                } else if (user instanceof Reviewer) {
+                    Reviewer r = (Reviewer) user;
+                    detailedJson = String.format(", \"staffID\": \"%s\", \"department\": \"%s\"", 
+                        JsonUtils.escape(r.getStaffID()), JsonUtils.escape(r.getDepartment()));
+                } else if (user instanceof CommitteeMember) {
+                    CommitteeMember c = (CommitteeMember) user;
+                    detailedJson = String.format(", \"memberID\": %d, \"position\": \"%s\"", 
+                        c.getMemberID(), JsonUtils.escape(c.getPosition()));
+                } else if (user instanceof Admin) {
+                     Admin a = (Admin) user;
+                     detailedJson = String.format(", \"adminID\": %d, \"adminLevel\": \"%s\"", 
+                         a.getAdminID(), JsonUtils.escape(a.getAdminLevel()));
+                }
 
-                json.append(String.format("{\"id\": %d, \"username\": \"%s\", \"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"isActive\": true}",
-                        rs.getInt("userID"),
-                        escape(rs.getString("username")),
-                        escape(rs.getString("email")),
-                        escape(fullName), // Using username as name
-                        escape(rs.getString("role"))
+                json.append(String.format("{\"id\": %d, \"username\": \"%s\", \"email\": \"%s\", \"role\": \"%s\", \"isActive\": %b%s}",
+                        user.getId(),
+                        JsonUtils.escape(user.getUsername()),
+                        JsonUtils.escape(user.getEmail()),
+                        JsonUtils.escape(user.getRole()),
+                        user.isActive(),
+                        detailedJson
                 ));
             }
         } catch (Exception e) {
@@ -57,10 +77,5 @@ public class UserHandler implements HttpHandler {
         
         json.append("]}");
         return json.toString();
-    }
-    
-    private String escape(String s) {
-        if (s == null) return "";
-        return s.replace("\"", "\\\"");
     }
 }
