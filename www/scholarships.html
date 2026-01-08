@@ -52,52 +52,7 @@
 
 <body class="font-sans antialiased bg-muted/30">
   <!-- Navigation with Tailwind styling -->
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">ScholarNet</h1>
-        </div>
-        <div class="flex items-center gap-8" id="navLinks">
-          <a href="index.html"
-            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
-            style="display: inline-flex; flex-direction: row; align-items: center;">
-            <i data-lucide="home" class="w-4 h-4"></i>
-            <span>Home</span>
-          </a>
-          <a href="scholarships.html"
-            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
-            style="display: inline-flex; flex-direction: row; align-items: center;">
-            <i data-lucide="book-open" class="w-4 h-4"></i>
-            <span>Scholarships</span>
-          </a>
-          <a href="login.html" id="loginLink"
-            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
-            style="display: inline-flex; flex-direction: row; align-items: center;">
-            <i data-lucide="log-in" class="w-4 h-4"></i>
-            <span>Login</span>
-          </a>
-          <a href="register.html" id="registerLink"
-            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
-            style="display: inline-flex; flex-direction: row; align-items: center;">
-            <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>Register</span>
-          </a>
-          <a href="dashboard.html" id="dashboardLink" style="display: none; flex-direction: row; align-items: center;"
-            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            <span>Dashboard</span>
-          </a>
-          <button id="logoutBtn" style="display: none; flex-direction: row; align-items: center;"
-            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors inline-flex items-center gap-2 whitespace-nowrap">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main>
     <!-- Page header with clean styling -->
@@ -124,7 +79,7 @@
     </section>
   </main>
 
-  <script src="auth-check.js"></script>
+
   <script>
     async function loadScholarships() {
       const loadingMessage = document.getElementById('loadingMessage');
@@ -139,7 +94,7 @@
 
         if (response.ok && data.scholarships.length > 0) {
           scholarshipsList.innerHTML = data.scholarships.map(scholarship => `
-            <div class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg">
+            <div class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg flex flex-col h-full">
               <div class="flex items-start justify-between mb-4">
                 <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                   <i data-lucide="award" class="w-6 h-6 text-primary"></i>
@@ -150,18 +105,30 @@
               </div>
               <h3 class="text-xl font-bold mb-2">${scholarship.title}</h3>
               <p class="text-muted-foreground text-sm mb-4 line-clamp-2">${scholarship.description || 'No description available'}</p>
-              <div class="space-y-2 mb-4">
-                <div class="flex items-center gap-2 text-sm">
-                  <i data-lucide="coins" class="w-4 h-4 text-muted-foreground"></i>
-                  <span class="font-semibold text-success">$${scholarship.amount?.toLocaleString() || 'N/A'}</span>
+              
+              <div class="mb-4">
+                <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Criteria</h4>
+                <div class="flex flex-wrap gap-2">
+                  ${scholarship.criteria && scholarship.criteria.length > 0 ?
+              scholarship.criteria.map(c => `
+                      <span class="px-2 py-1 bg-secondary text-secondary-foreground text-[10px] font-medium rounded border border-border flex flex-col">
+                        <span>${c.name}</span>
+                        <span class="opacity-70 text-[8px]">${c.weightage}% (Max: ${c.maxScore})</span>
+                      </span>
+                    `).join('') :
+              '<span class="text-xs text-muted-foreground italic">No criteria defined</span>'
+            }
+                </div>
+              </div>
+
+              <div class="space-y-2 mb-6 mt-auto">
+                <div class="flex items-center gap-2 text-sm text-primary font-bold">
+                  <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                  <span>$${scholarship.amount ? scholarship.amount.toLocaleString() : 'N/A'}</span>
                 </div>
                 <div class="flex items-center gap-2 text-sm text-muted-foreground">
                   <i data-lucide="calendar" class="w-4 h-4"></i>
                   <span>Deadline: ${scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'N/A'}</span>
-                </div>
-                <div class="flex items-center gap-2 text-sm text-muted-foreground">
-                  <i data-lucide="users" class="w-4 h-4"></i>
-                  <span>${scholarship.applicant_count || 0} Applications</span>
                 </div>
               </div>
               <button class="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium flex items-center justify-center gap-2" onclick="viewScholarship(${scholarship.scholarshipid || scholarship.id})">
@@ -188,10 +155,8 @@
 
     loadScholarships();
   </script>
-  <!-- Initialize Lucide icons -->
-  <script>
-    lucide.createIcons();
-  </script>
+  <div id="footer-container"></div>
+  <script src="common.js"></script>
 </body>
 
 </html>

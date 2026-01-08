@@ -44,38 +44,7 @@
 
 <body class="font-sans antialiased bg-muted/30">
   <!-- Reviewer Navigation -->
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">ScholarNet Reviewer</h1>
-        </div>
-        <div class="flex items-center gap-6">
-          <a href="/reviewer/dashboard-reviewer.html"
-            class="hover:text-muted-foreground transition-colors flex items-center gap-1 font-semibold">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            Dashboard
-          </a>
-          <a href="/reviewer/assignments.html"
-            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-            My Assignments
-          </a>
-          <a href="/reviewer/profile.html"
-            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="user" class="w-4 h-4"></i>
-            Profile
-          </a>
-          <button id="logoutBtn"
-            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen">
     <!-- Welcome Header -->
@@ -173,69 +142,76 @@
 
     document.getElementById('welcomeMessage').textContent = `Welcome, ${user.username || 'Reviewer'}!`;
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/login.html';
-    });
 
-    // Mock data for demo
-    const mockApplications = [
-      { id: 1, studentName: 'John Smith', scholarship: 'Merit Award 2024', dueDate: '2024-02-15', status: 'Pending' },
-      { id: 2, studentName: 'Jane Doe', scholarship: 'Academic Excellence', dueDate: '2024-02-20', status: 'In Progress' },
-      { id: 3, studentName: 'Bob Johnson', scholarship: 'STEM Scholarship', dueDate: '2024-02-25', status: 'Pending' },
-    ];
 
-    function loadDashboardData() {
-      document.getElementById('pendingCount').textContent = mockApplications.filter(a => a.status === 'Pending').length;
-      document.getElementById('inProgressCount').textContent = mockApplications.filter(a => a.status === 'In Progress').length;
-      document.getElementById('completedCount').textContent = '12';
+    // Load data from API
+    async function loadDashboardData() {
+      try {
+        const response = await fetch('/api/applications', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        const applications = data.applications || [];
 
-      const assignedDiv = document.getElementById('assignedApplications');
-      if (mockApplications.length > 0) {
-        assignedDiv.innerHTML = `
-          <div class="space-y-4">
-            ${mockApplications.map(app => `
-              <div class="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-                <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+        // Calculate stats
+        document.getElementById('pendingCount').textContent = applications.filter(a => a.status === 'Pending').length;
+        document.getElementById('inProgressCount').textContent = applications.filter(a => a.status === 'In Progress').length;
+        document.getElementById('completedCount').textContent = applications.filter(a => a.status === 'Reviewed').length;
+
+        const assignedDiv = document.getElementById('assignedApplications');
+        if (applications.length > 0) {
+          assignedDiv.innerHTML = `
+            <div class="space-y-4">
+              ${applications.slice(0, 5).map(app => `
+                <div class="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold">${app.scholarship_title || 'Application'}</h4>
+                      <p class="text-sm text-muted-foreground">ID: ${app.id}</p>
+                      <p class="text-xs text-muted-foreground mt-1">Submitted: ${app.submissiondate ? new Date(app.submissiondate).toLocaleDateString() : 'N/A'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 class="font-semibold">${app.studentName}</h4>
-                    <p class="text-sm text-muted-foreground">${app.scholarship}</p>
-                    <p class="text-xs text-muted-foreground mt-1">Due: ${new Date(app.dueDate).toLocaleDateString()}</p>
+                  <div class="flex items-center gap-3">
+                    <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
+              app.status === 'In Progress' ? 'bg-blue-500/10 text-blue-600' :
+                'bg-success/10 text-success'
+            }">${app.status}</span>
+                    <a href="/reviewer/review-application.html?id=${app.id}" 
+                      class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
+                      Review
+                    </a>
                   </div>
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
-            app.status === 'In Progress' ? 'bg-blue-500/10 text-blue-600' :
-              'bg-success/10 text-success'
-          }">${app.status}</span>
-                  <a href="/reviewer/review-application.html?id=${app.id}" 
-                    class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
-                    Review
-                  </a>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-      } else {
-        assignedDiv.innerHTML = `
-          <div class="text-center py-8 text-muted-foreground">
-            <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>
-            <p>No applications assigned yet</p>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          assignedDiv.innerHTML = `
+            <div class="text-center py-8 text-muted-foreground">
+              <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>
+              <p>No applications assigned yet</p>
+            </div>
+          `;
+        }
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error('Failed to load applications:', error);
+        document.getElementById('assignedApplications').innerHTML = `
+          <div class="text-center py-8 text-destructive">
+            <p>Failed to load applications</p>
           </div>
         `;
       }
-
-      lucide.createIcons();
     }
 
     loadDashboardData();
-    lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="/common.js"></script>
 </body>
 
 </html>

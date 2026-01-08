@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,6 +41,7 @@
     }
   </script>
 </head>
+
 <body class="font-sans antialiased bg-muted/30">
   <nav class="bg-primary text-primary-foreground border-b border-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,11 +51,13 @@
           <h1 class="text-xl font-bold">Student Portal</h1>
         </div>
         <div class="flex items-center gap-6">
-          <a href="student/dashboard.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
+          <a href="student/dashboard.html"
+            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
             Dashboard
           </a>
-          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
+          <button id="logoutBtn"
+            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
             <i data-lucide="log-out" class="w-4 h-4"></i>
             Logout
           </button>
@@ -113,7 +117,8 @@
         <p class="text-sm text-muted-foreground mb-4">
           If you have questions about your application status, please contact our support team.
         </p>
-        <a href="student/support.html" class="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1">
+        <a href="student/support.html"
+          class="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1">
           Contact Support
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </a>
@@ -140,57 +145,104 @@
     });
 
     async function loadApplicationStatus() {
-      // Mock data for demo - in production, fetch from API
-      const mockData = {
-        scholarshipTitle: "Merit-Based Academic Scholarship 2024",
-        applicationId: applicationId || "12345",
-        submissionDate: new Date().toLocaleDateString(),
-        status: "Under Review",
-        timeline: [
-          { status: "Submitted", date: new Date(), completed: true, description: "Application successfully submitted" },
-          { status: "Under Review", date: new Date(), completed: true, description: "Your application is being reviewed by our committee" },
-          { status: "Interview Scheduled", date: null, completed: false, description: "You will be notified if an interview is required" },
-          { status: "Final Decision", date: null, completed: false, description: "Final decision will be communicated via email" }
-        ]
-      };
+      if (!applicationId) {
+        document.getElementById('scholarshipTitle').textContent = 'No Application ID Provided';
+        return;
+      }
 
-      document.getElementById('scholarshipTitle').textContent = mockData.scholarshipTitle;
-      document.getElementById('appId').textContent = mockData.applicationId;
-      document.getElementById('submissionDate').textContent = mockData.submissionDate;
+      try {
+        const response = await fetch('/api/applications', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        const application = data.applications?.find(app => app.id == applicationId);
 
-      const statusBadge = document.getElementById('statusBadge');
-      statusBadge.textContent = mockData.status;
-      statusBadge.className = `px-4 py-2 text-sm font-medium rounded-full ${
-        mockData.status === 'Approved' ? 'bg-success/10 text-success' :
-        mockData.status === 'Under Review' ? 'bg-blue-500/10 text-blue-600' :
-        mockData.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
-        mockData.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
-        'bg-muted text-muted-foreground'
-      }`;
+        if (!application) {
+          document.getElementById('scholarshipTitle').textContent = 'Application Not Found';
+          document.getElementById('appId').textContent = applicationId;
+          return;
+        }
 
-      // Render timeline
-      const timeline = document.getElementById('timeline');
-      timeline.innerHTML = mockData.timeline.map((item, index) => `
-        <div class="flex gap-4 relative">
-          <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${
-            item.completed ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'
+        document.getElementById('scholarshipTitle').textContent = application.scholarship_title || 'Scholarship Application';
+        document.getElementById('appId').textContent = application.id;
+        document.getElementById('submissionDate').textContent = application.submissiondate ? new Date(application.submissiondate).toLocaleDateString() : 'N/A';
+
+        const statusBadge = document.getElementById('statusBadge');
+        statusBadge.textContent = application.status;
+        statusBadge.className = `px-4 py-2 text-sm font-medium rounded-full ${application.status === 'Approved' ? 'bg-success/10 text-success' :
+            application.status === 'Reviewed' || application.status === 'Under Review' ? 'bg-blue-500/10 text-blue-600' :
+              application.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
+                application.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
+                  'bg-muted text-muted-foreground'
+          }`;
+
+        // Build timeline based on status
+        const timeline = [];
+        timeline.push({
+          status: "Submitted",
+          date: new Date(application.submissiondate),
+          completed: true,
+          description: "Application successfully submitted"
+        });
+
+        if (application.status !== 'Pending') {
+          timeline.push({
+            status: "Under Review",
+            date: new Date(),
+            completed: true,
+            description: "Your application is being reviewed"
+          });
+        } else {
+          timeline.push({
+            status: "Under Review",
+            date: null,
+            completed: false,
+            description: "Pending review"
+          });
+        }
+
+        if (application.status === 'Approved' || application.status === 'Rejected') {
+          timeline.push({
+            status: "Final Decision",
+            date: new Date(),
+            completed: true,
+            description: `Application ${application.status.toLowerCase()}`
+          });
+        } else {
+          timeline.push({
+            status: "Final Decision",
+            date: null,
+            completed: false,
+            description: "Awaiting final decision"
+          });
+        }
+
+        // Render timeline
+        const timelineDiv = document.getElementById('timeline');
+        timelineDiv.innerHTML = timeline.map((item, index) => `
+          <div class="flex gap-4 relative">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${item.completed ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'
           }">
-            <i data-lucide="${item.completed ? 'check' : 'circle'}" class="w-5 h-5"></i>
+              <i data-lucide="${item.completed ? 'check' : 'circle'}" class="w-5 h-5"></i>
+            </div>
+            <div class="flex-1 pb-8">
+              <h3 class="font-semibold mb-1">${item.status}</h3>
+              <p class="text-sm text-muted-foreground mb-1">${item.description}</p>
+              ${item.date ? `<p class="text-xs text-muted-foreground">${item.date.toLocaleDateString()}</p>` : ''}
+            </div>
           </div>
-          <div class="flex-1 pb-8">
-            <h3 class="font-semibold mb-1">${item.status}</h3>
-            <p class="text-sm text-muted-foreground mb-1">${item.description}</p>
-            ${item.date ? `<p class="text-xs text-muted-foreground">${item.date.toLocaleDateString()}</p>` : ''}
-          </div>
-        </div>
-      `).join('');
+        `).join('');
 
-      lucide.createIcons();
+        lucide.createIcons();
+      } catch (error) {
+        console.error('Failed to load application:', error);
+        document.getElementById('scholarshipTitle').textContent = 'Error Loading Application';
+      }
     }
 
     loadApplicationStatus();
     lucide.createIcons();
   </script>
 </body>
-</html>
 
+</html>

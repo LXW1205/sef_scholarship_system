@@ -41,17 +41,77 @@ public class Student extends User {
              ResultSet rs = stmt.executeQuery("SELECT * FROM Scholarship WHERE isActive = true ORDER BY deadline")) {
             
             while (rs.next()) {
-                scholarships.add(new Scholarship(
+                Scholarship scholarship = new Scholarship(
                     rs.getInt("scholarshipID"),
                     rs.getString("title"),
+                    rs.getString("description"),
+                    rs.getDouble("amount"),
                     rs.getDate("deadline"),
                     rs.getBoolean("isActive")
-                ));
+                );
+                
+                // Fetch criteria for this scholarship
+                int scholarshipID = rs.getInt("scholarshipID");
+                try (Statement criteriaStmt = conn.createStatement();
+                     ResultSet criteriaRs = criteriaStmt.executeQuery(
+                         "SELECT * FROM Criteria WHERE scholarshipID = " + scholarshipID)) {
+                    
+                    while (criteriaRs.next()) {
+                        scholarship.addCriterion(new Criterion(
+                            criteriaRs.getInt("criteriaID"),
+                            criteriaRs.getInt("scholarshipID"),
+                            criteriaRs.getString("name"),
+                            criteriaRs.getInt("weightage"),
+                            criteriaRs.getDouble("maxScore")
+                        ));
+                    }
+                }
+                
+                scholarships.add(scholarship);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return scholarships;
+    }
+
+    public Scholarship getScholarshipById(int id) {
+        Scholarship scholarship = null;
+        String sql = "SELECT * FROM Scholarship WHERE scholarshipID = " + id;
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            if (rs.next()) {
+                scholarship = new Scholarship(
+                    rs.getInt("scholarshipID"),
+                    rs.getString("title"),
+                    rs.getString("description"),
+                    rs.getDouble("amount"),
+                    rs.getDate("deadline"),
+                    rs.getBoolean("isActive")
+                );
+                
+                // Fetch criteria
+                try (Statement criteriaStmt = conn.createStatement();
+                     ResultSet criteriaRs = criteriaStmt.executeQuery(
+                         "SELECT * FROM Criteria WHERE scholarshipID = " + id)) {
+                    
+                    while (criteriaRs.next()) {
+                        scholarship.addCriterion(new Criterion(
+                            criteriaRs.getInt("criteriaID"),
+                            criteriaRs.getInt("scholarshipID"),
+                            criteriaRs.getString("name"),
+                            criteriaRs.getInt("weightage"),
+                            criteriaRs.getDouble("maxScore")
+                        ));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scholarship;
     }
 
     public List<Application> viewAppHistory() {

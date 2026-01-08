@@ -39,9 +39,6 @@ public class UserHandler implements HttpHandler {
                 if (!first) json.append(",");
                 first = false;
                 
-                if (!first) json.append(",");
-                first = false;
-                
                 String detailedJson = "";
                 if (user instanceof Student) {
                     Student s = (Student) user;

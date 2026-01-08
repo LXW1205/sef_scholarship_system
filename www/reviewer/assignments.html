@@ -120,15 +120,33 @@
       window.location.href = '/login.html';
     });
 
-    // Mock data
-    const mockAssignments = [
-      { id: 1, studentName: 'John Smith', scholarship: 'Merit Award 2024', assignedDate: '2024-01-15', dueDate: '2024-02-15', status: 'Pending', priority: 'High' },
-      { id: 2, studentName: 'Jane Doe', scholarship: 'Academic Excellence', assignedDate: '2024-01-18', dueDate: '2024-02-20', status: 'In Progress', priority: 'Medium' },
-      { id: 3, studentName: 'Bob Johnson', scholarship: 'STEM Scholarship', assignedDate: '2024-01-20', dueDate: '2024-02-25', status: 'Pending', priority: 'Low' },
-      { id: 4, studentName: 'Alice Williams', scholarship: 'Leadership Award', assignedDate: '2024-01-10', dueDate: '2024-02-10', status: 'Completed', priority: 'Medium' },
-    ];
+    let allAssignments = [];
 
-    let allAssignments = mockAssignments;
+    async function loadAssignments() {
+      try {
+        const response = await fetch('/api/applications', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        allAssignments = (data.applications || []).map(app => ({
+          id: app.id,
+          studentName: app.studentid || 'Student',
+          scholarship: app.scholarship_title || 'Scholarship',
+          assignedDate: app.submissiondate,
+          dueDate: app.submissiondate,
+          status: app.status === 'Reviewed' ? 'Completed' : app.status,
+          priority: 'Medium'
+        }));
+        displayAssignments(allAssignments);
+      } catch (error) {
+        console.error('Failed to load assignments:', error);
+        document.getElementById('assignmentsList').innerHTML = `
+          <div class="bg-card rounded-xl border border-border p-12 text-center">
+            <p class="text-destructive">Failed to load assignments</p>
+          </div>
+        `;
+      }
+    }
 
     function displayAssignments(assignments) {
       const list = document.getElementById('assignmentsList');
@@ -206,7 +224,7 @@
       displayAssignments(filtered);
     });
 
-    displayAssignments(allAssignments);
+    loadAssignments();
     lucide.createIcons();
   </script>
 </body>

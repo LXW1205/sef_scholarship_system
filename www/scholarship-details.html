@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,35 +45,22 @@
     }
   </script>
 </head>
+
 <body class="font-sans antialiased">
   <!-- Updated navigation with Tailwind classes -->
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center">
-          <h1 class="text-xl font-bold">Digital Scholarship Portal</h1>
-        </div>
-        <div class="flex items-center gap-6" id="navLinks">
-          <a href="index.html" class="hover:text-muted-foreground transition-colors">Home</a>
-          <a href="scholarships.html" class="hover:text-muted-foreground transition-colors">Scholarships</a>
-          <a href="login.html" id="loginLink" class="hover:text-muted-foreground transition-colors">Login</a>
-          <a href="register.html" id="registerLink" class="hover:text-muted-foreground transition-colors">Register</a>
-          <a href="dashboard.html" id="dashboardLink" style="display: none;" class="hover:text-muted-foreground transition-colors">Dashboard</a>
-          <button id="logoutBtn" style="display: none;" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors">Logout</button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen bg-background py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Updated details container with Tailwind card styling -->
       <div>
         <div id="loadingMessage" class="text-center text-muted-foreground py-12">Loading scholarship details...</div>
-        <div id="scholarshipDetails" class="bg-card text-card-foreground rounded-xl border border-border shadow-lg" style="display: none;">
+        <div id="scholarshipDetails" class="bg-card text-card-foreground rounded-xl border border-border shadow-lg"
+          style="display: none;">
           <div class="p-6 border-b border-border">
             <!-- Added arrow icon to back button -->
-            <button onclick="window.history.back()" class="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors font-medium mb-4">
+            <button onclick="window.history.back()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors font-medium mb-4">
               <i data-lucide="arrow-left" class="w-4 h-4"></i>
               Back
             </button>
@@ -93,6 +81,14 @@
 
             <div>
               <div class="flex items-center gap-2 mb-3">
+                <i data-lucide="dollar-sign" class="w-5 h-5 text-primary"></i>
+                <h3 class="text-xl font-semibold">Scholarship Amount</h3>
+              </div>
+              <p id="scholarshipAmount" class="text-2xl font-bold text-primary"></p>
+            </div>
+
+            <div>
+              <div class="flex items-center gap-2 mb-3">
                 <i data-lucide="calendar" class="w-5 h-5 text-primary"></i>
                 <h3 class="text-xl font-semibold">Deadline</h3>
               </div>
@@ -108,19 +104,22 @@
             </div>
 
             <div id="applySection" class="pt-6 border-t border-border" style="display: none;">
-              <button id="applyBtn" class="w-full px-6 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg">
+              <button id="applyBtn"
+                class="w-full px-6 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg">
                 Apply Now
               </button>
               <p id="applyMessage" class="mt-4 p-4 rounded-lg text-center" style="display: none;"></p>
             </div>
           </div>
         </div>
-        <div id="errorMessage" class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center" style="display: none;"></div>
+        <div id="errorMessage"
+          class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center"
+          style="display: none;"></div>
       </div>
     </div>
   </main>
 
-  <script src="auth-check.js"></script>
+
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const scholarshipId = urlParams.get('id');
@@ -148,13 +147,16 @@
 
           document.getElementById('scholarshipTitle').textContent = scholarship.title;
           document.getElementById('scholarshipDescription').textContent = scholarship.description || 'No description available';
-          document.getElementById('scholarshipDeadline').textContent = scholarship.deadline 
+          document.getElementById('scholarshipAmount').textContent = scholarship.amount
+            ? `$${scholarship.amount.toLocaleString()}`
+            : 'N/A';
+          document.getElementById('scholarshipDeadline').textContent = scholarship.deadline
             ? new Date(scholarship.deadline).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
             : 'No deadline specified';
 
           const statusEl = document.getElementById('scholarshipStatus');
           statusEl.textContent = scholarship.isactive ? 'Active' : 'Inactive';
-          statusEl.className = scholarship.isactive 
+          statusEl.className = scholarship.isactive
             ? 'px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800'
             : 'px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-800';
 
@@ -248,10 +250,8 @@
 
     loadScholarshipDetails();
   </script>
-  <!-- Initialize Lucide icons -->
-  <script>
-    lucide.createIcons();
-  </script>
+  <div id="footer-container"></div>
+  <script src="common.js"></script>
 </body>
-</html>
 
+</html>

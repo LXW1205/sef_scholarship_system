@@ -46,36 +46,7 @@
 
 <body class="font-sans antialiased bg-muted/30">
   <!-- Updated navigation to match interface spec -->
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">ScholarNet</h1>
-        </div>
-        <div class="flex items-center gap-8">
-          <a href="index.html"
-            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
-            style="display: inline-flex; flex-direction: row; align-items: center;">
-            <i data-lucide="home" class="w-4 h-4"></i>
-            <span>Home</span>
-          </a>
-          <a href="scholarships.html"
-            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
-            style="display: inline-flex; flex-direction: row; align-items: center;">
-            <i data-lucide="book-open" class="w-4 h-4"></i>
-            <span>Scholarships</span>
-          </a>
-          <a href="login.html"
-            class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap"
-            style="display: inline-flex; flex-direction: row; align-items: center;">
-            <i data-lucide="log-in" class="w-4 h-4"></i>
-            <span>Login</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full bg-card text-card-foreground rounded-xl border border-border p-8 shadow-lg">
@@ -222,10 +193,9 @@
         lucide.createIcons();
       }
     });
-
-    // Initialize Lucide icons
-    lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="common.js"></script>
 </body>
 
 </html>

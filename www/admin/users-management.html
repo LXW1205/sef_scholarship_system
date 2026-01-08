@@ -50,38 +50,7 @@
 
 <body class="font-sans antialiased bg-muted/30">
   <!-- Admin Navigation -->
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">ScholarNet Admin</h1>
-        </div>
-        <div class="flex items-center gap-6">
-          <a href="/admin/dashboard-admin.html"
-            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            Dashboard
-          </a>
-          <a href="/admin/users-management.html"
-            class="hover:text-muted-foreground transition-colors flex items-center gap-1 font-semibold">
-            <i data-lucide="users" class="w-4 h-4"></i>
-            Users
-          </a>
-          <a href="/admin/scholarships-management.html"
-            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="award" class="w-4 h-4"></i>
-            Scholarships
-          </a>
-          <button id="logoutBtn"
-            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,7 +85,7 @@
               <option value="">All Roles</option>
               <option value="Student">Student</option>
               <option value="Reviewer">Reviewer</option>
-              <option value="Committee">Committee</option>
+              <option value="CommitteeMember">Committee</option>
               <option value="Admin">Admin</option>
             </select>
           </div>
@@ -241,21 +210,6 @@
       window.location.href = '/login.html';
     });
 
-    async function loadUsers() {
-      try {
-        const response = await fetch('/api/users', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        renderUsers(data.users || []);
-      } catch (error) {
-        console.error('[v0] Load users error:', error);
-        document.getElementById('usersTableBody').innerHTML = `
-          <tr><td colspan="5" class="px-6 py-8 text-center text-destructive">Failed to load users</td></tr>
-        `;
-      }
-    }
-
     function renderUsers(users) {
       const tbody = document.getElementById('usersTableBody');
 
@@ -278,7 +232,7 @@
                 <i data-lucide="user" class="w-5 h-5 text-primary"></i>
               </div>
               <div>
-                <p class="font-medium">${u.name}</p>
+                <p class="font-medium">${u.username}</p>
                 <p class="text-sm text-muted-foreground">@${u.username}</p>
               </div>
             </div>
@@ -394,9 +348,50 @@
       }
     };
 
+    // Filter functionality
+    let allUsers = [];
+
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/users', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        allUsers = data.users || [];
+        applyFilters();
+      } catch (error) {
+        console.error('[v0] Load users error:', error);
+        document.getElementById('usersTableBody').innerHTML = `
+          <tr><td colspan="5" class="px-6 py-8 text-center text-destructive">Failed to load users</td></tr>
+        `;
+      }
+    }
+
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const roleFilter = document.getElementById('roleFilter').value;
+
+      let filtered = allUsers.filter(user => {
+        const matchesSearch = !searchTerm ||
+          user.username?.toLowerCase().includes(searchTerm) ||
+          user.email?.toLowerCase().includes(searchTerm) ||
+          (user.fullName && user.fullName.toLowerCase().includes(searchTerm));
+
+        const matchesRole = !roleFilter || user.role === roleFilter;
+
+        return matchesSearch && matchesRole;
+      });
+
+      renderUsers(filtered);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('roleFilter').addEventListener('change', applyFilters);
+
     loadUsers();
-    lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="/common.js"></script>
 </body>
 
 </html>

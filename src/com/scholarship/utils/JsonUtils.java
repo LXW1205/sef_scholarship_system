@@ -21,8 +21,14 @@ public class JsonUtils {
         return json.substring(start, end).trim();
     }
     
+    
     public static String escape(String s) {
         if (s == null) return "";
         return s.replace("\"", "\\\"");
+    }
+    
+    // Alias for consistency with other code
+    public static String extractJsonValue(String json, String key) {
+        return extractValue(json, key);
     }
 }

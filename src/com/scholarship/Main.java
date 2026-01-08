@@ -20,6 +20,9 @@ public class Main {
         
         // API endpoints
         server.createContext("/api/auth/login", new AuthHandler());
+        server.createContext("/api/auth/register", new com.scholarship.server.RegisterHandler());
+        server.createContext("/api/auth/forgot-password", new com.scholarship.server.ForgotPasswordHandler());
+        server.createContext("/api/auth/reset-password", new com.scholarship.server.ResetPasswordHandler());
         server.createContext("/api/scholarships", new com.scholarship.server.ScholarshipHandler());
         server.createContext("/api/applications", new com.scholarship.server.ApplicationHandler());
         server.createContext("/api/users", new com.scholarship.server.UserHandler());
