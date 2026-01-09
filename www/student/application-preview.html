@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,27 +47,9 @@
     }
   </script>
 </head>
+
 <body class="font-sans antialiased bg-muted/30">
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">Student Portal</h1>
-        </div>
-        <div class="flex items-center gap-6">
-          <a href="student/dashboard.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            Dashboard
-          </a>
-          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -74,21 +57,25 @@
       <div class="mb-8">
         <div class="flex items-center justify-between mb-4">
           <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 bg-success text-success-foreground rounded-full flex items-center justify-center font-bold">
+            <div
+              class="w-10 h-10 bg-success text-success-foreground rounded-full flex items-center justify-center font-bold">
               <i data-lucide="check" class="w-5 h-5"></i>
             </div>
             <p class="text-sm mt-2 text-muted-foreground">Application Form</p>
           </div>
           <div class="flex-1 h-1 bg-success"></div>
           <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 bg-success text-success-foreground rounded-full flex items-center justify-center font-bold">
+            <div
+              class="w-10 h-10 bg-success text-success-foreground rounded-full flex items-center justify-center font-bold">
               <i data-lucide="check" class="w-5 h-5"></i>
             </div>
             <p class="text-sm mt-2 text-muted-foreground">Upload Documents</p>
           </div>
           <div class="flex-1 h-1 bg-primary"></div>
           <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">3</div>
+            <div
+              class="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
+              3</div>
             <p class="text-sm mt-2 font-medium">Review & Submit</p>
           </div>
         </div>
@@ -113,23 +100,27 @@
         <!-- Confirmation Checkbox -->
         <div class="bg-muted/50 rounded-lg p-4 mb-6">
           <label class="flex items-start gap-3 cursor-pointer">
-            <input type="checkbox" id="confirmCheckbox" class="mt-1 w-4 h-4 rounded border-input text-primary focus:ring-2 focus:ring-ring">
+            <input type="checkbox" id="confirmCheckbox"
+              class="mt-1 w-4 h-4 rounded border-input text-primary focus:ring-2 focus:ring-ring">
             <span class="text-sm">
-              I confirm that all the information provided in this application is accurate and complete to the best of my knowledge. 
+              I confirm that all the information provided in this application is accurate and complete to the best of my
+              knowledge.
               I understand that providing false information may result in disqualification.
             </span>
           </label>
         </div>
 
         <!-- Error/Success Messages -->
-        <div id="errorMessage" class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm flex items-center gap-2 mb-6" style="display: none;">
+        <div id="errorMessage"
+          class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm flex items-center gap-2 mb-6"
+          style="display: none;">
           <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
           <span id="errorText"></span>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex gap-4">
-          <button type="button" onclick="history.back()" 
+          <button type="button" onclick="history.back()"
             class="flex-1 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium flex items-center justify-center gap-2">
             <i data-lucide="arrow-left" class="w-5 h-5"></i>
             Back
@@ -161,11 +152,6 @@
     const urlParams = new URLSearchParams(window.location.search);
     const scholarshipId = urlParams.get('id');
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/login.html';
-    });
 
     // Load and display application data
     function loadApplicationPreview() {
@@ -245,7 +231,7 @@
 
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const confirmCheckbox = document.getElementById('confirmCheckbox');
-      
+
       if (!confirmCheckbox.checked) {
         document.getElementById('errorText').textContent = 'Please confirm that all information is accurate';
         document.getElementById('errorMessage').style.display = 'flex';
@@ -274,14 +260,14 @@
           // Clear session storage
           sessionStorage.removeItem(`applicationDraft_${scholarshipId}`);
           sessionStorage.removeItem(`documents_${scholarshipId}`);
-          
+
           // Redirect to confirmation page
           window.location.href = `/student/application-submitted.html?id=${data.application.appid}`;
         } else {
           document.getElementById('errorText').textContent = data.error || 'Failed to submit application';
           document.getElementById('errorMessage').style.display = 'flex';
           lucide.createIcons();
-          
+
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i> Submit Application';
           lucide.createIcons();
@@ -291,7 +277,7 @@
         document.getElementById('errorText').textContent = 'An error occurred. Please try again.';
         document.getElementById('errorMessage').style.display = 'flex';
         lucide.createIcons();
-        
+
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i> Submit Application';
         lucide.createIcons();
@@ -301,6 +287,8 @@
     loadApplicationPreview();
     lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="/common.js"></script>
 </body>
-</html>
 
+</html>

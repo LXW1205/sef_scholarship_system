@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,27 +47,9 @@
     }
   </script>
 </head>
+
 <body class="font-sans antialiased bg-muted/30">
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="briefcase" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">Committee Portal</h1>
-        </div>
-        <div class="flex items-center gap-6">
-          <a href="committee/dashboard.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            Dashboard
-          </a>
-          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen py-12">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,9 +67,12 @@
           <div class="bg-card rounded-xl border border-border p-6">
             <h3 class="text-2xl font-bold mb-4">John Smith</h3>
             <div class="grid grid-cols-2 gap-4 text-sm mb-4">
-              <div><span class="text-muted-foreground">Student ID:</span> <span class="font-medium">STU12345</span></div>
-              <div><span class="text-muted-foreground">Email:</span> <span class="font-medium">john.smith@email.com</span></div>
-              <div><span class="text-muted-foreground">Major:</span> <span class="font-medium">Computer Science</span></div>
+              <div><span class="text-muted-foreground">Student ID:</span> <span class="font-medium">STU12345</span>
+              </div>
+              <div><span class="text-muted-foreground">Email:</span> <span
+                  class="font-medium">john.smith@email.com</span></div>
+              <div><span class="text-muted-foreground">Major:</span> <span class="font-medium">Computer Science</span>
+              </div>
               <div><span class="text-muted-foreground">GPA:</span> <span class="font-medium">3.85</span></div>
             </div>
             <p class="text-muted-foreground text-sm">Merit Award 2024</p>
@@ -142,15 +128,18 @@
               <div>
                 <label class="block text-sm font-medium mb-3">Decision *</label>
                 <div class="space-y-2">
-                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                  <label
+                    class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     <input type="radio" name="decision" value="Approve" required class="w-4 h-4 text-primary">
                     <span class="ml-3 font-medium">Approve</span>
                   </label>
-                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                  <label
+                    class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     <input type="radio" name="decision" value="Reject" required class="w-4 h-4 text-primary">
                     <span class="ml-3 font-medium">Reject</span>
                   </label>
-                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                  <label
+                    class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     <input type="radio" name="decision" value="Request Interview" required class="w-4 h-4 text-primary">
                     <span class="ml-3 font-medium">Request Interview</span>
                   </label>
@@ -173,12 +162,15 @@
                 </div>
               </div>
 
-              <div id="formSuccess" class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2" style="display: none;">
+              <div id="formSuccess"
+                class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2"
+                style="display: none;">
                 <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
                 <span>Decision submitted successfully!</span>
               </div>
 
-              <button type="submit" id="submitBtn" class="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium flex items-center justify-center gap-2">
+              <button type="submit" id="submitBtn"
+                class="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium flex items-center justify-center gap-2">
                 <i data-lucide="check" class="w-5 h-5"></i>
                 Submit Decision
               </button>
@@ -198,23 +190,18 @@
     //   window.location.href = '/login.html';
     // }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/login.html';
-    });
 
     document.getElementById('decisionForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      
+
       const decision = document.querySelector('input[name="decision"]:checked').value;
       const comments = document.getElementById('comments').value;
 
       console.log('[v0] Decision submitted:', { decision, comments });
-      
+
       document.getElementById('formSuccess').style.display = 'flex';
       lucide.createIcons();
-      
+
       setTimeout(() => {
         window.location.href = '/committee/applications.html';
       }, 2000);
@@ -222,6 +209,8 @@
 
     lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="/common.js"></script>
 </body>
-</html>
 
+</html>

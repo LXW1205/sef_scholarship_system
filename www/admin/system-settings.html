@@ -22,38 +22,7 @@
 </head>
 
 <body class="font-sans antialiased bg-muted/30">
-    <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold">ScholarNet Admin</h1>
-                </div>
-                <div class="flex items-center gap-6">
-                    <a href="/admin/dashboard-admin.html"
-                        class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                        Dashboard
-                    </a>
-                    <a href="/admin/users-management.html"
-                        class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-                        <i data-lucide="users" class="w-4 h-4"></i>
-                        Users
-                    </a>
-                    <a href="/admin/scholarships-management.html"
-                        class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-                        <i data-lucide="award" class="w-4 h-4"></i>
-                        Scholarships
-                    </a>
-                    <button id="logoutBtn"
-                        class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        Logout
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <div id="header-container"></div>
 
     <main class="min-h-screen py-12">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -80,7 +49,8 @@
             </div>
         </div>
     </main>
-    <script>lucide.createIcons();</script>
+    <div id="footer-container"></div>
+    <script src="/common.js"></script>
 </body>
 
 </html>

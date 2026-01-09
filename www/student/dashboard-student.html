@@ -74,7 +74,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Quick Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/student/scholarships.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="award" class="w-5 h-5 text-primary"></i>
@@ -82,9 +83,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Available</h3>
             </div>
             <p class="text-3xl font-bold" id="availableCount">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/student/my-applications.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="send" class="w-5 h-5 text-success"></i>
@@ -92,9 +94,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Submitted</h3>
             </div>
             <p class="text-3xl font-bold" id="submittedCount">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/student/my-applications.html?status=Pending"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="clock" class="w-5 h-5 text-yellow-600"></i>
@@ -102,9 +105,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Pending</h3>
             </div>
             <p class="text-3xl font-bold" id="pendingCount">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/student/my-applications.html?status=Approved"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="check-circle" class="w-5 h-5 text-success"></i>
@@ -112,7 +116,7 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Approved</h3>
             </div>
             <p class="text-3xl font-bold" id="approvedCount">-</p>
-          </div>
+          </a>
         </div>
 
         <!-- Quick Actions -->

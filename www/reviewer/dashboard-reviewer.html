@@ -67,7 +67,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Quick Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/reviewer/assignments.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="clock" class="w-5 h-5 text-yellow-600"></i>
@@ -75,9 +76,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Pending Reviews</h3>
             </div>
             <p class="text-3xl font-bold" id="pendingCount">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/reviewer/assignments.html?status=In Progress"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="hourglass" class="w-5 h-5 text-blue-600"></i>
@@ -85,9 +87,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">In Progress</h3>
             </div>
             <p class="text-3xl font-bold" id="inProgressCount">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/reviewer/assignments.html?status=Reviewed"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="check-circle" class="w-5 h-5 text-success"></i>
@@ -95,7 +98,7 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Completed</h3>
             </div>
             <p class="text-3xl font-bold" id="completedCount">-</p>
-          </div>
+          </a>
         </div>
 
         <!-- Assigned Applications -->

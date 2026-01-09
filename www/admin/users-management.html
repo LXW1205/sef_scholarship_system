@@ -85,7 +85,7 @@
               <option value="">All Roles</option>
               <option value="Student">Student</option>
               <option value="Reviewer">Reviewer</option>
-              <option value="CommitteeMember">Committee</option>
+              <option value="Committee">Committee</option>
               <option value="Admin">Admin</option>
             </select>
           </div>
@@ -151,7 +151,7 @@
               class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
               <option value="">Select Role</option>
               <option value="Reviewer">Reviewer</option>
-              <option value="CommitteeMember">Committee Member</option>
+              <option value="Committee">Committee Member</option>
               <option value="Admin">Admin</option>
             </select>
           </div>
@@ -204,11 +204,6 @@
     //   window.location.href = '/login.html';
     // }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/login.html';
-    });
 
     function renderUsers(users) {
       const tbody = document.getElementById('usersTableBody');

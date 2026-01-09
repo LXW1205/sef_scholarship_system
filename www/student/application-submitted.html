@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,17 +41,9 @@
     }
   </script>
 </head>
+
 <body class="font-sans antialiased bg-muted/30">
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">Student Portal</h1>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen flex items-center justify-center py-12">
     <div class="max-w-2xl w-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -102,12 +95,12 @@
 
         <!-- Action Buttons -->
         <div class="flex gap-4 justify-center">
-          <a href="student/my-applications.html" 
+          <a href="student/my-applications.html"
             class="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium flex items-center gap-2">
             <i data-lucide="file-text" class="w-5 h-5"></i>
             View My Applications
           </a>
-          <a href="student/dashboard.html" 
+          <a href="student/dashboard.html"
             class="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium flex items-center gap-2">
             <i data-lucide="home" class="w-5 h-5"></i>
             Go to Dashboard
@@ -127,6 +120,8 @@
 
     lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="/common.js"></script>
 </body>
-</html>
 
+</html>

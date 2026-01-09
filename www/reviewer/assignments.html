@@ -44,33 +44,7 @@
 
 <body class="font-sans antialiased bg-muted/30">
   <!-- Reviewer Navigation -->
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="clipboard-check" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">Reviewer Portal</h1>
-        </div>
-        <div class="flex items-center gap-6">
-          <a href="/reviewer/dashboard-reviewer.html"
-            class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            Dashboard
-          </a>
-          <a href="/reviewer/assignments.html"
-            class="hover:text-muted-foreground transition-colors flex items-center gap-1 font-semibold">
-            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-            My Assignments
-          </a>
-          <button id="logoutBtn"
-            class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -114,11 +88,6 @@
     //   window.location.href = '/login.html';
     // }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/login.html';
-    });
 
     let allAssignments = [];
 
@@ -227,6 +196,8 @@
     loadAssignments();
     lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="/common.js"></script>
 </body>
 
 </html>

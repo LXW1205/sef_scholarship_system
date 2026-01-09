@@ -67,7 +67,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Quick Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/committee/applications.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="file-check" class="w-5 h-5 text-blue-600"></i>
@@ -75,9 +76,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Reviewed</h3>
             </div>
             <p class="text-3xl font-bold" id="reviewedCount">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/committee/decisions.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="hourglass" class="w-5 h-5 text-yellow-600"></i>
@@ -85,9 +87,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Pending Decisions</h3>
             </div>
             <p class="text-3xl font-bold" id="pendingCount">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/committee/applications.html?status=Approved"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="check-circle" class="w-5 h-5 text-success"></i>
@@ -95,9 +98,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Approved</h3>
             </div>
             <p class="text-3xl font-bold" id="approvedCount">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/committee/applications.html?status=Rejected"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="x-circle" class="w-5 h-5 text-destructive"></i>
@@ -105,7 +109,7 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Rejected</h3>
             </div>
             <p class="text-3xl font-bold" id="rejectedCount">-</p>
-          </div>
+          </a>
         </div>
 
         <!-- Quick Actions -->
@@ -124,7 +128,7 @@
             </div>
           </a>
 
-          <a href="committee/decisions.html"
+          <a href="/committee/decisions.html"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
             <div class="flex items-center gap-4">
               <div
@@ -138,7 +142,7 @@
             </div>
           </a>
 
-          <a href="committee/interviews.html"
+          <a href="/committee/interviews.html"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
             <div class="flex items-center gap-4">
               <div
@@ -157,7 +161,7 @@
         <div class="bg-card rounded-xl border border-border p-6">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold">Applications Awaiting Decision</h3>
-            <a href="committee/decisions.html" class="text-primary hover:underline text-sm font-medium">View All</a>
+            <a href="/committee/decisions.html" class="text-primary hover:underline text-sm font-medium">View All</a>
           </div>
           <div id="awaitingDecisions">
             <div class="flex items-center justify-center py-8">

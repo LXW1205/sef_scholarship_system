@@ -1,7 +1,7 @@
 package com.scholarship.server;
 
+import com.scholarship.dao.ApplicationDAO;
 import com.scholarship.model.Application;
-import com.scholarship.model.Student;
 import com.scholarship.utils.JsonUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -11,10 +11,13 @@ import java.util.List;
 
 public class ApplicationHandler implements HttpHandler {
 
+    private ApplicationDAO applicationDAO = new ApplicationDAO();
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if ("GET".equals(exchange.getRequestMethod())) {
             // In a real app, filtering by user would happen here via token
+            // For now, we'll fetch for a placeholder student or all (as per previous logic)
             String response = getApplicationsJson();
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, response.length());
@@ -28,28 +31,29 @@ public class ApplicationHandler implements HttpHandler {
 
     private String getApplicationsJson() {
         StringBuilder json = new StringBuilder("{\"applications\": [");
-        
+
         try {
-            Student student = new Student();
-            List<Application> apps = student.viewAppHistory();
-            
+            // Placeholder: in a real app, this would be the logged-in student's ID
+            List<Application> apps = applicationDAO.findByStudentId("S1001");
+
             boolean first = true;
             for (Application a : apps) {
-                if (!first) json.append(",");
+                if (!first)
+                    json.append(",");
                 first = false;
-                
-                json.append(String.format("{\"id\": %d, \"scholarship_title\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\"}",
+
+                json.append(String.format(
+                        "{\"id\": %d, \"scholarship_title\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\"}",
                         a.getAppID(),
                         JsonUtils.escape(a.getScholarshipTitle()),
                         a.getSubmissionDate(),
-                        JsonUtils.escape(a.getStatus())
-                ));
+                        JsonUtils.escape(a.getStatus())));
             }
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"error\": \"" + e.getMessage() + "\"}"; // Return error json
         }
-        
+
         json.append("]}");
         return json.toString();
     }

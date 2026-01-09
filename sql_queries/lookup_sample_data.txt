@@ -1,7 +1,7 @@
 INSERT INTO UserRoleLookup (roleValue) VALUES 
 ('Student'),
 ('Reviewer'),
-('CommitteeMember'),
+('Committee'),
 ('Admin');
 
 INSERT INTO ApplicationStatusLookup (statusValue) VALUES 
@@ -82,19 +82,19 @@ INSERT INTO Student (studentID, userID, fullName, cgpa)
 VALUES ('S2024005', 9, 'Nurul Aina binti Hassan', 3.78);
 
 INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('committee001', 'Committee@123', 'committee1@mmu.edu.my', 'CommitteeMember', TRUE);
+VALUES ('committee001', 'Committee@123', 'committee1@mmu.edu.my', 'Committee', TRUE);
 
 INSERT INTO CommitteeMember (userID, position)
 VALUES (10, 'Chairperson');
 
 INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('committee002', 'Committee@123', 'committee2@mmu.edu.my', 'CommitteeMember', TRUE);
+VALUES ('committee002', 'Committee@123', 'committee2@mmu.edu.my', 'Committee', TRUE);
 
 INSERT INTO CommitteeMember (userID, position)
 VALUES (11, 'Secretary');
 
 INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('committee003', 'Committee@123', 'committee3@mmu.edu.my', 'CommitteeMember', TRUE);
+VALUES ('committee003', 'Committee@123', 'committee3@mmu.edu.my', 'Committee', TRUE);
 
 INSERT INTO CommitteeMember (userID, position)
 VALUES (12, 'Member');

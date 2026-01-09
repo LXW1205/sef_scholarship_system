@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,36 +43,10 @@
     }
   </script>
 </head>
+
 <body class="font-sans antialiased bg-muted/30">
   <!-- Committee Navigation -->
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="briefcase" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">Committee Portal</h1>
-        </div>
-        <div class="flex items-center gap-6">
-          <a href="committee/dashboard.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            Dashboard
-          </a>
-          <a href="committee/applications.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 font-semibold">
-            <i data-lucide="file-text" class="w-4 h-4"></i>
-            Applications
-          </a>
-          <a href="committee/decisions.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="gavel" class="w-4 h-4"></i>
-            Decisions
-          </a>
-          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -88,7 +63,8 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium mb-2">Score Range</label>
-            <select id="scoreFilter" class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <select id="scoreFilter"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
               <option value="">All Scores</option>
               <option value="90-100">90-100 (Excellent)</option>
               <option value="80-89">80-89 (Very Good)</option>
@@ -98,7 +74,8 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Status</label>
-            <select id="statusFilter" class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <select id="statusFilter"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
               <option value="">All Statuses</option>
               <option value="Pending">Pending Decision</option>
               <option value="Shortlisted">Shortlisted</option>
@@ -108,7 +85,8 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Sort By</label>
-            <select id="sortFilter" class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <select id="sortFilter"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
               <option value="score-desc">Highest Score First</option>
               <option value="score-asc">Lowest Score First</option>
               <option value="date-desc">Most Recent</option>
@@ -135,11 +113,6 @@
     //   window.location.href = '/login.html';
     // }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/login.html';
-    });
 
     // Mock data
     const mockApplications = [
@@ -175,12 +148,11 @@
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-2">
                   <h3 class="text-xl font-bold">${app.studentName}</h3>
-                  <span class="px-3 py-1 text-xs font-medium rounded-full ${
-                    app.status === 'Approved' ? 'bg-success/10 text-success' :
-                    app.status === 'Shortlisted' ? 'bg-blue-500/10 text-blue-600' :
-                    app.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
-                    'bg-yellow-500/10 text-yellow-600'
-                  }">${app.status}</span>
+                  <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Approved' ? 'bg-success/10 text-success' :
+          app.status === 'Shortlisted' ? 'bg-blue-500/10 text-blue-600' :
+            app.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
+              'bg-yellow-500/10 text-yellow-600'
+        }">${app.status}</span>
                 </div>
                 <p class="text-muted-foreground mb-3">${app.scholarship}</p>
                 <div class="flex items-center gap-6 text-sm">
@@ -223,6 +195,8 @@
     displayApplications(mockApplications);
     lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="/common.js"></script>
 </body>
-</html>
 
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,27 +47,9 @@
     }
   </script>
 </head>
+
 <body class="font-sans antialiased bg-muted/30">
-  <nav class="bg-primary text-primary-foreground border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-2">
-          <i data-lucide="clipboard-check" class="w-6 h-6"></i>
-          <h1 class="text-xl font-bold">Reviewer Portal</h1>
-        </div>
-        <div class="flex items-center gap-6">
-          <a href="reviewer/dashboard.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            Dashboard
-          </a>
-          <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-container"></div>
 
   <main class="min-h-screen py-12">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -88,10 +71,13 @@
             </h3>
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div><span class="text-muted-foreground">Name:</span> <span class="font-medium">John Smith</span></div>
-              <div><span class="text-muted-foreground">Email:</span> <span class="font-medium">john.smith@email.com</span></div>
-              <div><span class="text-muted-foreground">Student ID:</span> <span class="font-medium">STU12345</span></div>
+              <div><span class="text-muted-foreground">Email:</span> <span
+                  class="font-medium">john.smith@email.com</span></div>
+              <div><span class="text-muted-foreground">Student ID:</span> <span class="font-medium">STU12345</span>
+              </div>
               <div><span class="text-muted-foreground">GPA:</span> <span class="font-medium">3.85</span></div>
-              <div><span class="text-muted-foreground">Major:</span> <span class="font-medium">Computer Science</span></div>
+              <div><span class="text-muted-foreground">Major:</span> <span class="font-medium">Computer Science</span>
+              </div>
               <div><span class="text-muted-foreground">Year:</span> <span class="font-medium">Year 3</span></div>
             </div>
           </div>
@@ -103,7 +89,9 @@
               Personal Statement
             </h3>
             <p class="text-sm text-muted-foreground leading-relaxed">
-              I am writing to express my strong interest in the Merit Award 2024 scholarship. Throughout my academic journey, I have demonstrated exceptional dedication to my studies while maintaining a GPA of 3.85. Beyond academics, I have actively participated in community service projects...
+              I am writing to express my strong interest in the Merit Award 2024 scholarship. Throughout my academic
+              journey, I have demonstrated exceptional dedication to my studies while maintaining a GPA of 3.85. Beyond
+              academics, I have actively participated in community service projects...
             </p>
           </div>
 
@@ -203,16 +191,20 @@
                 </select>
               </div>
 
-              <div id="formSuccess" class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2" style="display: none;">
+              <div id="formSuccess"
+                class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2"
+                style="display: none;">
                 <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
                 <span>Evaluation saved successfully!</span>
               </div>
 
               <div class="space-y-2">
-                <button type="button" id="saveDraftBtn" class="w-full px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium">
+                <button type="button" id="saveDraftBtn"
+                  class="w-full px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium">
                   Save Draft
                 </button>
-                <button type="submit" class="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                <button type="submit"
+                  class="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
                   Submit Evaluation
                 </button>
               </div>
@@ -232,11 +224,6 @@
     //   window.location.href = '/login.html';
     // }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/login.html';
-    });
 
     // Calculate total score
     const scoreInputs = ['academicScore', 'leadershipScore', 'communityScore', 'statementScore'];
@@ -257,7 +244,7 @@
 
     document.getElementById('evaluationForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      
+
       const evaluation = {
         academicScore: document.getElementById('academicScore').value,
         leadershipScore: document.getElementById('leadershipScore').value,
@@ -268,10 +255,10 @@
       };
 
       console.log('[v0] Submitting evaluation:', evaluation);
-      
+
       document.getElementById('formSuccess').style.display = 'flex';
       lucide.createIcons();
-      
+
       setTimeout(() => {
         window.location.href = '/reviewer/assignments.html';
       }, 2000);
@@ -279,6 +266,8 @@
 
     lucide.createIcons();
   </script>
+  <div id="footer-container"></div>
+  <script src="/common.js"></script>
 </body>
-</html>
 
+</html>

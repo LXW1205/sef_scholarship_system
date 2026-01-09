@@ -73,7 +73,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Quick Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/admin/users-management.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
@@ -81,9 +82,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Total Users</h3>
             </div>
             <p class="text-3xl font-bold" id="totalUsers">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/admin/scholarships-management.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="award" class="w-5 h-5 text-success"></i>
@@ -91,9 +93,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Active Scholarships</h3>
             </div>
             <p class="text-3xl font-bold" id="activeScholarships">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/admin/applications.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="file-text" class="w-5 h-5 text-yellow-600"></i>
@@ -101,9 +104,10 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Pending Applications</h3>
             </div>
             <p class="text-3xl font-bold" id="pendingApps">-</p>
-          </div>
+          </a>
 
-          <div class="bg-card rounded-xl border border-border p-6">
+          <a href="/admin/reports.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
                 <i data-lucide="check-circle" class="w-5 h-5 text-purple-600"></i>
@@ -111,51 +115,82 @@
               <h3 class="font-semibold text-muted-foreground text-sm">Approved This Month</h3>
             </div>
             <p class="text-3xl font-bold" id="approvedMonth">-</p>
-          </div>
+          </a>
         </div>
 
         <!-- Quick Actions -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <a href="/admin/users-management.html?action=create"
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          <a href="/admin/users-management.html"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
-            <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center text-center gap-3">
               <div
                 class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <i data-lucide="user-plus" class="w-6 h-6"></i>
+                <i data-lucide="users" class="w-6 h-6"></i>
               </div>
-              <div>
-                <h3 class="font-semibold text-lg mb-1">Add New User</h3>
-                <p class="text-sm text-muted-foreground">Register reviewer or committee member</p>
-              </div>
+              <h3 class="font-semibold">Manage Users</h3>
             </div>
           </a>
 
-          <a href="/admin/scholarships-management.html?action=create"
+          <a href="/admin/scholarships-management.html"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
-            <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center text-center gap-3">
               <div
                 class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                <i data-lucide="award" class="w-6 h-6"></i>
               </div>
-              <div>
-                <h3 class="font-semibold text-lg mb-1">Create Scholarship</h3>
-                <p class="text-sm text-muted-foreground">Add a new scholarship opportunity</p>
-              </div>
+              <h3 class="font-semibold">Scholarships</h3>
             </div>
           </a>
 
           <a href="/admin/applications.html"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
-            <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center text-center gap-3">
               <div
                 class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                 <i data-lucide="clipboard-check" class="w-6 h-6"></i>
               </div>
-              <div>
-                <h3 class="font-semibold text-lg mb-1">Review Applications</h3>
-                <p class="text-sm text-muted-foreground">Assign reviewers and track progress</p>
-              </div>
+              <h3 class="font-semibold">Applications</h3>
             </div>
+          </a>
+
+          <a href="/admin/reports.html"
+            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
+            <div class="flex flex-col items-center text-center gap-3">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+              </div>
+              <h3 class="font-semibold">System Reports</h3>
+            </div>
+          </a>
+        </div>
+
+        <!-- Secondary Actions -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
+          <a href="/admin/send-notifications.html"
+            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
+            <i data-lucide="send" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
+            <span class="text-xs font-medium">Notifications</span>
+          </a>
+          <a href="/admin/audit-logs.html"
+            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
+            <i data-lucide="shield" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
+            <span class="text-xs font-medium">Audit Logs</span>
+          </a>
+          <a href="/admin/system-settings.html"
+            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
+            <i data-lucide="settings" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
+            <span class="text-xs font-medium">Settings</span>
+          </a>
+          <a href="/admin/notification-settings.html"
+            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
+            <i data-lucide="bell" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
+            <span class="text-xs font-medium">Alerts</span>
+          </a>
+          <a href="/admin/backup-maintenance.html"
+            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
+            <i data-lucide="database" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
+            <span class="text-xs font-medium">Backup</span>
           </a>
         </div>
 
