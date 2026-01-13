@@ -89,12 +89,13 @@
                             <th class="px-6 py-4 text-left text-sm font-semibold">Applicant</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold">Scholarship</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Reviewer</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="applicationsTableBody" class="divide-y divide-border">
                         <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-muted-foreground">
+                            <td colspan="5" class="px-6 py-8 text-center text-muted-foreground">
                                 <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i>
                                 Loading applications...
                             </td>
@@ -103,12 +104,86 @@
                 </table>
             </div>
         </div>
+
+        <!-- Assign Modal -->
+        <div id="assignModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+            <div class="bg-card rounded-xl p-6 w-full max-w-md shadow-lg border border-border">
+                <h3 class="text-lg font-bold mb-4">Assign Reviewer</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Select Reviewer</label>
+                    <select id="reviewerSelect" class="w-full px-4 py-2 bg-background border border-input rounded-lg">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button id="closeModal"
+                        class="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">Cancel</button>
+                    <button id="saveAssign"
+                        class="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Save
+                        Assignment</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <div id="footer-container"></div>
     <script src="/common.js"></script>
     <script>
         const token = localStorage.getItem('token');
+        let currentAppId = null;
+
+        // Modal elements
+        const modal = document.getElementById('assignModal');
+        const closeModal = document.getElementById('closeModal');
+        const saveAssign = document.getElementById('saveAssign');
+        const reviewerSelect = document.getElementById('reviewerSelect');
+
+        function openModal(appId) {
+            currentAppId = appId;
+            modal.classList.remove('hidden');
+        }
+
+        closeModal.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            currentAppId = null;
+        });
+
+        saveAssign.addEventListener('click', async () => {
+            if (!currentAppId || !reviewerSelect.value) return;
+            try {
+                const response = await fetch('/api/applications', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json' // Important for manual parsing backend
+                    },
+                    body: JSON.stringify({ appId: currentAppId, reviewerId: reviewerSelect.value })
+                });
+                if (response.ok) {
+                    modal.classList.add('hidden');
+                    loadApplications(); // Refresh list
+                } else {
+                    alert('Failed to assign reviewer');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error assigning reviewer');
+            }
+        });
+
+        async function loadReviewers() {
+            try {
+                const response = await fetch('/api/users?role=Reviewer', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                const reviewers = data.users || [];
+                reviewerSelect.innerHTML = '<option value="">Select Reviewer</option>' +
+                    reviewers.map(r => `<option value="${r.staffID}">${r.username} (${r.department})</option>`).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
         async function loadApplications() {
             try {
@@ -120,7 +195,7 @@
 
                 const tbody = document.getElementById('applicationsTableBody');
                 if (applications.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-muted-foreground">No applications found</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-muted-foreground">No applications found</td></tr>';
                 } else {
                     tbody.innerHTML = applications.map(app => `
                     <tr>
@@ -132,8 +207,16 @@
                         <td class="px-6 py-4">
                             <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">${app.status}</span>
                         </td>
+                        <td class="px-6 py-4 text-sm">
+                            ${app.reviewerName ?
+                            `<span class="text-gray-700 font-medium">${app.reviewerName}</span>` :
+                            '<span class="text-gray-400 italic">Unassigned</span>'}
+                        </td>
                         <td class="px-6 py-4">
-                            <button class="text-primary hover:underline text-sm font-medium">Manage</button>
+                            ${app.reviewerName ?
+                            '<button class="text-gray-400 cursor-not-allowed text-sm font-medium" disabled>Assigned</button>' :
+                            `<button onclick="openModal(${app.id})" class="text-primary hover:underline text-sm font-medium">Assign Reviewer</button>`
+                        }
                         </td>
                     </tr>
                 `).join('');
@@ -143,6 +226,8 @@
                 console.error(e);
             }
         }
+
+        loadReviewers();
         loadApplications();
     </script>
 </body>

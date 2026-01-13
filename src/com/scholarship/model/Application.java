@@ -10,16 +10,27 @@ public class Application {
     private String scholarshipTitle; // Extra field for display convenience (from join)
     private Timestamp submissionDate;
     private String status;
+    private String reviewerID; // Staff ID of assigned reviewer
+    private String reviewerName; // Username of assigned reviewer
+    private String applicantName; // Full name of the applicant
     private java.util.List<Document> documents = new java.util.ArrayList<>();
 
     public Application(int appID, String studentID, int scholarshipID, String scholarshipTitle,
             Timestamp submissionDate, String status) {
+        this(appID, studentID, scholarshipID, scholarshipTitle, submissionDate, status, null, null, null);
+    }
+
+    public Application(int appID, String studentID, int scholarshipID, String scholarshipTitle,
+            Timestamp submissionDate, String status, String reviewerID, String reviewerName, String applicantName) {
         this.appID = appID;
         this.studentID = studentID;
         this.scholarshipID = scholarshipID;
         this.scholarshipTitle = scholarshipTitle;
         this.submissionDate = submissionDate;
         this.status = status;
+        this.reviewerID = reviewerID;
+        this.reviewerName = reviewerName;
+        this.applicantName = applicantName;
     }
 
     public int getAppID() {
@@ -44,6 +55,18 @@ public class Application {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getReviewerID() {
+        return reviewerID;
+    }
+
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
     }
 
     public java.util.List<Document> getDocuments() {

@@ -19,16 +19,27 @@ public class ScholarshipHandler implements HttpHandler {
         if ("GET".equals(exchange.getRequestMethod())) {
             String path = exchange.getRequestURI().getPath();
             String response;
+            int statusCode = 200;
 
             if (path.matches("/api/scholarships/\\d+")) {
                 int id = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+                System.out.println("[DEBUG] Fetching scholarship with ID: " + id);
                 response = getSingleScholarshipJson(id);
+                System.out.println(
+                        "[DEBUG] Response: " + response.substring(0, Math.min(100, response.length())) + "...");
+                // Check if response is an error
+                if (response.contains("\"error\"")) {
+                    statusCode = response.contains("not found") ? 404 : 500;
+                }
             } else {
                 response = getScholarshipsJson();
+                if (response.contains("\"error\"")) {
+                    statusCode = 500;
+                }
             }
 
             exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, response.length());
+            exchange.sendResponseHeaders(statusCode, response.length());
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
@@ -62,7 +73,7 @@ public class ScholarshipHandler implements HttpHandler {
             criteriaJson.append("]");
 
             return String.format(
-                    "{\"scholarship\": {\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": %.2f, \"deadline\": \"%s\", \"isactive\": %b}, \"criteria\": %s}",
+                    "{\"scholarship\": {\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": %.2f, \"deadline\": \"%s\", \"isactive\": %b, \"applicant_count\": 0}, \"criteria\": %s}",
                     s.getScholarshipID(),
                     JsonUtils.escape(s.getTitle()),
                     JsonUtils.escape(s.getDescription() != null ? s.getDescription() : ""),

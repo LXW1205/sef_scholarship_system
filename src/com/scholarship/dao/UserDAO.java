@@ -52,6 +52,27 @@ public class UserDAO {
         return users;
     }
 
+    public List<User> findByRole(String role) {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT userID, username, email, role, isActive FROM \"User\" WHERE role = ? ORDER BY userID";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, role);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(fetchDetailedUser(rs.getInt("userID"), rs.getString("username"), rs.getString("email"),
+                            rs.getString("role"), rs.getBoolean("isActive"), conn));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
     private User fetchDetailedUser(int userId, String username, String email, String role, boolean isActive,
             Connection conn) throws SQLException {
         switch (role) {
