@@ -67,7 +67,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Quick Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <a href="/reviewer/assignments.html"
+          <a href="/reviewer/application-assignments.html"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
@@ -78,7 +78,7 @@
             <p class="text-3xl font-bold" id="pendingCount">-</p>
           </a>
 
-          <a href="/reviewer/assignments.html?status=In Progress"
+          <a href="/reviewer/application-assignments.html?status=In Progress"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
@@ -89,7 +89,7 @@
             <p class="text-3xl font-bold" id="inProgressCount">-</p>
           </a>
 
-          <a href="/reviewer/assignments.html?status=Reviewed"
+          <a href="/reviewer/application-assignments.html?status=Reviewed"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
@@ -105,7 +105,8 @@
         <div class="bg-card rounded-xl border border-border p-6 mb-6">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold">Assigned Applications</h3>
-            <a href="/reviewer/assignments.html" class="text-primary hover:underline text-sm font-medium">View All</a>
+            <a href="/reviewer/application-assignments.html"
+              class="text-primary hover:underline text-sm font-medium">View All</a>
           </div>
           <div id="assignedApplications">
             <div class="flex items-center justify-center py-8">
@@ -122,7 +123,7 @@
               <h3 class="font-bold text-lg mb-2">Upcoming Deadlines</h3>
               <p class="text-sm text-muted-foreground mb-4">You have 3 reviews due in the next 7 days. Please complete
                 them on time.</p>
-              <a href="/reviewer/assignments.html"
+              <a href="/reviewer/application-assignments.html"
                 class="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1">
                 View Assignments
                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -182,7 +183,7 @@
               app.status === 'In Progress' ? 'bg-blue-500/10 text-blue-600' :
                 'bg-success/10 text-success'
             }">${app.status}</span>
-                    <a href="/reviewer/review-application.html?id=${app.id}" 
+                    <a href="/reviewer/application-review.html?id=${app.id}" 
                       class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
                       Review
                     </a>

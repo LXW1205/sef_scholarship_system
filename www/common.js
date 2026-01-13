@@ -146,7 +146,7 @@ function injectAdminHeader(container) {
                     <a href="/admin/scholarships-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('scholarships') ? 'font-semibold' : ''}">
                         <i data-lucide="award" class="w-4 h-4"></i> Scholarships
                     </a>
-                    <a href="/admin/applications.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
+                    <a href="/admin/applications-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
                         <i data-lucide="clipboard-check" class="w-4 h-4"></i> Applications
                     </a>
                     <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
@@ -173,13 +173,13 @@ function injectStudentHeader(container) {
                     <a href="/student/dashboard-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                     </a>
-                    <a href="/student/scholarships.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('scholarships') ? 'font-semibold' : ''}">
+                    <a href="/student/scholarships-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('scholarships') ? 'font-semibold' : ''}">
                         <i data-lucide="award" class="w-4 h-4"></i> Scholarships
                     </a>
-                    <a href="/student/my-applications.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
+                    <a href="/student/applications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
                         <i data-lucide="file-text" class="w-4 h-4"></i> My Applications
                     </a>
-                    <a href="/student/profile.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
+                    <a href="/student/profile-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
                         <i data-lucide="user" class="w-4 h-4"></i> Profile
                     </a>
                     <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
@@ -206,7 +206,7 @@ function injectReviewerHeader(container) {
                     <a href="/reviewer/dashboard-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                     </a>
-                    <a href="/reviewer/assignments.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('assignments') ? 'font-semibold' : ''}">
+                    <a href="/reviewer/application-assignments.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('assignments') ? 'font-semibold' : ''}">
                         <i data-lucide="clipboard-list" class="w-4 h-4"></i> Assignments
                     </a>
                     <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
@@ -233,13 +233,13 @@ function injectCommitteeHeader(container) {
                     <a href="/committee/dashboard-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                     </a>
-                    <a href="/committee/applications.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
+                    <a href="/committee/applications-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
                         <i data-lucide="clipboard-list" class="w-4 h-4"></i> Applications
                     </a>
-                    <a href="/committee/decisions.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('decisions') ? 'font-semibold' : ''}">
+                    <a href="/committee/application-decisions.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('decisions') ? 'font-semibold' : ''}">
                         <i data-lucide="gavel" class="w-4 h-4"></i> Decisions
                     </a>
-                    <a href="/committee/interviews.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('interviews') ? 'font-semibold' : ''}">
+                    <a href="/committee/schedule-interviews.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('interviews') ? 'font-semibold' : ''}">
                         <i data-lucide="calendar" class="w-4 h-4"></i> Interviews
                     </a>
                     <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-2">
