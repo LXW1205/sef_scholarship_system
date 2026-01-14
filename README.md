@@ -1,4 +1,4 @@
-Digital Scholarship Application and Tracking System
+⭐ Digital Scholarship Application and Tracking System ⭐
 
 CSE6214 SOFTWARE ENGINEERING FUNDAMENTALS
 
