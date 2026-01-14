@@ -1,135 +1,83 @@
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('admin001', 'Admin@123', 'admin@mmu.edu.my', 'Admin', TRUE);
+-- Insert Users (Base Table)
+-- Admin
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Admin One', 'Admin@123', 'admin@mmu.edu.my', 'Admin', TRUE); -- userID 1
 
-INSERT INTO Admin (userID, adminLevel)
-VALUES (1, 'Super Admin');
+-- Reviewers
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Dr. Reviewer One', 'Review@123', 'reviewer1@mmu.edu.my', 'Reviewer', TRUE); -- 2
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Prof. Reviewer Two', 'Review@123', 'reviewer2@mmu.edu.my', 'Reviewer', TRUE); -- 3
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Dr. Reviewer Three', 'Review@123', 'reviewer3@mmu.edu.my', 'Reviewer', TRUE); -- 4
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('reviewer001', 'Review@123', 'reviewer1@mmu.edu.my', 'Reviewer', TRUE);
+-- Students
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Ahmad bin Ismail', 'Student@123', 'ahmad.ismail@student.mmu.edu.my', 'Student', TRUE); -- 5
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Siti binti Rahman', 'Student@123', 'siti.rahman@student.mmu.edu.my', 'Student', TRUE); -- 6
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Chong Wei Lun', 'Student@123', 'chong.wei@student.mmu.edu.my', 'Student', TRUE); -- 7
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Kumar a/l Rajendran', 'Student@123', 'kumar.raj@student.mmu.edu.my', 'Student', TRUE); -- 8
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Nurul Aina', 'Student@123', 'nurul.aina@student.mmu.edu.my', 'Student', TRUE); -- 9
 
-INSERT INTO Reviewer (staffID, userID, department)
-VALUES ('R001', 2, 'Faculty of Engineering');
+-- Committee
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Committee Chair', 'Committee@123', 'committee1@mmu.edu.my', 'Committee', TRUE); -- 10
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Committee Sec', 'Committee@123', 'committee2@mmu.edu.my', 'Committee', TRUE); -- 11
+INSERT INTO "User" (fullName, password, email, role, isActive) VALUES ('Committee Member', 'Committee@123', 'committee3@mmu.edu.my', 'Committee', TRUE); -- 12
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('reviewer002', 'Review@123', 'reviewer2@mmu.edu.my', 'Reviewer', TRUE);
+-- Insert Role Specific Data (New String IDs and Extra Fields)
+INSERT INTO Admin (adminID, userID, adminLevel) VALUES ('A1001', 1, 'Super Admin');
 
-INSERT INTO Reviewer (staffID, userID, department)
-VALUES ('R002', 3, 'Faculty of Computing and Informatics');
+INSERT INTO Reviewer (reviewerID, userID, department) VALUES ('R001', 2, 'Faculty of Engineering');
+INSERT INTO Reviewer (reviewerID, userID, department) VALUES ('R002', 3, 'Faculty of Computing');
+INSERT INTO Reviewer (reviewerID, userID, department) VALUES ('R003', 4, 'Faculty of Management');
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('reviewer003', 'Review@123', 'reviewer3@mmu.edu.my', 'Reviewer', TRUE);
+INSERT INTO Student (studentID, userID, cgpa, major, qualification, yearOfStudy, expectedGraduation, familyIncome)
+VALUES ('S2024001', 5, 3.85, 'Software Engineering', 'Bachelor', 'Year 2', '2026', 3500.00);
 
-INSERT INTO Reviewer (staffID, userID, department)
-VALUES ('R003', 4, 'Faculty of Management');
+INSERT INTO Student (studentID, userID, cgpa, major, qualification, yearOfStudy, expectedGraduation, familyIncome)
+VALUES ('S2024002', 6, 3.92, 'Data Science', 'Bachelor', 'Year 3', '2025', 4200.00);
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('student001', 'Student@123', 'ahmad.ismail@student.mmu.edu.my', 'Student', TRUE);
+INSERT INTO Student (studentID, userID, cgpa, major, qualification, yearOfStudy, expectedGraduation, familyIncome)
+VALUES ('S2024003', 7, 3.67, 'Computer Science', 'Bachelor', 'Year 1', '2027', 8000.00);
 
-INSERT INTO Student (studentID, userID, fullName, cgpa)
-VALUES ('S2024001', 5, 'Ahmad bin Ismail', 3.85);
+INSERT INTO Student (studentID, userID, cgpa, major, qualification, yearOfStudy, expectedGraduation, familyIncome)
+VALUES ('S2024004', 8, 3.45, 'Mechanical Engineering', 'Bachelor', 'Year 2', '2026', 2500.00);
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('student002', 'Student@123', 'siti.rahman@student.mmu.edu.my', 'Student', TRUE);
+INSERT INTO Student (studentID, userID, cgpa, major, qualification, yearOfStudy, expectedGraduation, familyIncome)
+VALUES ('S2024005', 9, 3.78, 'Foundation in IT', 'Foundation', 'Year 1', '2025', 12000.00);
 
-INSERT INTO Student (studentID, userID, fullName, cgpa)
-VALUES ('S2024002', 6, 'Siti binti Rahman', 3.92);
+INSERT INTO CommitteeMember (committeeID, userID, position) VALUES ('C1001', 10, 'Chairperson');
+INSERT INTO CommitteeMember (committeeID, userID, position) VALUES ('C1002', 11, 'Secretary');
+INSERT INTO CommitteeMember (committeeID, userID, position) VALUES ('C1003', 12, 'Member');
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('student003', 'Student@123', 'chong.wei@student.mmu.edu.my', 'Student', TRUE);
+-- Insert Scholarships (New Fields: description, amount, forQualification)
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
+VALUES ('MMU Chancellor Scholarship', 'Full scholarship for high achievers.', 'RM 50,000', 'Bachelor', '2025-08-31', TRUE);
 
-INSERT INTO Student (studentID, userID, fullName, cgpa)
-VALUES ('S2024003', 7, 'Chong Wei Lun', 3.67);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
+VALUES ('MMU President Scholarship', 'Partial scholarship for Foundation students.', 'RM 15,000', 'Foundation', '2025-08-31', TRUE);
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('student004', 'Student@123', 'kumar.raj@student.mmu.edu.my', 'Student', TRUE);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
+VALUES ('MMU Merit Scholarship', 'Merit-based award for outstanding academic results.', 'RM 20,000', 'All', '2025-08-31', TRUE);
 
-INSERT INTO Student (studentID, userID, fullName, cgpa)
-VALUES ('S2024004', 8, 'Kumar a/l Rajendran', 3.45);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
+VALUES ('MMU Sports Talent', 'For state/national players.', 'RM 10,000', 'All', '2025-08-31', TRUE);
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('student005', 'Student@123', 'nurul.aina@student.mmu.edu.my', 'Student', TRUE);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
+VALUES ('Star Education Fund', 'External scholarship for Engineering.', 'RM 40,000', 'Bachelor', '2025-07-31', TRUE);
 
-INSERT INTO Student (studentID, userID, fullName, cgpa)
-VALUES ('S2024005', 9, 'Nurul Aina binti Hassan', 3.78);
+-- Insert Criteria (Linked to IDs 1-5 which are Serial, so we assume order)
+-- Scholarship 1
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Academic Excellence', 60, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Interview', 40, 100);
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('committee001', 'Committee@123', 'committee1@mmu.edu.my', 'Committee', TRUE);
+-- Scholarship 2
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (2, 'SPM Results', 100, 100);
 
-INSERT INTO CommitteeMember (userID, position)
-VALUES (10, 'Chairperson');
+-- Insert Applications (Minimal sample)
+-- Student 1 (S2024001) applying for Scholarship 1
+INSERT INTO Application (studentID, scholarshipID, submissionDate, status, personalStatement, otherScholarships)
+VALUES ('S2024001', 1, CURRENT_TIMESTAMP, 'Pending', 'I am a very good student...', 'None');
 
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('committee002', 'Committee@123', 'committee2@mmu.edu.my', 'Committee', TRUE);
+-- Student 2 (S2024002) applying for Scholarship 1
+INSERT INTO Application (studentID, scholarshipID, submissionDate, status, personalStatement, otherScholarships)
+VALUES ('S2024002', 1, CURRENT_TIMESTAMP, 'Pending', 'Passionate about Data Science.', 'JPA Scholarship');
 
-INSERT INTO CommitteeMember (userID, position)
-VALUES (11, 'Secretary');
-
-INSERT INTO "User" (username, password, email, role, isActive)
-VALUES ('committee003', 'Committee@123', 'committee3@mmu.edu.my', 'Committee', TRUE);
-
-INSERT INTO CommitteeMember (userID, position)
-VALUES (12, 'Member');
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('MMU Chancellor Scholarship - Bachelor Degree', '2025-08-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('MMU Chancellor Scholarship - Foundation', '2025-08-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('MMU President Scholarship - Bachelor Degree', '2025-08-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('MMU President Scholarship - Foundation', '2025-08-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('MMU Merit Scholarship', '2025-08-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('MMU Talent Scholarship - Sports (National Level)', '2025-08-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('MMU Talent Scholarship - Sports (State Level)', '2025-08-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('Sin Chew Daily Education Fund - Engineering (Bachelor)', '2025-07-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('Star Education Fund - Engineering (Bachelor)', '2025-07-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('Ibnu Haitham Scholarship', '2025-08-31', TRUE);
-
-INSERT INTO Scholarship (title, deadline, isActive)
-VALUES ('JAWHAR Scholarship', '2025-08-31', TRUE);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (1, 'Academic Excellence', 40, 100);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (1, 'Leadership and Co-curricular Activities', 30, 100);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (1, 'Financial Need (B40 Category)', 20, 100);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (1, 'Interview Performance', 10, 100);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (5, 'Academic Performance (CGPA 3.5-3.74)', 50, 100);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (5, 'Consistency in Academic Results', 30, 100);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (5, 'Financial Need', 20, 100);
-
--- Insert Criteria for MMU Talent Scholarship
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (6, 'National Level Achievement', 50, 100);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (6, 'Verification from National Sports Association', 30, 100);
-
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore)
-VALUES (6, 'Commitment to Represent MMU', 20, 100);
+-- Student 5 (S2024005) joining Foundation, applying for Scholarship 2
+INSERT INTO Application (studentID, scholarshipID, submissionDate, status, personalStatement, otherScholarships)
+VALUES ('S2024005', 2, CURRENT_TIMESTAMP, 'Approved', 'Top SPM scorer.', 'None');

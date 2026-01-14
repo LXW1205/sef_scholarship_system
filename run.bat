@@ -2,7 +2,9 @@
 if not exist "lib" mkdir lib
 
 echo Compiling...
-javac -d bin -sourcepath src src/com/scholarship/Main.java
+dir /s /b src\*.java > sources.txt
+javac -d bin @sources.txt
+del sources.txt
 
 if %errorlevel% neq 0 (
     echo Compilation failed.

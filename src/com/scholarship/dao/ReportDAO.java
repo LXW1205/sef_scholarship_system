@@ -13,7 +13,7 @@ public class ReportDAO {
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, report.getAdminID());
+            pstmt.setString(1, report.getAdminID());
             pstmt.setString(2, report.getType());
             pstmt.setString(3, report.getGeneratedFile());
             return pstmt.executeUpdate() > 0;
@@ -33,7 +33,7 @@ public class ReportDAO {
             while (rs.next()) {
                 reports.add(new Report(
                         rs.getInt("reportID"),
-                        rs.getInt("adminID"),
+                        rs.getString("adminID"),
                         rs.getString("type"),
                         rs.getString("generatedFile"),
                         rs.getTimestamp("generatedDate")));

@@ -103,9 +103,42 @@
     <script>
         lucide.createIcons();
 
-        document.getElementById('notificationForm').addEventListener('submit', (e) => {
+        document.getElementById('notificationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('Notification sent system-wide!');
+
+            const recipients = document.querySelector('select').value;
+            const subject = document.querySelector('input[type="text"]').value; // Note: Backend currently doesn't use subject, just message
+            const messageBody = document.querySelector('textarea').value;
+
+            // combine subject and message for now as the backend only takes 'message'
+            const fullMessage = subject ? `[${subject}] ${messageBody}` : messageBody;
+
+            const btn = document.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/notifications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recipients: recipients, message: fullMessage })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Notification sent successfully!');
+                    document.getElementById('notificationForm').reset();
+                } else {
+                    alert('Failed to send: ' + (result.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error sending notification');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         });
     </script>
     <div id="footer-container"></div>

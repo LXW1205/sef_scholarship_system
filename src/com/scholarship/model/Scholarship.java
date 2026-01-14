@@ -8,17 +8,19 @@ public class Scholarship {
     private int scholarshipID;
     private String title;
     private String description;
-    private double amount;
+    private String amount;
+    private String forQualification;
     private Date deadline;
     private boolean isActive;
     private List<Criterion> criteria;
 
-    public Scholarship(int scholarshipID, String title, String description, double amount, Date deadline,
-            boolean isActive) {
+    public Scholarship(int scholarshipID, String title, String description, String amount, String forQualification,
+            Date deadline, boolean isActive) {
         this.scholarshipID = scholarshipID;
         this.title = title;
         this.description = description;
         this.amount = amount;
+        this.forQualification = forQualification;
         this.deadline = deadline;
         this.isActive = isActive;
         this.criteria = new ArrayList<>();
@@ -36,8 +38,12 @@ public class Scholarship {
         return description;
     }
 
-    public double getAmount() {
+    public String getAmount() {
         return amount;
+    }
+
+    public String getForQualification() {
+        return forQualification;
     }
 
     public Date getDeadline() {

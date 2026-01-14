@@ -73,11 +73,12 @@ public class ScholarshipHandler implements HttpHandler {
             criteriaJson.append("]");
 
             return String.format(
-                    "{\"scholarship\": {\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": %.2f, \"deadline\": \"%s\", \"isactive\": %b, \"applicant_count\": 0}, \"criteria\": %s}",
+                    "{\"scholarship\": {\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": \"%s\", \"forQualification\": \"%s\", \"deadline\": \"%s\", \"isactive\": %b, \"applicant_count\": 0}, \"criteria\": %s}",
                     s.getScholarshipID(),
                     JsonUtils.escape(s.getTitle()),
                     JsonUtils.escape(s.getDescription() != null ? s.getDescription() : ""),
-                    s.getAmount(),
+                    JsonUtils.escape(s.getAmount()),
+                    JsonUtils.escape(s.getForQualification() != null ? s.getForQualification() : ""),
                     s.getDeadline(),
                     s.isActive(),
                     criteriaJson.toString());
@@ -116,11 +117,12 @@ public class ScholarshipHandler implements HttpHandler {
                 criteriaJson.append("]");
 
                 json.append(String.format(
-                        "{\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": %.2f, \"deadline\": \"%s\", \"status\": \"%s\", \"criteria\": %s}",
+                        "{\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": \"%s\", \"forQualification\": \"%s\", \"deadline\": \"%s\", \"status\": \"%s\", \"criteria\": %s}",
                         s.getScholarshipID(),
                         JsonUtils.escape(s.getTitle()),
                         JsonUtils.escape(s.getDescription() != null ? s.getDescription() : ""),
-                        s.getAmount(),
+                        JsonUtils.escape(s.getAmount()),
+                        JsonUtils.escape(s.getForQualification() != null ? s.getForQualification() : ""),
                         s.getDeadline(),
                         s.isActive() ? "Active" : "Closed",
                         criteriaJson.toString()));

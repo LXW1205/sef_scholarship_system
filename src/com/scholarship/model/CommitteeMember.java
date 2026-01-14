@@ -1,21 +1,22 @@
 package com.scholarship.model;
 
 public class CommitteeMember extends User {
-    private int memberID;
+    private String committeeID;
     private String position;
 
-    public CommitteeMember(int id, String username, String email, boolean isActive, int memberID, String position) {
-        super(id, username, email, "Committee", isActive);
-        this.memberID = memberID;
+    public CommitteeMember(int id, String fullName, String email, boolean isActive, String committeeID,
+            String position) {
+        super(id, fullName, email, "Committee", isActive);
+        this.committeeID = committeeID;
         this.position = position;
     }
 
-    public int getMemberID() {
-        return memberID;
+    public String getCommitteeID() {
+        return committeeID;
     }
 
-    public void setMemberID(int memberID) {
-        this.memberID = memberID;
+    public void setCommitteeID(String committeeID) {
+        this.committeeID = committeeID;
     }
 
     public String getPosition() {

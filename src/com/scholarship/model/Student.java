@@ -9,64 +9,123 @@ import java.util.List;
 
 public class Student extends User {
     private String studentID;
-    private String fullName;
     private double cgpa;
+    private String major;
+    private String qualification;
+    private String yearOfStudy;
+    private String expectedGraduation;
+    private double familyIncome;
 
-    public Student(int id, String username, String email, boolean isActive, String studentID, String fullName, double cgpa) {
-        super(id, username, email, "Student", isActive);
-        this.studentID = studentID;
-        this.fullName = fullName;
-        this.cgpa = cgpa;
+    public Student(int id, String fullName, String email, boolean isActive, String studentID, double cgpa) {
+        this(id, fullName, email, isActive, studentID, cgpa, null, null, null, null, 0.0);
     }
-    
+
+    public Student(int id, String fullName, String email, boolean isActive, String studentID, double cgpa,
+            String major, String qualification, String yearOfStudy, String expectedGraduation, double familyIncome) {
+        super(id, fullName, email, "Student", isActive);
+        this.studentID = studentID;
+        this.cgpa = cgpa;
+        this.major = major;
+        this.qualification = qualification;
+        this.yearOfStudy = yearOfStudy;
+        this.expectedGraduation = expectedGraduation;
+        this.familyIncome = familyIncome;
+    }
+
     // Default constructor for testing/mocking
-    public Student() { 
+    public Student() {
         super();
         this.role = "Student";
     }
 
-    public String getStudentID() { return studentID; }
-    public void setStudentID(String studentID) { this.studentID = studentID; }
+    public String getStudentID() {
+        return studentID;
+    }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setStudentID(String studentID) {
+        this.studentID = studentID;
+    }
 
-    public double getCgpa() { return cgpa; }
-    public void setCgpa(double cgpa) { this.cgpa = cgpa; }
+    public double getCgpa() {
+        return cgpa;
+    }
+
+    public void setCgpa(double cgpa) {
+        this.cgpa = cgpa;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public String getQualification() {
+        return qualification;
+    }
+
+    public void setQualification(String qualification) {
+        this.qualification = qualification;
+    }
+
+    public String getYearOfStudy() {
+        return yearOfStudy;
+    }
+
+    public void setYearOfStudy(String yearOfStudy) {
+        this.yearOfStudy = yearOfStudy;
+    }
+
+    public String getExpectedGraduation() {
+        return expectedGraduation;
+    }
+
+    public void setExpectedGraduation(String expectedGraduation) {
+        this.expectedGraduation = expectedGraduation;
+    }
+
+    public double getFamilyIncome() {
+        return familyIncome;
+    }
+
+    public void setFamilyIncome(double familyIncome) {
+        this.familyIncome = familyIncome;
+    }
 
     public List<Scholarship> viewAvailableScholarships() {
         List<Scholarship> scholarships = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM Scholarship WHERE isActive = true ORDER BY deadline")) {
-            
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT * FROM Scholarship WHERE isActive = true ORDER BY deadline")) {
+
             while (rs.next()) {
                 Scholarship scholarship = new Scholarship(
-                    rs.getInt("scholarshipID"),
-                    rs.getString("title"),
-                    rs.getString("description"),
-                    rs.getDouble("amount"),
-                    rs.getDate("deadline"),
-                    rs.getBoolean("isActive")
-                );
-                
+                        rs.getInt("scholarshipID"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("amount"), // Changed to String
+                        rs.getString("forQualification"), // Added field
+                        rs.getDate("deadline"),
+                        rs.getBoolean("isActive"));
+
                 // Fetch criteria for this scholarship
                 int scholarshipID = rs.getInt("scholarshipID");
                 try (Statement criteriaStmt = conn.createStatement();
-                     ResultSet criteriaRs = criteriaStmt.executeQuery(
-                         "SELECT * FROM Criteria WHERE scholarshipID = " + scholarshipID)) {
-                    
+                        ResultSet criteriaRs = criteriaStmt.executeQuery(
+                                "SELECT * FROM Criteria WHERE scholarshipID = " + scholarshipID)) {
+
                     while (criteriaRs.next()) {
                         scholarship.addCriterion(new Criterion(
-                            criteriaRs.getInt("criteriaID"),
-                            criteriaRs.getInt("scholarshipID"),
-                            criteriaRs.getString("name"),
-                            criteriaRs.getInt("weightage"),
-                            criteriaRs.getDouble("maxScore")
-                        ));
+                                criteriaRs.getInt("criteriaID"),
+                                criteriaRs.getInt("scholarshipID"),
+                                criteriaRs.getString("name"),
+                                criteriaRs.getInt("weightage"),
+                                criteriaRs.getDouble("maxScore")));
                     }
                 }
-                
+
                 scholarships.add(scholarship);
             }
         } catch (Exception e) {
@@ -79,32 +138,31 @@ public class Student extends User {
         Scholarship scholarship = null;
         String sql = "SELECT * FROM Scholarship WHERE scholarshipID = " + id;
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+
             if (rs.next()) {
                 scholarship = new Scholarship(
-                    rs.getInt("scholarshipID"),
-                    rs.getString("title"),
-                    rs.getString("description"),
-                    rs.getDouble("amount"),
-                    rs.getDate("deadline"),
-                    rs.getBoolean("isActive")
-                );
-                
+                        rs.getInt("scholarshipID"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("amount"), // Changed to String
+                        rs.getString("forQualification"), // Added field
+                        rs.getDate("deadline"),
+                        rs.getBoolean("isActive"));
+
                 // Fetch criteria
                 try (Statement criteriaStmt = conn.createStatement();
-                     ResultSet criteriaRs = criteriaStmt.executeQuery(
-                         "SELECT * FROM Criteria WHERE scholarshipID = " + id)) {
-                    
+                        ResultSet criteriaRs = criteriaStmt.executeQuery(
+                                "SELECT * FROM Criteria WHERE scholarshipID = " + id)) {
+
                     while (criteriaRs.next()) {
                         scholarship.addCriterion(new Criterion(
-                            criteriaRs.getInt("criteriaID"),
-                            criteriaRs.getInt("scholarshipID"),
-                            criteriaRs.getString("name"),
-                            criteriaRs.getInt("weightage"),
-                            criteriaRs.getDouble("maxScore")
-                        ));
+                                criteriaRs.getInt("criteriaID"),
+                                criteriaRs.getInt("scholarshipID"),
+                                criteriaRs.getString("name"),
+                                criteriaRs.getInt("weightage"),
+                                criteriaRs.getDouble("maxScore")));
                     }
                 }
             }
@@ -117,24 +175,23 @@ public class Student extends User {
     public List<Application> viewAppHistory() {
         List<Application> applications = new ArrayList<>();
         String sql = "SELECT a.appID, a.scholarshipID, s.title as scholarship_title, a.submissionDate, a.status " +
-                     "FROM Application a " +
-                     "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
-                     // "WHERE a.studentID = '" + this.studentID + "' " + // Uncomment in real app to filter by this user
-                     "ORDER BY a.submissionDate DESC";
+                "FROM Application a " +
+                "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
+                "WHERE a.studentID = '" + studentID + "' " +
+                "ORDER BY a.submissionDate DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
                 applications.add(new Application(
-                    rs.getInt("appID"),
-                    this.studentID, // Ideally from DB, but for now we assume it's this student's apps (or all as per original code)
-                    rs.getInt("scholarshipID"),
-                    rs.getString("scholarship_title"),
-                    rs.getTimestamp("submissionDate"),
-                    rs.getString("status")
-                ));
+                        rs.getInt("appID"),
+                        this.studentID,
+                        rs.getInt("scholarshipID"),
+                        rs.getString("scholarship_title"),
+                        rs.getTimestamp("submissionDate"),
+                        rs.getString("status")));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,7 +200,11 @@ public class Student extends User {
     }
 
     @Override
-    public boolean login() { return true; }
+    public boolean login() {
+        return true;
+    }
+
     @Override
-    public void logout() { }
+    public void logout() {
+    }
 }

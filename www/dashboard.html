@@ -100,7 +100,7 @@
       window.location.href = '/login.html';
     }
 
-    document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.username || 'User'}!`;
+    document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.fullName || 'User'}!`;
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
       localStorage.removeItem('token');

@@ -19,26 +19,28 @@ public class AuthHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if ("POST".equals(exchange.getRequestMethod())) {
-            String requestBody = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))
-                    .lines().collect(Collectors.joining("\n"));
-            
-            System.out.println("Received login request: " + requestBody);
+            String requestBody;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))) {
+                requestBody = reader.lines().collect(Collectors.joining("\n"));
+            }
 
-            String username = JsonUtils.extractValue(requestBody, "username");
+            String email = JsonUtils.extractValue(requestBody, "email");
             String password = JsonUtils.extractValue(requestBody, "password");
 
             String response;
             int statusCode;
 
-            if (username != null && password != null) {
-                User user = userDAO.authenticate(username, password);
+            if (email != null && password != null) {
+                User user = userDAO.authenticate(email, password);
                 if (user != null) {
-                     response = String.format("{\"token\": \"fake-jwt-token\", \"user\": {\"username\": \"%s\", \"role\": \"%s\", \"id\": %d}}", 
-                             user.getUsername(), user.getRole(), user.getId());
-                     statusCode = 200;
+                    response = String.format(
+                            "{\"token\": \"fake-jwt-token\", \"user\": {\"fullName\": \"%s\", \"role\": \"%s\", \"id\": %d}}",
+                            user.getFullName(), user.getRole(), user.getId());
+                    statusCode = 200;
                 } else {
-                     response = "{\"error\": \"Invalid credentials\"}";
-                     statusCode = 401;
+                    response = "{\"error\": \"Invalid credentials\"}";
+                    statusCode = 401;
                 }
             } else {
                 response = "{\"error\": \"Invalid request format\"}";

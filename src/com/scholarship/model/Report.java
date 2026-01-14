@@ -4,12 +4,12 @@ import java.sql.Timestamp;
 
 public class Report {
     private int reportID;
-    private int adminID;
+    private String adminID;
     private String type;
     private String generatedFile;
     private Timestamp generatedDate;
 
-    public Report(int reportID, int adminID, String type, String generatedFile, Timestamp generatedDate) {
+    public Report(int reportID, String adminID, String type, String generatedFile, Timestamp generatedDate) {
         this.reportID = reportID;
         this.adminID = adminID;
         this.type = type;
@@ -21,7 +21,7 @@ public class Report {
         return reportID;
     }
 
-    public int getAdminID() {
+    public String getAdminID() {
         return adminID;
     }
 

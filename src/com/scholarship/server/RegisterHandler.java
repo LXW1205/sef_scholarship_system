@@ -26,48 +26,52 @@ public class RegisterHandler implements HttpHandler {
         try {
             InputStream is = exchange.getRequestBody();
             String requestBody = new String(is.readAllBytes());
-            
-            String username = JsonUtils.extractJsonValue(requestBody, "username");
+
             String email = JsonUtils.extractJsonValue(requestBody, "email");
             String password = JsonUtils.extractJsonValue(requestBody, "password");
             String role = JsonUtils.extractJsonValue(requestBody, "role");
             String fullName = JsonUtils.extractJsonValue(requestBody, "fullName");
-            
+            String studentID = JsonUtils.extractJsonValue(requestBody, "studentID");
+
             // Default to Student if no role specified
             if (role == null || role.isEmpty()) {
                 role = "Student";
             }
-            
-            // Check if username or email already exists
-            if (userExists(username, email)) {
-                sendResponse(exchange, 400, "{\"error\": \"Username or email already exists\"}");
+
+            // Check if email already exists
+            if (emailExists(email)) {
+                sendResponse(exchange, 400, "{\"error\": \"Email already exists\"}");
                 return;
             }
-            
+
             // Insert user into database
-            int userId = createUser(username, email, password, role);
-            
+            int userId = createUser(fullName, email, password, role);
+
+            if (userId > 0 && "Student".equals(role) && studentID != null && !studentID.isEmpty()) {
+                createStudent(userId, studentID);
+            }
+
             if (userId > 0) {
-                String response = String.format("{\"success\": true, \"message\": \"User registered successfully\", \"userId\": %d}", userId);
+                String response = String.format(
+                        "{\"success\": true, \"message\": \"User registered successfully\", \"userId\": %d}", userId);
                 sendResponse(exchange, 200, response);
             } else {
                 sendResponse(exchange, 500, "{\"error\": \"Failed to create user\"}");
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             sendResponse(exchange, 500, "{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
-    
-    private boolean userExists(String username, String email) {
-        String sql = "SELECT COUNT(*) FROM \"User\" WHERE username = ? OR email = ?";
+
+    private boolean emailExists(String email) {
+        String sql = "SELECT COUNT(*) FROM \"User\" WHERE email = ?";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, username);
-            pstmt.setString(2, email);
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, email);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
@@ -78,17 +82,29 @@ public class RegisterHandler implements HttpHandler {
         }
         return false;
     }
-    
-    private int createUser(String username, String email, String password, String role) {
-        String sql = "INSERT INTO \"User\" (username, email, password, role, isActive) VALUES (?, ?, ?, ?, true) RETURNING userID";
+
+    private void createStudent(int userId, String studentID) {
+        String sql = "INSERT INTO Student (studentID, userID, cgpa) VALUES (?, ?, 0.0)";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, username);
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, studentID);
+            pstmt.setInt(2, userId);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int createUser(String fullName, String email, String password, String role) {
+        String sql = "INSERT INTO \"User\" (fullName, email, password, role, isActive) VALUES (?, ?, ?, ?, true) RETURNING userID";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, fullName);
             pstmt.setString(2, email);
             pstmt.setString(3, password); // In production, hash this password!
             pstmt.setString(4, role);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -99,7 +115,7 @@ public class RegisterHandler implements HttpHandler {
         }
         return -1;
     }
-    
+
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(statusCode, response.length());

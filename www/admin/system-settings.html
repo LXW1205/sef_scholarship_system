@@ -50,7 +50,54 @@
         </div>
     </main>
     <div id="footer-container"></div>
+    <div id="footer-container"></div>
     <script src="/common.js"></script>
+    <script>
+        const saveBtn = document.querySelector('button');
+        const inputs = document.querySelectorAll('input, select');
+
+        // Load Settings
+        fetch('/api/system/settings')
+            .then(res => res.json())
+            .then(data => {
+                inputs[0].value = data.systemName || '';
+                inputs[1].value = data.supportEmail || '';
+                if (data.timezone) {
+                    inputs[2].value = data.timezone;
+                }
+            });
+
+        saveBtn.addEventListener('click', async () => {
+            const data = {
+                systemName: inputs[0].value,
+                supportEmail: inputs[1].value,
+                timezone: inputs[2].value
+            };
+
+            saveBtn.textContent = 'Saving...';
+            saveBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/system/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Settings saved successfully!');
+                } else {
+                    alert('Failed to save settings');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error saving settings');
+            } finally {
+                saveBtn.textContent = 'Save Changes';
+                saveBtn.disabled = false;
+            }
+        });
+    </script>
 </body>
 
 </html>

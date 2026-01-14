@@ -194,9 +194,7 @@
       }
     }
 
-    document.getElementById('applyBtn')?.addEventListener('click', async () => {
-      const applyBtn = document.getElementById('applyBtn');
-      const applyMessage = document.getElementById('applyMessage');
+    document.getElementById('applyBtn')?.addEventListener('click', () => {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
       if (!token) {
@@ -204,47 +202,7 @@
         return;
       }
 
-      applyBtn.disabled = true;
-      applyBtn.textContent = 'Submitting...';
-      applyBtn.className = 'w-full px-6 py-4 bg-primary/70 text-primary-foreground rounded-lg font-semibold text-lg cursor-not-allowed';
-
-      try {
-        const response = await fetch('/api/applications', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ scholarshipID: scholarshipId })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          applyMessage.textContent = 'Application submitted successfully!';
-          applyMessage.className = 'mt-4 p-4 rounded-lg text-center bg-green-50 text-green-800 border border-green-200';
-          applyMessage.style.display = 'block';
-          applyBtn.style.display = 'none';
-          setTimeout(() => {
-            window.location.href = '/student/dashboard-student.html';
-          }, 2000);
-        } else {
-          applyMessage.textContent = data.error || 'Failed to submit application';
-          applyMessage.className = 'mt-4 p-4 rounded-lg text-center bg-destructive/10 text-destructive border border-destructive/20';
-          applyMessage.style.display = 'block';
-          applyBtn.disabled = false;
-          applyBtn.textContent = 'Apply Now';
-          applyBtn.className = 'w-full px-6 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg';
-        }
-      } catch (error) {
-        console.error('[v0] Apply error:', error);
-        applyMessage.textContent = 'An error occurred. Please try again.';
-        applyMessage.className = 'mt-4 p-4 rounded-lg text-center bg-destructive/10 text-destructive border border-destructive/20';
-        applyMessage.style.display = 'block';
-        applyBtn.disabled = false;
-        applyBtn.textContent = 'Apply Now';
-        applyBtn.className = 'w-full px-6 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg';
-      }
+      window.location.href = `/student/application-form.html?id=${scholarshipId}`;
     });
 
     // Load on page ready

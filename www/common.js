@@ -68,17 +68,17 @@ function injectHeader() {
     const headerContainer = document.getElementById('header-container');
     if (!headerContainer) return;
 
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "{}");
     const path = window.location.pathname;
 
     // Determine which header to inject
-    if (path.includes('/admin/')) {
+    if (user.role === 'Admin' && (path.includes('/admin/') || path.includes('profile.html') || path.includes('notifications.html'))) {
         injectAdminHeader(headerContainer);
-    } else if (path.includes('/student/')) {
+    } else if (user.role === 'Student' && (path.includes('/student/') || path.includes('profile.html') || path.includes('notifications.html'))) {
         injectStudentHeader(headerContainer);
-    } else if (path.includes('/reviewer/')) {
+    } else if (user.role === 'Reviewer' && (path.includes('/reviewer/') || path.includes('profile.html') || path.includes('notifications.html'))) {
         injectReviewerHeader(headerContainer);
-    } else if (path.includes('/committee/')) {
+    } else if (user.role === 'Committee' && (path.includes('/committee/') || path.includes('profile.html') || path.includes('notifications.html'))) {
         injectCommitteeHeader(headerContainer);
     } else {
         injectPublicHeader(headerContainer);
@@ -149,6 +149,12 @@ function injectAdminHeader(container) {
                     <a href="/admin/applications-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
                         <i data-lucide="clipboard-check" class="w-4 h-4"></i> Applications
                     </a>
+                    <a href="/admin/notifications-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
+                        <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                    </a>
+                    <a href="/admin/profile-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
+                        <i data-lucide="user" class="w-4 h-4"></i> Profile
+                    </a>
                     <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
                         <i data-lucide="log-out" class="w-4 h-4"></i> Logout
                     </button>
@@ -179,6 +185,9 @@ function injectStudentHeader(container) {
                     <a href="/student/applications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
                         <i data-lucide="file-text" class="w-4 h-4"></i> My Applications
                     </a>
+                    <a href="/student/notifications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
+                        <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                    </a>
                     <a href="/student/profile-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
                         <i data-lucide="user" class="w-4 h-4"></i> Profile
                     </a>
@@ -208,6 +217,12 @@ function injectReviewerHeader(container) {
                     </a>
                     <a href="/reviewer/application-assignments.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('assignments') ? 'font-semibold' : ''}">
                         <i data-lucide="clipboard-list" class="w-4 h-4"></i> Assignments
+                    </a>
+                    <a href="/reviewer/notifications-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
+                        <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                    </a>
+                    <a href="/reviewer/profile-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
+                        <i data-lucide="user" class="w-4 h-4"></i> Profile
                     </a>
                     <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
                         <i data-lucide="log-out" class="w-4 h-4"></i> Logout
@@ -241,6 +256,12 @@ function injectCommitteeHeader(container) {
                     </a>
                     <a href="/committee/schedule-interviews.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('interviews') ? 'font-semibold' : ''}">
                         <i data-lucide="calendar" class="w-4 h-4"></i> Interviews
+                    </a>
+                    <a href="/committee/notifications-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
+                        <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                    </a>
+                    <a href="/committee/profile-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
+                        <i data-lucide="user" class="w-4 h-4"></i> Profile
                     </a>
                     <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-2">
                         <i data-lucide="log-out" class="w-4 h-4"></i> Logout
@@ -295,7 +316,7 @@ function handleAuthUI() {
         });
     });
 
-    if (token && user.username) {
+    if (token && user.fullName) {
         if (loginLink) loginLink.style.display = "none";
         if (registerLink) registerLink.style.display = "none";
         if (dashboardLink) {

@@ -6,11 +6,11 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 public class Admin extends User {
-    private int adminID;
+    private String adminID;
     private String adminLevel;
 
-    public Admin(int id, String username, String email, boolean isActive, int adminID, String adminLevel) {
-        super(id, username, email, "Admin", isActive);
+    public Admin(int id, String fullName, String email, boolean isActive, String adminID, String adminLevel) {
+        super(id, fullName, email, "Admin", isActive);
         this.adminID = adminID;
         this.adminLevel = adminLevel;
     }
@@ -20,11 +20,11 @@ public class Admin extends User {
         this.role = "Admin";
     }
 
-    public int getAdminID() {
+    public String getAdminID() {
         return adminID;
     }
 
-    public void setAdminID(int adminID) {
+    public void setAdminID(String adminID) {
         this.adminID = adminID;
     }
 
@@ -88,7 +88,6 @@ public class Admin extends User {
                 }
             }
 
-            // User Role Distribution
             // User Role Distribution
             try (ResultSet rs = stmt.executeQuery("SELECT role, COUNT(*) FROM \"User\" GROUP BY role")) {
                 while (rs.next()) {

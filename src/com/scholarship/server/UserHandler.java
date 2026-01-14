@@ -19,25 +19,142 @@ public class UserHandler implements HttpHandler {
             // In a real app, verify Admin role here
             String query = exchange.getRequestURI().getQuery();
             String roleFilter = null;
-            if (query != null && query.contains("role=")) {
+            String idFilter = null;
+
+            if (query != null) {
                 for (String param : query.split("&")) {
                     String[] pair = param.split("=");
-                    if (pair.length == 2 && pair[0].equals("role")) {
-                        roleFilter = pair[1];
-                        break;
+                    if (pair.length == 2) {
+                        if (pair[0].equals("role")) {
+                            roleFilter = pair[1];
+                        } else if (pair[0].equals("id")) {
+                            idFilter = pair[1];
+                        }
                     }
                 }
             }
 
-            String response = getUsersJson(roleFilter);
+            String response;
+            if (idFilter != null) {
+                try {
+                    int id = Integer.parseInt(idFilter);
+                    User user = userDAO.findById(id);
+                    if (user != null) {
+                        response = getUserJson(user);
+                    } else {
+                        response = "{\"error\": \"User not found\"}";
+                        exchange.sendResponseHeaders(404, response.length());
+                        try (OutputStream os = exchange.getResponseBody()) {
+                            os.write(response.getBytes());
+                        }
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    response = "{\"error\": \"Invalid ID format\"}";
+                    exchange.sendResponseHeaders(400, response.length());
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(response.getBytes());
+                    }
+                    return;
+                }
+            } else {
+                response = getUsersJson(roleFilter);
+            }
+
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, response.length());
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        } else if ("POST".equals(exchange.getRequestMethod())) {
+            handlePost(exchange);
         } else {
             exchange.sendResponseHeaders(405, -1);
         }
+    }
+
+    private void handlePost(HttpExchange exchange) throws IOException {
+        String requestBody = new String(exchange.getRequestBody().readAllBytes());
+
+        try {
+            int id = Integer.parseInt(JsonUtils.extractValue(requestBody, "id"));
+            String fullName = JsonUtils.extractValue(requestBody, "fullName");
+            String password = JsonUtils.extractValue(requestBody, "password");
+
+            // Basic validation
+            if (fullName == null || fullName.isEmpty()) {
+                sendError(exchange, 400, "Full Name is required");
+                return;
+            }
+
+            // Create a temp user object for updating (role/email/active not updated here)
+            User user = new User(id, fullName, "", "", true) {
+                public boolean login() {
+                    return false;
+                }
+
+                public void logout() {
+                }
+            };
+
+            if (userDAO.update(user, password)) {
+                String response = "{\"success\": true}";
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, response.length());
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
+            } else {
+                sendError(exchange, 500, "Failed to update user");
+            }
+        } catch (NumberFormatException e) {
+            sendError(exchange, 400, "Invalid ID format");
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendError(exchange, 500, "Internal Server Error");
+        }
+    }
+
+    private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
+        String response = String.format("{\"error\": \"%s\"}", JsonUtils.escape(message));
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(statusCode, response.length());
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(response.getBytes());
+        }
+    }
+
+    private String getUserJson(User user) {
+        String detailedJson = "";
+        if (user instanceof Student) {
+            Student s = (Student) user;
+            detailedJson = String.format(", \"studentID\": \"%s\", \"cgpa\": %.2f",
+                    JsonUtils.escape(s.getStudentID()), s.getCgpa());
+        } else if (user instanceof Reviewer) {
+            Reviewer r = (Reviewer) user;
+            detailedJson = String.format(", \"reviewerID\": \"%s\", \"department\": \"%s\"",
+                    JsonUtils.escape(r.getReviewerID()), JsonUtils.escape(r.getDepartment()));
+        } else if (user instanceof CommitteeMember) {
+            CommitteeMember c = (CommitteeMember) user;
+            detailedJson = String.format(", \"committeeID\": \"%s\", \"position\": \"%s\"",
+                    JsonUtils.escape(c.getCommitteeID()), JsonUtils.escape(c.getPosition()));
+        } else if (user instanceof Admin) {
+            Admin a = (Admin) user;
+            detailedJson = String.format(", \"adminID\": \"%s\", \"adminLevel\": \"%s\"",
+                    JsonUtils.escape(a.getAdminID()), JsonUtils.escape(a.getAdminLevel()));
+        }
+
+        return String.format(
+                "{\"user\": {\"id\": %d, \"fullName\": \"%s\", \"email\": \"%s\", \"role\": \"%s\", \"isActive\": %b%s}}",
+                user.getId(),
+                JsonUtils.escape(user.getFullName()),
+                JsonUtils.escape(user.getEmail()),
+                JsonUtils.escape(user.getRole()),
+                user.isActive(),
+                detailedJson);
     }
 
     private String getUsersJson(String roleFilter) {
@@ -55,26 +172,26 @@ public class UserHandler implements HttpHandler {
                 String detailedJson = "";
                 if (user instanceof Student) {
                     Student s = (Student) user;
-                    detailedJson = String.format(", \"studentID\": \"%s\", \"fullName\": \"%s\", \"cgpa\": %.2f",
-                            JsonUtils.escape(s.getStudentID()), JsonUtils.escape(s.getFullName()), s.getCgpa());
+                    detailedJson = String.format(", \"studentID\": \"%s\", \"cgpa\": %.2f",
+                            JsonUtils.escape(s.getStudentID()), s.getCgpa());
                 } else if (user instanceof Reviewer) {
                     Reviewer r = (Reviewer) user;
-                    detailedJson = String.format(", \"staffID\": \"%s\", \"department\": \"%s\"",
-                            JsonUtils.escape(r.getStaffID()), JsonUtils.escape(r.getDepartment()));
+                    detailedJson = String.format(", \"reviewerID\": \"%s\", \"department\": \"%s\"",
+                            JsonUtils.escape(r.getReviewerID()), JsonUtils.escape(r.getDepartment()));
                 } else if (user instanceof CommitteeMember) {
                     CommitteeMember c = (CommitteeMember) user;
-                    detailedJson = String.format(", \"memberID\": %d, \"position\": \"%s\"",
-                            c.getMemberID(), JsonUtils.escape(c.getPosition()));
+                    detailedJson = String.format(", \"committeeID\": \"%s\", \"position\": \"%s\"",
+                            JsonUtils.escape(c.getCommitteeID()), JsonUtils.escape(c.getPosition()));
                 } else if (user instanceof Admin) {
                     Admin a = (Admin) user;
-                    detailedJson = String.format(", \"adminID\": %d, \"adminLevel\": \"%s\"",
-                            a.getAdminID(), JsonUtils.escape(a.getAdminLevel()));
+                    detailedJson = String.format(", \"adminID\": \"%s\", \"adminLevel\": \"%s\"",
+                            JsonUtils.escape(a.getAdminID()), JsonUtils.escape(a.getAdminLevel()));
                 }
 
                 json.append(String.format(
-                        "{\"id\": %d, \"username\": \"%s\", \"email\": \"%s\", \"role\": \"%s\", \"isActive\": %b%s}",
+                        "{\"id\": %d, \"fullName\": \"%s\", \"email\": \"%s\", \"role\": \"%s\", \"isActive\": %b%s}",
                         user.getId(),
-                        JsonUtils.escape(user.getUsername()),
+                        JsonUtils.escape(user.getFullName()),
                         JsonUtils.escape(user.getEmail()),
                         JsonUtils.escape(user.getRole()),
                         user.isActive(),

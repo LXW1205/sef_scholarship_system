@@ -22,7 +22,8 @@ public class ScholarshipDAO {
                         rs.getInt("scholarshipID"),
                         rs.getString("title"),
                         rs.getString("description"),
-                        rs.getDouble("amount"),
+                        rs.getString("amount"),
+                        rs.getString("forQualification"),
                         rs.getDate("deadline"),
                         rs.getBoolean("isActive"));
                 s.setCriteria(findCriteriaByScholarshipId(s.getScholarshipID(), conn));
@@ -46,7 +47,8 @@ public class ScholarshipDAO {
                             rs.getInt("scholarshipID"),
                             rs.getString("title"),
                             rs.getString("description"),
-                            rs.getDouble("amount"),
+                            rs.getString("amount"),
+                            rs.getString("forQualification"),
                             rs.getDate("deadline"),
                             rs.getBoolean("isActive"));
                     s.setCriteria(findCriteriaByScholarshipId(id, conn));

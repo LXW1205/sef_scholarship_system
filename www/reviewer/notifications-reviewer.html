@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - ScholarNet Reviewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(222.2 84% 4.9%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(0 84.2% 60.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                        success: {
+                            DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+                            foreground: 'hsl(355.7 100% 97.3%)',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+    <div id="header-container"></div>
+
+    <main class="min-h-screen py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Notifications</h2>
+                    <p class="text-muted-foreground">Stay updated with your reviewing tasks</p>
+                </div>
+                <button class="text-sm text-primary hover:underline">Mark all as read</button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Notification Item -->
+                <div class="bg-card p-6 rounded-xl border border-border shadow-sm flex gap-4 items-start">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="file-plus" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-lg">New Assignment</h3>
+                            <span class="text-xs text-muted-foreground">2 hours ago</span>
+                        </div>
+                        <p class="text-muted-foreground mt-1">You have been assigned 3 new applications for the
+                            "Engineering Excellence" scholarship.</p>
+                    </div>
+                    <button class="text-muted-foreground hover:text-foreground">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Notification Item -->
+                <div class="bg-card p-6 rounded-xl border border-border shadow-sm flex gap-4 items-start">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="clock" class="w-5 h-5 text-red-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-lg">Deadline Approaching</h3>
+                            <span class="text-xs text-muted-foreground">1 day ago</span>
+                        </div>
+                        <p class="text-muted-foreground mt-1">Reminder: The review deadline for batch #2024-05 is in 2
+                            days.</p>
+                    </div>
+                    <button class="text-muted-foreground hover:text-foreground">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+    <script src="/common.js"></script>
+</body>
+
+</html>

@@ -1,6 +1,30 @@
+-- Drop tables in reverse dependency order to avoid FK violations
+DROP TABLE IF EXISTS ClarificationStatusLookup CASCADE;
+DROP TABLE IF EXISTS InterviewStatusLookup CASCADE;
+DROP TABLE IF EXISTS EvaluationStatusLookup CASCADE;
+DROP TABLE IF EXISTS ApplicationStatusLookup CASCADE;
+DROP TABLE IF EXISTS UserRoleLookup CASCADE;
+DROP TABLE IF EXISTS Notification CASCADE;
+DROP TABLE IF EXISTS Report CASCADE;
+DROP TABLE IF EXISTS ClarificationRequest CASCADE;
+DROP TABLE IF EXISTS Interview CASCADE;
+DROP TABLE IF EXISTS Evaluation CASCADE;
+DROP TABLE IF EXISTS Document CASCADE;
+DROP TABLE IF EXISTS Application CASCADE;
+DROP TABLE IF EXISTS Inquiry CASCADE;
+DROP TABLE IF EXISTS Criteria CASCADE;
+DROP TABLE IF EXISTS Scholarship CASCADE;
+DROP TABLE IF EXISTS Admin CASCADE;
+DROP TABLE IF EXISTS CommitteeMember CASCADE;
+DROP TABLE IF EXISTS Reviewer CASCADE;
+DROP TABLE IF EXISTS Student CASCADE;
+DROP TABLE IF EXISTS "User" CASCADE;
+
+-- Create Tables
+
 CREATE TABLE "User" (
     userID SERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
+    fullName VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     role VARCHAR(20) NOT NULL,
@@ -10,27 +34,31 @@ CREATE TABLE "User" (
 CREATE TABLE Student (
     studentID VARCHAR(20) PRIMARY KEY,
     userID INTEGER NOT NULL,
-    fullName VARCHAR(100) NOT NULL,
     cgpa DECIMAL(3,2),
+    major VARCHAR(100),
+    qualification VARCHAR(20),
+    yearOfStudy VARCHAR(20),
+    expectedGraduation VARCHAR(20),
+    familyIncome DECIMAL(12,2),
     CONSTRAINT FK_Student_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
 );
 
 CREATE TABLE Reviewer (
-    staffID VARCHAR(20) PRIMARY KEY,
+    reviewerID VARCHAR(20) PRIMARY KEY,
     userID INTEGER NOT NULL,
     department VARCHAR(100),
     CONSTRAINT FK_Reviewer_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
 );
 
 CREATE TABLE CommitteeMember (
-    memberID SERIAL PRIMARY KEY,
+    committeeID VARCHAR(20) PRIMARY KEY,
     userID INTEGER NOT NULL,
     position VARCHAR(50),
     CONSTRAINT FK_CommitteeMember_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
 );
 
 CREATE TABLE Admin (
-    adminID SERIAL PRIMARY KEY,
+    adminID VARCHAR(20) PRIMARY KEY,
     userID INTEGER NOT NULL,
     adminLevel VARCHAR(20),
     CONSTRAINT FK_Admin_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
@@ -39,9 +67,26 @@ CREATE TABLE Admin (
 CREATE TABLE Scholarship (
     scholarshipID SERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
+    description VARCHAR(200), -- Increased length slightly for better descriptions
+    amount VARCHAR(50), -- Changed to 50 to accommodate "RM 10,000" etc comfortably
+    forQualification VARCHAR(20),
     deadline DATE,
     isActive BOOLEAN DEFAULT TRUE
 );
+
+CREATE TABLE Application (
+    appID SERIAL PRIMARY KEY,
+    studentID VARCHAR(20) NOT NULL,
+    scholarshipID INTEGER NOT NULL,
+    submissionDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'Pending',
+    personalStatement TEXT,
+    otherScholarships TEXT,
+    CONSTRAINT FK_Application_Student FOREIGN KEY (studentID) REFERENCES Student(studentID) ON DELETE CASCADE,
+    CONSTRAINT FK_Application_Scholarship FOREIGN KEY (scholarshipID) REFERENCES Scholarship(scholarshipID) ON DELETE CASCADE
+);
+
+-- Dependent Tables (Updated keys where necessary)
 
 CREATE TABLE Criteria (
     criteriaID SERIAL PRIMARY KEY,
@@ -54,20 +99,10 @@ CREATE TABLE Criteria (
 
 CREATE TABLE Inquiry (
     inquiryID SERIAL PRIMARY KEY,
-    studentID VARCHAR(20) NOT NULL,
+    studentID VARCHAR(20) NOT NULL, -- Matched Student.studentID type
     message TEXT,
     submittedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT FK_Inquiry_Student FOREIGN KEY (studentID) REFERENCES Student(studentID) ON DELETE CASCADE
-);
-
-CREATE TABLE Application (
-    appID SERIAL PRIMARY KEY,
-    studentID VARCHAR(20) NOT NULL,
-    scholarshipID INTEGER NOT NULL,
-    submissionDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(20) DEFAULT 'Pending',
-    CONSTRAINT FK_Application_Student FOREIGN KEY (studentID) REFERENCES Student(studentID) ON DELETE CASCADE,
-    CONSTRAINT FK_Application_Scholarship FOREIGN KEY (scholarshipID) REFERENCES Scholarship(scholarshipID) ON DELETE CASCADE
 );
 
 CREATE TABLE Document (
@@ -82,14 +117,14 @@ CREATE TABLE Document (
 CREATE TABLE Evaluation (
     evalID SERIAL PRIMARY KEY,
     appID INTEGER NOT NULL,
-    reviewerStaffID VARCHAR(20) NOT NULL,
+    reviewerID VARCHAR(20) NOT NULL, -- Renamed from reviewerStaffID and matched type
     scholarshipComments TEXT,
     interviewScore DECIMAL(5,2),
     interviewComments TEXT,
     status VARCHAR(20) DEFAULT 'Pending',
     evaluatedDate TIMESTAMP,
     CONSTRAINT FK_Evaluation_Application FOREIGN KEY (appID) REFERENCES Application(appID) ON DELETE CASCADE,
-    CONSTRAINT FK_Evaluation_Reviewer FOREIGN KEY (reviewerStaffID) REFERENCES Reviewer(staffID) ON DELETE CASCADE
+    CONSTRAINT FK_Evaluation_Reviewer FOREIGN KEY (reviewerID) REFERENCES Reviewer(reviewerID) ON DELETE CASCADE
 );
 
 CREATE TABLE Interview (
@@ -114,7 +149,7 @@ CREATE TABLE ClarificationRequest (
 
 CREATE TABLE Report (
     reportID SERIAL PRIMARY KEY,
-    adminID INTEGER NOT NULL,
+    adminID VARCHAR(20) NOT NULL, -- Matched Admin.adminID type
     type VARCHAR(50) NOT NULL,
     generatedFile VARCHAR(255),
     generatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -130,22 +165,9 @@ CREATE TABLE Notification (
     CONSTRAINT FK_Notification_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
 );
 
-CREATE TABLE UserRoleLookup (
-    roleValue VARCHAR(20) PRIMARY KEY
-);
-
-CREATE TABLE ApplicationStatusLookup (
-    statusValue VARCHAR(20) PRIMARY KEY
-);
-
-CREATE TABLE EvaluationStatusLookup (
-    statusValue VARCHAR(20) PRIMARY KEY
-);
-
-CREATE TABLE InterviewStatusLookup (
-    statusValue VARCHAR(20) PRIMARY KEY
-);
-
-CREATE TABLE ClarificationStatusLookup (
-    statusValue VARCHAR(20) PRIMARY KEY
-);
+-- Lookups (Optional, kept/added for completeness if needed later)
+CREATE TABLE UserRoleLookup ( roleValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE ApplicationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE EvaluationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE InterviewStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE ClarificationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );

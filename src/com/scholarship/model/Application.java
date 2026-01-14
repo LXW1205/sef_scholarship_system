@@ -15,6 +15,9 @@ public class Application {
     private String applicantName; // Full name of the applicant
     private java.util.List<Document> documents = new java.util.ArrayList<>();
 
+    private String personalStatement;
+    private String otherScholarships;
+
     public Application(int appID, String studentID, int scholarshipID, String scholarshipTitle,
             Timestamp submissionDate, String status) {
         this(appID, studentID, scholarshipID, scholarshipTitle, submissionDate, status, null, null, null);
@@ -75,5 +78,25 @@ public class Application {
 
     public void addDocument(Document d) {
         this.documents.add(d);
+    }
+
+    public void setDocuments(java.util.List<Document> documents) {
+        this.documents = documents;
+    }
+
+    public String getPersonalStatement() {
+        return personalStatement;
+    }
+
+    public void setPersonalStatement(String personalStatement) {
+        this.personalStatement = personalStatement;
+    }
+
+    public String getOtherScholarships() {
+        return otherScholarships;
+    }
+
+    public void setOtherScholarships(String otherScholarships) {
+        this.otherScholarships = otherScholarships;
     }
 }

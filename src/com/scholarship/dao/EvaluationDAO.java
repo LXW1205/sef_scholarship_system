@@ -7,12 +7,12 @@ import java.sql.*;
 public class EvaluationDAO {
 
     public boolean save(Evaluation eval) {
-        String sql = "INSERT INTO Evaluation (appID, reviewerStaffID, scholarshipComments, status) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Evaluation (appID, reviewerID, scholarshipComments, status) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, eval.getAppID());
-            pstmt.setString(2, eval.getReviewerStaffID());
+            pstmt.setString(2, eval.getReviewerID());
             pstmt.setString(3, eval.getScholarshipComments());
             pstmt.setString(4, eval.getStatus());
             return pstmt.executeUpdate() > 0;
@@ -33,8 +33,7 @@ public class EvaluationDAO {
                     return new Evaluation(
                             rs.getInt("evalID"),
                             rs.getInt("appID"),
-                            rs.getString("reviewerStaffID"),
-                            rs.getFloat("scholarshipScore"),
+                            rs.getString("reviewerID"),
                             rs.getString("scholarshipComments"),
                             rs.getFloat("interviewScore"),
                             rs.getString("interviewComments"),

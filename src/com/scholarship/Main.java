@@ -9,6 +9,10 @@ import java.net.InetSocketAddress;
 
 public class Main {
     public static void main(String[] args) throws IOException {
+
+        // Run database migrations
+        com.scholarship.db.DatabaseMigration.run();
+
         // Test DB Connection
         DatabaseConnection.testConnection();
 
@@ -17,7 +21,7 @@ public class Main {
 
         // serve static files
         server.createContext("/", new StaticFileHandler("www"));
-        
+
         // API endpoints
         server.createContext("/api/auth/login", new AuthHandler());
         server.createContext("/api/auth/register", new com.scholarship.server.RegisterHandler());
@@ -27,10 +31,12 @@ public class Main {
         server.createContext("/api/applications", new com.scholarship.server.ApplicationHandler());
         server.createContext("/api/users", new com.scholarship.server.UserHandler());
         server.createContext("/api/admin/stats", new com.scholarship.server.AdminStatsHandler());
+        server.createContext("/api/notifications", new com.scholarship.server.NotificationHandler());
+        server.createContext("/api/system", new com.scholarship.server.SystemHandler());
 
         server.setExecutor(null); // creates a default executor
         server.start();
-        
+
         System.out.println("Server started on port " + port);
         System.out.println("Open http://localhost:" + port + "/index.html in your browser");
     }

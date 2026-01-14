@@ -60,14 +60,8 @@ public class ApplicationHandler implements HttpHandler {
         System.out.println("[DEBUG] Handling Create Application...");
         try {
             // Flexible parsing for scholarshipID
-            int scholarshipID = 0;
             String idStr = JsonUtils.extractValue(requestBody, "scholarshipID");
-
-            if (idStr != null) {
-                scholarshipID = Integer.parseInt(idStr.trim());
-            }
-
-            System.out.println("[DEBUG] Parsed scholarshipID: " + scholarshipID);
+            int scholarshipID = (idStr != null) ? Integer.parseInt(idStr.trim()) : 0;
 
             if (scholarshipID <= 0) {
                 sendError(exchange, 400, "Invalid scholarship ID");
@@ -78,26 +72,45 @@ public class ApplicationHandler implements HttpHandler {
             // For now, use a valid student ID from sample data (S2024001 for student001)
             String studentID = "S2024001";
 
-            System.out.println(
-                    "[DEBUG] Creating application for Student: " + studentID + ", Scholarship: " + scholarshipID);
-
             Application app = new Application(0, studentID, scholarshipID, "", null, "Pending");
+
+            // Extract new fields - these are now in the Student table
+            // TODO: Update Student table with these details if necessary
+            String major = JsonUtils.extractValue(requestBody, "major");
+            String gpaStr = JsonUtils.extractValue(requestBody, "gpa");
+            String yearOfStudy = JsonUtils.extractValue(requestBody, "yearOfStudy");
+            String expectedGraduation = JsonUtils.extractValue(requestBody, "expectedGraduation");
+            String incomeStr = JsonUtils.extractValue(requestBody, "familyIncome");
+
+            app.setPersonalStatement(JsonUtils.extractValue(requestBody, "essay"));
+            app.setOtherScholarships(JsonUtils.extractValue(requestBody, "otherScholarships"));
+
+            // Parse documents (simple extraction for the names)
+            if (requestBody.contains("\"documents\":")) {
+                String docsPart = requestBody.substring(requestBody.indexOf("\"documents\":"));
+                String transcript = JsonUtils.extractValue(docsPart, "transcript");
+                String recommendation = JsonUtils.extractValue(docsPart, "recommendation");
+                String idCard = JsonUtils.extractValue(docsPart, "id");
+
+                if (transcript != null)
+                    app.addDocument(new com.scholarship.model.Document(0, 0, transcript, "Transcript", null));
+                if (recommendation != null)
+                    app.addDocument(new com.scholarship.model.Document(0, 0, recommendation, "Recommendation", null));
+                if (idCard != null)
+                    app.addDocument(new com.scholarship.model.Document(0, 0, idCard, "ID", null));
+            }
+
             if (applicationDAO.save(app)) {
                 System.out.println("[DEBUG] Application SAVED successfully");
                 String response = "{\"success\": true, \"message\": \"Application submitted successfully\"}";
                 sendResponse(exchange, 200, response);
             } else {
-                System.out.println("[ERROR] DAO failed to save application (check database constraints)");
-                sendError(exchange, 500,
-                        "Failed to save application to database. Please check if you have already applied for this scholarship.");
+                System.out.println("[ERROR] DAO failed to save application");
+                sendError(exchange, 500, "Failed to save application. Check if you already applied.");
             }
-        } catch (NumberFormatException e) {
-            System.err.println("[ERROR] Invalid scholarshipID format: " + e.getMessage());
-            sendError(exchange, 400, "Invalid scholarship ID format");
         } catch (Exception e) {
-            System.err.println("[ERROR] Create application failed with exception:");
             e.printStackTrace();
-            sendError(exchange, 500, "Error submitting application: " + e.getMessage());
+            sendError(exchange, 500, "Error: " + e.getMessage());
         }
     }
 
@@ -109,7 +122,7 @@ public class ApplicationHandler implements HttpHandler {
 
             if (appIdStr != null && reviewerId != null) {
                 int appId = Integer.parseInt(appIdStr.trim());
-                Evaluation eval = new Evaluation(0, appId, reviewerId, 0, "", 0, "", "Pending", null);
+                Evaluation eval = new Evaluation(0, appId, reviewerId, "", 0, "", "Pending", null);
                 if (evaluationDAO.save(eval)) {
                     sendResponse(exchange, 200, "{\"success\": true}");
                 } else {

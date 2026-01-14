@@ -244,6 +244,9 @@
       submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Submitting...';
       lucide.createIcons();
 
+      const formData = JSON.parse(sessionStorage.getItem(`applicationDraft_${scholarshipId}`) || '{}');
+      const documents = JSON.parse(sessionStorage.getItem(`documents_${scholarshipId}`) || '{}');
+
       try {
         const response = await fetch('/api/applications', {
           method: 'POST',
@@ -251,7 +254,11 @@
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ scholarshipID: scholarshipId })
+          body: JSON.stringify({
+            scholarshipID: scholarshipId,
+            ...formData,
+            documents: documents
+          })
         });
 
         const data = await response.json();

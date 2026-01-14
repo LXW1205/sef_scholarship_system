@@ -22,6 +22,37 @@ public class NotificationDAO {
         return false;
     }
 
+    public void createForRole(String role, String message) {
+        // "all" -> everyone
+        // "student" -> Student
+        // "reviewer" -> Reviewer
+        // "committee" -> Committee/CommitteeMember
+        String sql = "INSERT INTO Notification (userID, message) SELECT userID, ? FROM \"User\" WHERE role ILIKE ? OR ? = 'all'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Standardize roles for LIKE query if needed, but for now exact match or 'all'
+            // logic
+            String roleParam = role;
+            if ("student".equalsIgnoreCase(role))
+                roleParam = "Student";
+            else if ("reviewer".equalsIgnoreCase(role))
+                roleParam = "Reviewer";
+            else if ("committee".equalsIgnoreCase(role))
+                roleParam = "Committee%"; // Handles Committee and CommitteeMember
+
+            pstmt.setString(1, message);
+            pstmt.setString(2, roleParam); // role filter
+            pstmt.setString(3, role); // check for 'all'
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public List<Notification> findByUserId(int userId) {
         List<Notification> notifs = new ArrayList<>();
         String sql = "SELECT * FROM Notification WHERE userID = ? ORDER BY sentAt DESC";

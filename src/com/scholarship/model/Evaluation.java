@@ -5,20 +5,18 @@ import java.sql.Timestamp;
 public class Evaluation {
     private int evalID;
     private int appID;
-    private String reviewerStaffID;
-    private float scholarshipScore;
+    private String reviewerID;
     private String scholarshipComments;
     private float interviewScore;
     private String interviewComments;
     private String status;
     private Timestamp evaluatedDate;
 
-    public Evaluation(int evalID, int appID, String reviewerStaffID, float scholarshipScore, String scholarshipComments,
+    public Evaluation(int evalID, int appID, String reviewerID, String scholarshipComments,
             float interviewScore, String interviewComments, String status, Timestamp evaluatedDate) {
         this.evalID = evalID;
         this.appID = appID;
-        this.reviewerStaffID = reviewerStaffID;
-        this.scholarshipScore = scholarshipScore;
+        this.reviewerID = reviewerID;
         this.scholarshipComments = scholarshipComments;
         this.interviewScore = interviewScore;
         this.interviewComments = interviewComments;
@@ -34,12 +32,8 @@ public class Evaluation {
         return appID;
     }
 
-    public String getReviewerStaffID() {
-        return reviewerStaffID;
-    }
-
-    public float getScholarshipScore() {
-        return scholarshipScore;
+    public String getReviewerID() {
+        return reviewerID;
     }
 
     public String getScholarshipComments() {
@@ -60,10 +54,6 @@ public class Evaluation {
 
     public Timestamp getEvaluatedDate() {
         return evaluatedDate;
-    }
-
-    public void setScholarshipScore(float scholarshipScore) {
-        this.scholarshipScore = scholarshipScore;
     }
 
     public void setScholarshipComments(String scholarshipComments) {

@@ -58,6 +58,63 @@
     </main>
     <div id="footer-container"></div>
     <script src="/common.js"></script>
+    <script>
+        // Maintenance Mode Toggle
+        const maintenanceCheckbox = document.getElementById('maintenance');
+
+        // Load initial state
+        fetch('/api/system/maintenance')
+            .then(res => res.json())
+            .then(data => {
+                if (data.enabled !== undefined) {
+                    maintenanceCheckbox.checked = data.enabled;
+                }
+            });
+
+        maintenanceCheckbox.addEventListener('change', async (e) => {
+            try {
+                const response = await fetch('/api/system/maintenance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled: e.target.checked })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(`Maintenance mode ${e.target.checked ? 'ENABLED' : 'DISABLED'}`);
+                } else {
+                    alert('Failed to update maintenance mode');
+                    e.target.checked = !e.target.checked; // revert
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error updating maintenance mode');
+            }
+        });
+
+        // Backup Button
+        document.querySelector('button').addEventListener('click', async () => {
+            const btn = document.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Creating Backup...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/system/backup', { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                } else {
+                    alert('Backup failed: ' + (result.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error triggering backup');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
 </body>
 
 </html>
