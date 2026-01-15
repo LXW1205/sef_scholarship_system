@@ -90,15 +90,31 @@ public class UserHandler implements HttpHandler {
                 return;
             }
 
-            // Create a temp user object for updating (role/email/active not updated here)
-            User user = new User(id, fullName, "", "", true) {
-                public boolean login() {
-                    return false;
-                }
+            // Create a temp user object for updating
+            User user;
+            String role = JsonUtils.extractValue(requestBody, "role"); // Need role to know if Student
 
-                public void logout() {
-                }
-            };
+            if ("Student".equals(role)) {
+                Student s = new Student();
+                s.setId(id);
+                s.setFullName(fullName);
+                s.setCgpa(Double.parseDouble(JsonUtils.extractValue(requestBody, "cgpa")));
+                s.setMajor(JsonUtils.extractValue(requestBody, "major"));
+                s.setQualification(JsonUtils.extractValue(requestBody, "qualification"));
+                s.setYearOfStudy(JsonUtils.extractValue(requestBody, "yearOfStudy"));
+                s.setExpectedGraduation(JsonUtils.extractValue(requestBody, "expectedGraduation"));
+                s.setFamilyIncome(Double.parseDouble(JsonUtils.extractValue(requestBody, "familyIncome")));
+                user = s;
+            } else {
+                user = new User(id, fullName, "", "", true) {
+                    public boolean login() {
+                        return false;
+                    }
+
+                    public void logout() {
+                    }
+                };
+            }
 
             if (userDAO.update(user, password)) {
                 String response = "{\"success\": true}";
@@ -131,8 +147,11 @@ public class UserHandler implements HttpHandler {
         String detailedJson = "";
         if (user instanceof Student) {
             Student s = (Student) user;
-            detailedJson = String.format(", \"studentID\": \"%s\", \"cgpa\": %.2f",
-                    JsonUtils.escape(s.getStudentID()), s.getCgpa());
+            detailedJson = String.format(
+                    ", \"studentID\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"qualification\": \"%s\", \"yearOfStudy\": \"%s\", \"expectedGraduation\": \"%s\", \"familyIncome\": %.2f",
+                    JsonUtils.escape(s.getStudentID()), s.getCgpa(), JsonUtils.escape(s.getMajor()),
+                    JsonUtils.escape(s.getQualification()), JsonUtils.escape(s.getYearOfStudy()),
+                    JsonUtils.escape(s.getExpectedGraduation()), s.getFamilyIncome());
         } else if (user instanceof Reviewer) {
             Reviewer r = (Reviewer) user;
             detailedJson = String.format(", \"reviewerID\": \"%s\", \"department\": \"%s\"",
@@ -172,8 +191,11 @@ public class UserHandler implements HttpHandler {
                 String detailedJson = "";
                 if (user instanceof Student) {
                     Student s = (Student) user;
-                    detailedJson = String.format(", \"studentID\": \"%s\", \"cgpa\": %.2f",
-                            JsonUtils.escape(s.getStudentID()), s.getCgpa());
+                    detailedJson = String.format(
+                            ", \"studentID\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"qualification\": \"%s\", \"yearOfStudy\": \"%s\", \"expectedGraduation\": \"%s\", \"familyIncome\": %.2f",
+                            JsonUtils.escape(s.getStudentID()), s.getCgpa(), JsonUtils.escape(s.getMajor()),
+                            JsonUtils.escape(s.getQualification()), JsonUtils.escape(s.getYearOfStudy()),
+                            JsonUtils.escape(s.getExpectedGraduation()), s.getFamilyIncome());
                 } else if (user instanceof Reviewer) {
                     Reviewer r = (Reviewer) user;
                     detailedJson = String.format(", \"reviewerID\": \"%s\", \"department\": \"%s\"",

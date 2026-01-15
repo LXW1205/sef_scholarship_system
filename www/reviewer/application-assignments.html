@@ -93,7 +93,9 @@
 
     async function loadAssignments() {
       try {
-        const response = await fetch('/api/applications', {
+        const reviewerId = user.reviewerID;
+        const url = reviewerId ? `/api/applications?reviewerId=${reviewerId}` : '/api/applications';
+        const response = await fetch(url, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await response.json();

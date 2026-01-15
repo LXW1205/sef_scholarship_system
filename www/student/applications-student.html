@@ -98,7 +98,9 @@
 
     async function loadApplications() {
       try {
-        const response = await fetch('/api/applications', {
+        const studentId = user.studentID;
+        const url = studentId ? `/api/applications?studentId=${studentId}` : '/api/applications';
+        const response = await fetch(url, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

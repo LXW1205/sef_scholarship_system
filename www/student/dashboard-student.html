@@ -196,8 +196,10 @@
 
     async function loadDashboardData() {
       try {
+        const studentId = user.studentID;
+        const appsUrl = studentId ? `/api/applications?studentId=${studentId}` : '/api/applications';
         const [appsResponse, scholarshipsResponse] = await Promise.all([
-          fetch('/api/applications', {
+          fetch(appsUrl, {
             headers: { 'Authorization': `Bearer ${token}` }
           }),
           fetch('/api/scholarships')

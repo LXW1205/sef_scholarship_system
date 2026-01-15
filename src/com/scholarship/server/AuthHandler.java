@@ -34,9 +34,19 @@ public class AuthHandler implements HttpHandler {
             if (email != null && password != null) {
                 User user = userDAO.authenticate(email, password);
                 if (user != null) {
+                    String extra = "";
+                    if (user instanceof Student) {
+                        extra = String.format(", \"studentID\": \"%s\"", ((Student) user).getStudentID());
+                    } else if (user instanceof Reviewer) {
+                        extra = String.format(", \"reviewerID\": \"%s\"", ((Reviewer) user).getReviewerID());
+                    } else if (user instanceof CommitteeMember) {
+                        extra = String.format(", \"committeeID\": \"%s\"", ((CommitteeMember) user).getCommitteeID());
+                    } else if (user instanceof Admin) {
+                        extra = String.format(", \"adminID\": \"%s\"", ((Admin) user).getAdminID());
+                    }
                     response = String.format(
-                            "{\"token\": \"fake-jwt-token\", \"user\": {\"fullName\": \"%s\", \"role\": \"%s\", \"id\": %d}}",
-                            user.getFullName(), user.getRole(), user.getId());
+                            "{\"token\": \"fake-jwt-token\", \"user\": {\"fullName\": \"%s\", \"role\": \"%s\", \"id\": %d%s}}",
+                            user.getFullName(), user.getRole(), user.getId(), extra);
                     statusCode = 200;
                 } else {
                     response = "{\"error\": \"Invalid credentials\"}";

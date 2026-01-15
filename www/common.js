@@ -15,11 +15,64 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Authentication UI
     handleAuthUI();
 
+    // Initialize Password Toggles
+    initPasswordToggles();
+
     // Initialize Lucide Icons
     if (window.lucide) {
         window.lucide.createIcons();
     }
 });
+
+/**
+ * Initializes peek/visibility toggles for all password fields.
+ * Looks for <input type="password"> and adds a toggle button if it's in a .relative container.
+ */
+function initPasswordToggles() {
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    passwordInputs.forEach(input => {
+        const container = input.closest('.relative');
+        if (!container) return;
+
+        // Check if toggle already exists
+        if (container.querySelector('.password-toggle')) return;
+
+        // Adjust input padding to make room for toggle
+        input.classList.add('pr-12');
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'password-toggle absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none';
+        toggleBtn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
+
+        const showPassword = () => {
+            input.type = 'text';
+            toggleBtn.innerHTML = '<i data-lucide="eye-off" class="w-5 h-5 text-primary"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        const hidePassword = () => {
+            input.type = 'password';
+            toggleBtn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        // Mouse events
+        toggleBtn.addEventListener('mousedown', showPassword);
+        toggleBtn.addEventListener('mouseup', hidePassword);
+        toggleBtn.addEventListener('mouseleave', hidePassword);
+
+        // Touch events
+        toggleBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent context menu
+            showPassword();
+        });
+        toggleBtn.addEventListener('touchend', hidePassword);
+        toggleBtn.addEventListener('touchcancel', hidePassword);
+
+        container.appendChild(toggleBtn);
+    });
+}
 
 /**
  * Checks if the user is authenticated and has the correct role for the current path.
@@ -92,7 +145,7 @@ function injectPublicHeader(container) {
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold">ScholarNet</h1>
+                    <h1 class="text-xl font-bold"><a href="/index.html">ScholarNet</a></h1>
                 </div>
                 <div class="flex items-center gap-8" id="navLinks">
                     <a href="/index.html" class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap">
@@ -134,7 +187,7 @@ function injectAdminHeader(container) {
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold">ScholarNet Admin</h1>
+                    <h1 class="text-xl font-bold"><a href="/admin/dashboard-admin.html">ScholarNet Admin</a></h1>
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="/admin/dashboard-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
@@ -173,7 +226,7 @@ function injectStudentHeader(container) {
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold">Student Portal</h1>
+                    <h1 class="text-xl font-bold"><a href="/student/dashboard-student.html">Student Portal</a></h1>
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="/student/dashboard-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
@@ -209,7 +262,7 @@ function injectReviewerHeader(container) {
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold">Reviewer Dashboard</h1>
+                    <h1 class="text-xl font-bold"><a href="/reviewer/dashboard-reviewer.html">Reviewer Dashboard</a></h1>
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="/reviewer/dashboard-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
@@ -242,7 +295,7 @@ function injectCommitteeHeader(container) {
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold">Committee Portal</h1>
+                    <h1 class="text-xl font-bold"><a href="/committee/dashboard-committee.html">Committee Portal</a></h1>
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="/committee/dashboard-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">

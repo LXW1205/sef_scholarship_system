@@ -19,8 +19,27 @@ public class ApplicationHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if ("GET".equals(exchange.getRequestMethod())) {
-            // In a real app, filtering by user would happen here via token
-            String response = getApplicationsJson();
+            String query = exchange.getRequestURI().getQuery();
+            String studentId = null;
+            String reviewerId = null;
+            if (query != null) {
+                if (query.contains("studentId=")) {
+                    studentId = query.split("studentId=")[1].split("&")[0];
+                }
+                if (query.contains("reviewerId=")) {
+                    reviewerId = query.split("reviewerId=")[1].split("&")[0];
+                }
+            }
+
+            String response;
+            if (studentId != null) {
+                response = getApplicationsJsonByStudentId(studentId);
+            } else if (reviewerId != null) {
+                response = getApplicationsJsonByReviewerId(reviewerId);
+            } else {
+                response = getApplicationsJson();
+            }
+
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, response.length());
             try (OutputStream os = exchange.getResponseBody()) {
@@ -59,28 +78,17 @@ public class ApplicationHandler implements HttpHandler {
     private void handleCreateApplication(HttpExchange exchange, String requestBody) throws IOException {
         System.out.println("[DEBUG] Handling Create Application...");
         try {
-            // Flexible parsing for scholarshipID
-            String idStr = JsonUtils.extractValue(requestBody, "scholarshipID");
-            int scholarshipID = (idStr != null) ? Integer.parseInt(idStr.trim()) : 0;
+            // Extract studentID and scholarshipID from request
+            String studentID = JsonUtils.extractValue(requestBody, "studentId");
+            String sIdStr = JsonUtils.extractValue(requestBody, "scholarshipID");
+            int scholarshipID = (sIdStr != null) ? Integer.parseInt(sIdStr.trim()) : 0;
 
-            if (scholarshipID <= 0) {
-                sendError(exchange, 400, "Invalid scholarship ID");
+            if (studentID == null || studentID.isEmpty() || scholarshipID <= 0) {
+                sendError(exchange, 400, "Invalid student ID or scholarship ID");
                 return;
             }
 
-            // TODO: In production, extract studentID from JWT token
-            // For now, use a valid student ID from sample data (S2024001 for student001)
-            String studentID = "S2024001";
-
             Application app = new Application(0, studentID, scholarshipID, "", null, "Pending");
-
-            // Extract new fields - these are now in the Student table
-            // TODO: Update Student table with these details if necessary
-            String major = JsonUtils.extractValue(requestBody, "major");
-            String gpaStr = JsonUtils.extractValue(requestBody, "gpa");
-            String yearOfStudy = JsonUtils.extractValue(requestBody, "yearOfStudy");
-            String expectedGraduation = JsonUtils.extractValue(requestBody, "expectedGraduation");
-            String incomeStr = JsonUtils.extractValue(requestBody, "familyIncome");
 
             app.setPersonalStatement(JsonUtils.extractValue(requestBody, "essay"));
             app.setOtherScholarships(JsonUtils.extractValue(requestBody, "otherScholarships"));
@@ -151,12 +159,20 @@ public class ApplicationHandler implements HttpHandler {
     }
 
     private String getApplicationsJson() {
+        return formatApplicationsJson(applicationDAO.findAll());
+    }
+
+    private String getApplicationsJsonByStudentId(String studentId) {
+        return formatApplicationsJson(applicationDAO.findByStudentID(studentId));
+    }
+
+    private String getApplicationsJsonByReviewerId(String reviewerId) {
+        return formatApplicationsJson(applicationDAO.findByReviewerID(reviewerId));
+    }
+
+    private String formatApplicationsJson(List<Application> apps) {
         StringBuilder json = new StringBuilder("{\"applications\": [");
-
         try {
-            // Fetch all applications for Admin view
-            List<Application> apps = applicationDAO.findAll();
-
             boolean first = true;
             for (Application a : apps) {
                 if (!first)
@@ -170,7 +186,8 @@ public class ApplicationHandler implements HttpHandler {
                 }
 
                 json.append(String.format(
-                        "{\"id\": %d, \"scholarship_title\": \"%s\", \"fullname\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\"%s}",
+                        "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"fullname\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\"%s}",
+                        a.getAppID(),
                         a.getAppID(),
                         JsonUtils.escape(a.getScholarshipTitle()),
                         JsonUtils.escape(a.getApplicantName()),
@@ -180,9 +197,8 @@ public class ApplicationHandler implements HttpHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "{\"error\": \"" + e.getMessage() + "\"}"; // Return error json
+            return "{\"error\": \"" + e.getMessage() + "\"}";
         }
-
         json.append("]}");
         return json.toString();
     }

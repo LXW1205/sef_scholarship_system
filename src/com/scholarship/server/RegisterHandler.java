@@ -44,11 +44,17 @@ public class RegisterHandler implements HttpHandler {
                 return;
             }
 
-            // Insert user into database
-            int userId = createUser(fullName, email, password, role);
-
-            if (userId > 0 && "Student".equals(role) && studentID != null && !studentID.isEmpty()) {
-                createStudent(userId, studentID);
+            // Create user based on role (single insert into inherited table)
+            int userId = -1;
+            if ("Student".equals(role)) {
+                userId = createStudent(fullName, email, password, studentID);
+            } else if ("Reviewer".equals(role)) {
+                // For now, reviewers/admins/committees aren't registered via this public
+                // handler
+                // but if they were, we'd handle them similarly.
+                userId = createUser(fullName, email, password, role);
+            } else {
+                userId = createUser(fullName, email, password, role);
             }
 
             if (userId > 0) {
@@ -83,16 +89,22 @@ public class RegisterHandler implements HttpHandler {
         return false;
     }
 
-    private void createStudent(int userId, String studentID) {
-        String sql = "INSERT INTO Student (studentID, userID, cgpa) VALUES (?, ?, 0.0)";
+    private int createStudent(String fullName, String email, String password, String studentID) {
+        String sql = "INSERT INTO Student (fullName, email, password, role, isActive, studentID, cgpa) VALUES (?, ?, ?, 'Student', true, ?, 0.0) RETURNING userID";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, studentID);
-            pstmt.setInt(2, userId);
-            pstmt.executeUpdate();
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, email);
+            pstmt.setString(3, password);
+            pstmt.setString(4, studentID);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt(1);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return -1;
     }
 
     private int createUser(String fullName, String email, String password, String role) {

@@ -89,18 +89,64 @@ public class ApplicationDAO {
         return apps;
     }
 
-    public List<Application> findAll() {
+    public List<Application> findByStudentID(String studentId) {
         List<Application> apps = new ArrayList<>();
-        // Left join to get reviewer details if assigned
-        String sql = "SELECT a.*, s.title, u_app.fullName as applicantName, e.reviewerID, u_rev.fullName as reviewerName "
-                +
+        String sql = "SELECT a.*, s.title, st.fullName as applicantName, e.reviewerID, r.fullName as reviewerName " +
                 "FROM Application a " +
                 "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
                 "JOIN Student st ON a.studentID = st.studentID " +
-                "JOIN \"User\" u_app ON st.userID = u_app.userID " +
                 "LEFT JOIN Evaluation e ON a.appID = e.appID " +
                 "LEFT JOIN Reviewer r ON e.reviewerID = r.reviewerID " +
-                "LEFT JOIN \"User\" u_rev ON r.userID = u_rev.userID " +
+                "WHERE a.studentID = ? " +
+                "ORDER BY a.submissionDate DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, studentId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    apps.add(mapResultSetToApplication(rs, conn));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return apps;
+    }
+
+    public List<Application> findByReviewerID(String reviewerId) {
+        List<Application> apps = new ArrayList<>();
+        String sql = "SELECT a.*, s.title, st.fullName as applicantName, e.reviewerID, r.fullName as reviewerName " +
+                "FROM Application a " +
+                "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
+                "JOIN Student st ON a.studentID = st.studentID " +
+                "JOIN Evaluation e ON a.appID = e.appID " +
+                "JOIN Reviewer r ON e.reviewerID = r.reviewerID " +
+                "WHERE e.reviewerID = ? " +
+                "ORDER BY a.submissionDate DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, reviewerId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    apps.add(mapResultSetToApplication(rs, conn));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return apps;
+    }
+
+    public List<Application> findAll() {
+        List<Application> apps = new ArrayList<>();
+        String sql = "SELECT a.*, s.title, st.fullName as applicantName, e.reviewerID, r.fullName as reviewerName " +
+                "FROM Application a " +
+                "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
+                "JOIN Student st ON a.studentID = st.studentID " +
+                "LEFT JOIN Evaluation e ON a.appID = e.appID " +
+                "LEFT JOIN Reviewer r ON e.reviewerID = r.reviewerID " +
                 "ORDER BY a.submissionDate DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -108,26 +154,30 @@ public class ApplicationDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Application app = new Application(
-                            rs.getInt("appID"),
-                            rs.getString("studentID"),
-                            rs.getInt("scholarshipID"),
-                            rs.getString("title"),
-                            rs.getTimestamp("submissionDate"),
-                            rs.getString("status"),
-                            rs.getString("reviewerID"),
-                            rs.getString("reviewerName"),
-                            rs.getString("applicantName"));
-                    app.setPersonalStatement(rs.getString("personalStatement"));
-                    app.setOtherScholarships(rs.getString("otherScholarships"));
-                    app.getDocuments().addAll(findDocumentsByAppId(app.getAppID(), conn));
-                    apps.add(app);
+                    apps.add(mapResultSetToApplication(rs, conn));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return apps;
+    }
+
+    private Application mapResultSetToApplication(ResultSet rs, Connection conn) throws SQLException {
+        Application app = new Application(
+                rs.getInt("appID"),
+                rs.getString("studentID"),
+                rs.getInt("scholarshipID"),
+                rs.getString("title"),
+                rs.getTimestamp("submissionDate"),
+                rs.getString("status"),
+                rs.getString("reviewerID"),
+                rs.getString("reviewerName"),
+                rs.getString("applicantName"));
+        app.setPersonalStatement(rs.getString("personalStatement"));
+        app.setOtherScholarships(rs.getString("otherScholarships"));
+        app.getDocuments().addAll(findDocumentsByAppId(app.getAppID(), conn));
+        return app;
     }
 
     private List<Document> findDocumentsByAppId(int appId, Connection conn) throws SQLException {

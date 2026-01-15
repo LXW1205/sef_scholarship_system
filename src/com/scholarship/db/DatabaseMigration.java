@@ -18,22 +18,13 @@ public class DatabaseMigration {
 
             executeSilently(stmt, "ALTER TABLE Application ADD COLUMN otherScholarships TEXT");
 
-            // Refactoring User table
-            executeSilently(stmt, "ALTER TABLE \"User\" RENAME COLUMN username TO fullName");
-            executeSilently(stmt, "ALTER TABLE \"User\" ADD COLUMN fullName VARCHAR(100)"); // In case rename fails or
-                                                                                            // it's new
-
-            // Refactoring Student table
-            executeSilently(stmt, "ALTER TABLE Student DROP COLUMN fullName");
-
             // Create Notification table if not exists
             executeSilently(stmt, "CREATE TABLE IF NOT EXISTS Notification (" +
                     "notifID SERIAL PRIMARY KEY, " +
                     "userID INTEGER NOT NULL, " +
                     "message TEXT NOT NULL, " +
                     "sentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                    "isRead BOOLEAN DEFAULT FALSE, " +
-                    "FOREIGN KEY (userID) REFERENCES \"User\"(userID) ON DELETE CASCADE)");
+                    "isRead BOOLEAN DEFAULT FALSE)");
 
         } catch (SQLException e) {
             System.err.println("[ERROR] Migration failed: " + e.getMessage());

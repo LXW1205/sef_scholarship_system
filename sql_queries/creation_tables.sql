@@ -28,41 +28,38 @@ CREATE TABLE "User" (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     role VARCHAR(20) NOT NULL,
-    isActive BOOLEAN DEFAULT TRUE
+    isActive BOOLEAN DEFAULT TRUE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Student (
     studentID VARCHAR(20) PRIMARY KEY,
-    userID INTEGER NOT NULL,
     cgpa DECIMAL(3,2),
     major VARCHAR(100),
     qualification VARCHAR(20),
     yearOfStudy VARCHAR(20),
     expectedGraduation VARCHAR(20),
     familyIncome DECIMAL(12,2),
-    CONSTRAINT FK_Student_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
-);
+    UNIQUE (email)
+) INHERITS ("User");
 
 CREATE TABLE Reviewer (
     reviewerID VARCHAR(20) PRIMARY KEY,
-    userID INTEGER NOT NULL,
     department VARCHAR(100),
-    CONSTRAINT FK_Reviewer_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
-);
+    UNIQUE (email)
+) INHERITS ("User");
 
 CREATE TABLE CommitteeMember (
     committeeID VARCHAR(20) PRIMARY KEY,
-    userID INTEGER NOT NULL,
     position VARCHAR(50),
-    CONSTRAINT FK_CommitteeMember_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
-);
+    UNIQUE (email)
+) INHERITS ("User");
 
 CREATE TABLE Admin (
     adminID VARCHAR(20) PRIMARY KEY,
-    userID INTEGER NOT NULL,
     adminLevel VARCHAR(20),
-    CONSTRAINT FK_Admin_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
-);
+    UNIQUE (email)
+) INHERITS ("User");
 
 CREATE TABLE Scholarship (
     scholarshipID SERIAL PRIMARY KEY,
@@ -158,11 +155,10 @@ CREATE TABLE Report (
 
 CREATE TABLE Notification (
     notifID SERIAL PRIMARY KEY,
-    userID INTEGER NOT NULL,
+    userID INTEGER NOT NULL, -- Note: FK constraint removed due to PostgreSQL inheritance limitations
     message TEXT NOT NULL,
     sentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    isRead BOOLEAN DEFAULT FALSE,
-    CONSTRAINT FK_Notification_User FOREIGN KEY (userID) REFERENCES "User"(userID) ON DELETE CASCADE
+    isRead BOOLEAN DEFAULT FALSE
 );
 
 -- Lookups (Optional, kept/added for completeness if needed later)

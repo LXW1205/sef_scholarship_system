@@ -100,29 +100,24 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label for="fullName" class="block text-sm font-medium mb-2">Full Name *</label>
-                <input type="text" id="fullName" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                <label for="fullName" class="block text-sm font-medium mb-2">Full Name</label>
+                <input type="text" id="fullName" readonly
+                  class="w-full px-4 py-2 bg-muted border border-input rounded-lg focus:outline-none">
               </div>
               <div>
-                <label for="email" class="block text-sm font-medium mb-2">Email *</label>
-                <input type="email" id="email" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                <label for="email" class="block text-sm font-medium mb-2">Email</label>
+                <input type="email" id="email" readonly
+                  class="w-full px-4 py-2 bg-muted border border-input rounded-lg focus:outline-none">
               </div>
               <div>
-                <label for="phone" class="block text-sm font-medium mb-2">Phone Number</label>
-                <input type="tel" id="phone"
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-              </div>
-              <div>
-                <label for="studentId" class="block text-sm font-medium mb-2">Student ID *</label>
-                <input type="text" id="studentId" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                <label for="studentId" class="block text-sm font-medium mb-2">Student ID</label>
+                <input type="text" id="studentId" readonly
+                  class="w-full px-4 py-2 bg-muted border border-input rounded-lg focus:outline-none">
               </div>
             </div>
           </div>
 
-          <!-- Academic Information -->
+          <!-- Academic Information (Readonly) -->
           <div class="border-b border-border pb-6">
             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
               <i data-lucide="book-open" class="w-5 h-5"></i>
@@ -130,31 +125,24 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label for="major" class="block text-sm font-medium mb-2">Major/Program *</label>
-                <input type="text" id="major" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                <label for="major" class="block text-sm font-medium mb-2">Major/Program</label>
+                <input type="text" id="major" readonly
+                  class="w-full px-4 py-2 bg-muted border border-input rounded-lg focus:outline-none">
               </div>
               <div>
-                <label for="gpa" class="block text-sm font-medium mb-2">GPA/CGPA *</label>
-                <input type="number" id="gpa" step="0.01" min="0" max="4" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                <label for="gpa" class="block text-sm font-medium mb-2">GPA/CGPA</label>
+                <input type="text" id="gpa" readonly
+                  class="w-full px-4 py-2 bg-muted border border-input rounded-lg focus:outline-none">
               </div>
               <div>
-                <label for="yearOfStudy" class="block text-sm font-medium mb-2">Year of Study *</label>
-                <select id="yearOfStudy" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-                  <option value="">Select Year</option>
-                  <option value="1">Year 1</option>
-                  <option value="2">Year 2</option>
-                  <option value="3">Year 3</option>
-                  <option value="4">Year 4</option>
-                  <option value="Graduate">Graduate</option>
-                </select>
+                <label for="yearOfStudy" class="block text-sm font-medium mb-2">Year of Study</label>
+                <input type="text" id="yearOfStudy" readonly
+                  class="w-full px-4 py-2 bg-muted border border-input rounded-lg focus:outline-none">
               </div>
               <div>
                 <label for="expectedGraduation" class="block text-sm font-medium mb-2">Expected Graduation</label>
-                <input type="month" id="expectedGraduation"
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                <input type="text" id="expectedGraduation" readonly
+                  class="w-full px-4 py-2 bg-muted border border-input rounded-lg focus:outline-none">
               </div>
             </div>
           </div>
@@ -178,17 +166,17 @@
             </div>
           </div>
 
-          <!-- Financial Information (Optional) -->
+          <!-- Financial Information (Readonly) -->
           <div class="pb-6">
             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
               <i data-lucide="wallet" class="w-5 h-5"></i>
-              Financial Information (Optional)
+              Financial Information
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label for="familyIncome" class="block text-sm font-medium mb-2">Annual Family Income</label>
-                <input type="number" id="familyIncome"
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                <input type="text" id="familyIncome" readonly
+                  class="w-full px-4 py-2 bg-muted border border-input rounded-lg focus:outline-none">
               </div>
               <div>
                 <label for="otherScholarships" class="block text-sm font-medium mb-2">Other Scholarships
@@ -243,16 +231,45 @@
     const scholarshipId = urlParams.get('id');
 
 
-    // Load scholarship title
-    async function loadScholarshipInfo() {
+    // Load scholarship title and user profile
+    async function initPage() {
       try {
-        const response = await fetch(`/api/scholarships/${scholarshipId}`);
-        const data = await response.json();
-        if (response.ok) {
-          document.getElementById('scholarshipTitle').textContent = data.scholarship.title;
+        // Load scholarship info
+        const sResponse = await fetch(`/api/scholarships/${scholarshipId}`);
+        const sData = await sResponse.json();
+        if (sResponse.ok) {
+          document.getElementById('scholarshipTitle').textContent = sData.scholarship.title;
+        }
+
+        // Load user profile
+        const uResponse = await fetch(`/api/users?id=${user.id}`);
+        if (uResponse.ok) {
+          const uData = await uResponse.json();
+          const profile = uData.user;
+
+          // Fill readonly fields
+          document.getElementById('fullName').value = profile.fullName;
+          document.getElementById('email').value = profile.email;
+          document.getElementById('studentId').value = profile.studentID;
+          document.getElementById('major').value = profile.major || "";
+          document.getElementById('gpa').value = profile.cgpa || "0.00";
+          document.getElementById('yearOfStudy').value = profile.yearOfStudy || "";
+          document.getElementById('expectedGraduation').value = profile.expectedGraduation || "";
+          document.getElementById('familyIncome').value = profile.familyIncome ? `RM ${profile.familyIncome}` : "N/A";
+
+          // Validate profile completion
+          const requiredFields = ['major', 'cgpa', 'yearOfStudy', 'expectedGraduation'];
+          const missingFields = requiredFields.filter(field => !profile[field] || profile[field] === "0.00");
+
+          if (missingFields.length > 0) {
+            document.getElementById('errorMessage').style.display = 'flex';
+            document.getElementById('errorText').innerHTML = `Your profile is incomplete. Please <a href="/student/profile-student.html" class="underline font-bold">complete your profile</a> (Major, CGPA, Year of Study, Graduation Date) before applying.`;
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('nextBtn').classList.add('opacity-50', 'cursor-not-allowed');
+          }
         }
       } catch (error) {
-        console.error('[v0] Load scholarship error:', error);
+        console.error('[v0] Init error:', error);
       }
     }
 
@@ -267,7 +284,6 @@
       const formData = {
         fullName: document.getElementById('fullName').value,
         email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
         studentId: document.getElementById('studentId').value,
         major: document.getElementById('major').value,
         gpa: document.getElementById('gpa').value,
@@ -305,7 +321,7 @@
       window.location.href = `/student/upload-documents.html?id=${scholarshipId}`;
     });
 
-    loadScholarshipInfo();
+    initPage();
     loadFormData();
     lucide.createIcons();
   </script>
