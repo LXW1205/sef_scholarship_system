@@ -71,8 +71,33 @@ public class UserHandler implements HttpHandler {
             }
         } else if ("POST".equals(exchange.getRequestMethod())) {
             handlePost(exchange);
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            handleDelete(exchange);
         } else {
             exchange.sendResponseHeaders(405, -1);
+        }
+    }
+
+    private void handleDelete(HttpExchange exchange) throws IOException {
+        String query = exchange.getRequestURI().getQuery();
+        int id = -1;
+        if (query != null && query.startsWith("id=")) {
+            try {
+                id = Integer.parseInt(query.split("=")[1]);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+
+        if (id != -1 && userDAO.delete(id)) {
+            String response = "{\"success\": true}";
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, response.length());
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        } else {
+            sendError(exchange, 400, "Invalid ID or failed to delete");
         }
     }
 
@@ -83,6 +108,10 @@ public class UserHandler implements HttpHandler {
             int id = Integer.parseInt(JsonUtils.extractValue(requestBody, "id"));
             String fullName = JsonUtils.extractValue(requestBody, "fullName");
             String password = JsonUtils.extractValue(requestBody, "password");
+
+            // Fix: Extract isActive status properly
+            String isActiveStr = JsonUtils.extractValue(requestBody, "isActive");
+            boolean isActive = "true".equalsIgnoreCase(isActiveStr);
 
             // Basic validation
             if (fullName == null || fullName.isEmpty()) {
@@ -98,6 +127,7 @@ public class UserHandler implements HttpHandler {
                 Student s = new Student();
                 s.setId(id);
                 s.setFullName(fullName);
+                s.setActive(isActive); // Set explicit status
                 s.setCgpa(Double.parseDouble(JsonUtils.extractValue(requestBody, "cgpa")));
                 s.setMajor(JsonUtils.extractValue(requestBody, "major"));
                 s.setQualification(JsonUtils.extractValue(requestBody, "qualification"));
@@ -106,7 +136,7 @@ public class UserHandler implements HttpHandler {
                 s.setFamilyIncome(Double.parseDouble(JsonUtils.extractValue(requestBody, "familyIncome")));
                 user = s;
             } else {
-                user = new User(id, fullName, "", "", true) {
+                user = new User(id, fullName, "", "", isActive) { // Set explicit status
                     public boolean login() {
                         return false;
                     }

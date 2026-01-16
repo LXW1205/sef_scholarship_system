@@ -14,6 +14,10 @@ public class Scholarship {
     private boolean isActive;
     private List<Criterion> criteria;
 
+    public Scholarship() {
+        this.criteria = new ArrayList<>();
+    }
+
     public Scholarship(int scholarshipID, String title, String description, String amount, String forQualification,
             Date deadline, boolean isActive) {
         this.scholarshipID = scholarshipID;
@@ -30,28 +34,56 @@ public class Scholarship {
         return scholarshipID;
     }
 
+    public void setScholarshipID(int scholarshipID) {
+        this.scholarshipID = scholarshipID;
+    }
+
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getAmount() {
         return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
     }
 
     public String getForQualification() {
         return forQualification;
     }
 
+    public void setForQualification(String forQualification) {
+        this.forQualification = forQualification;
+    }
+
     public Date getDeadline() {
         return deadline;
     }
 
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
+    }
+
     public boolean isActive() {
         return isActive;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
     public List<Criterion> getCriteria() {

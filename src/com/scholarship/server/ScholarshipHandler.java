@@ -43,8 +43,102 @@ public class ScholarshipHandler implements HttpHandler {
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
+        } else if ("POST".equals(exchange.getRequestMethod())) {
+            handlePost(exchange);
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            handleDelete(exchange);
         } else {
             exchange.sendResponseHeaders(405, -1);
+        }
+    }
+
+    private void handleDelete(HttpExchange exchange) throws IOException {
+        String query = exchange.getRequestURI().getQuery();
+        int id = -1;
+        if (query != null && query.startsWith("id=")) {
+            try {
+                id = Integer.parseInt(query.split("=")[1]);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+
+        if (id != -1 && scholarshipDAO.delete(id)) {
+            String response = "{\"success\": true}";
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, response.length());
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        } else {
+            sendError(exchange, 400, "Invalid ID or failed to delete");
+        }
+    }
+
+    private void handlePost(HttpExchange exchange) throws IOException {
+        String requestBody = new String(exchange.getRequestBody().readAllBytes());
+        try {
+            // Check if update (has ID) or create
+            String idStr = JsonUtils.extractValue(requestBody, "id");
+            int id = (idStr != null && !idStr.isEmpty()) ? Integer.parseInt(idStr) : 0;
+
+            String title = JsonUtils.extractValue(requestBody, "title");
+            String description = JsonUtils.extractValue(requestBody, "description");
+            String amount = JsonUtils.extractValue(requestBody, "amount");
+            String deadlineStr = JsonUtils.extractValue(requestBody, "deadline");
+            String status = JsonUtils.extractValue(requestBody, "status");
+            String eligibility = JsonUtils.extractValue(requestBody, "eligibilityCriteria");
+
+            // Basic validation
+            if (title == null || title.isEmpty()) {
+                sendError(exchange, 400, "Title is required");
+                return;
+            }
+
+            Scholarship s = new Scholarship();
+            s.setScholarshipID(id);
+            s.setTitle(title);
+            s.setDescription(description);
+            s.setAmount(amount);
+            s.setForQualification(eligibility); // Using forQualification field for eligibility text
+            s.setDeadline(java.sql.Date.valueOf(deadlineStr));
+            s.setActive("Open".equalsIgnoreCase(status) || "Active".equalsIgnoreCase(status));
+
+            // Note: Criteria parsing would ideally go here if we had a JSON parser library.
+            // For now, initializing empty list to avoid NPE
+            s.setCriteria(new java.util.ArrayList<>());
+
+            boolean success;
+            if (id > 0) {
+                success = scholarshipDAO.update(s);
+            } else {
+                int newId = scholarshipDAO.create(s);
+                success = newId > 0;
+            }
+
+            if (success) {
+                String response = "{\"success\": true}";
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, response.length());
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
+            } else {
+                sendError(exchange, 500, "Failed to save scholarship");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendError(exchange, 500, "Internal Server Error: " + e.getMessage());
+        }
+    }
+
+    private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
+        String response = String.format("{\"error\": \"%s\"}", JsonUtils.escape(message));
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(statusCode, response.length());
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(response.getBytes());
         }
     }
 

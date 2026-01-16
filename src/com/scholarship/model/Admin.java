@@ -43,6 +43,8 @@ public class Admin extends User {
         int approvedMonth = 0;
         java.util.Map<String, Integer> trend = new java.util.LinkedHashMap<>(); // LinkedHashMap for order
         java.util.Map<String, Integer> userRoles = new java.util.HashMap<>();
+        java.util.Map<String, Integer> awardDistribution = new java.util.HashMap<>();
+        java.util.Map<String, Integer> statusDistribution = new java.util.HashMap<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
                 Statement stmt = conn.createStatement()) {
@@ -95,11 +97,27 @@ public class Admin extends User {
                 }
             }
 
+            // Award Distribution (Approved Apps per Scholarship)
+            try (ResultSet rs = stmt.executeQuery(
+                    "SELECT s.title, COUNT(a.appID) FROM Application a JOIN Scholarship s ON a.scholarshipID = s.scholarshipID WHERE a.status = 'Approved' GROUP BY s.title")) {
+                while (rs.next()) {
+                    awardDistribution.put(rs.getString(1), rs.getInt(2));
+                }
+            }
+
+            // Status Distribution (Total Apps per Status)
+            try (ResultSet rs = stmt.executeQuery("SELECT status, COUNT(*) FROM Application GROUP BY status")) {
+                while (rs.next()) {
+                    statusDistribution.put(rs.getString(1), rs.getInt(2));
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return new DashboardData(totalUsers, activeScholarships, pendingApps, approvedMonth, trend, userRoles);
+        return new DashboardData(totalUsers, activeScholarships, pendingApps, approvedMonth, trend, userRoles,
+                awardDistribution, statusDistribution);
     }
 
     // Overload for backward compatibility

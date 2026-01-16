@@ -157,16 +157,34 @@
           </a>
         </div>
 
-        <!-- Applications Awaiting Decision -->
-        <div class="bg-card rounded-xl border border-border p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold">Applications Awaiting Decision</h3>
-            <a href="/committee/application-decisions.html"
-              class="text-primary hover:underline text-sm font-medium">View All</a>
+        <!-- Statistics Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+          <!-- Award Distribution -->
+          <div class="bg-card rounded-xl border border-border p-6 shadow-sm">
+            <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+              <i data-lucide="bar-chart-2" class="w-5 h-5 text-primary"></i>
+              Award Distribution
+            </h3>
+            <div class="relative h-64 w-full">
+              <canvas id="awardChart"></canvas>
+            </div>
+            <p class="text-xs text-muted-foreground mt-4">Number of approved applications per scholarship program</p>
           </div>
-          <div id="awaitingDecisions">
-            <div class="flex items-center justify-center py-8">
-              <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-muted-foreground"></i>
+
+          <!-- Applications Awaiting Decision -->
+          <div class="bg-card rounded-xl border border-border p-6 shadow-sm overflow-hidden">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-bold flex items-center gap-2">
+                <i data-lucide="clipboard-list" class="w-5 h-5 text-primary"></i>
+                Awaiting Decision
+              </h3>
+              <a href="/committee/application-decisions.html"
+                class="text-primary hover:underline text-sm font-medium">View All</a>
+            </div>
+            <div id="awaitingDecisions">
+              <div class="flex items-center justify-center py-8">
+                <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-muted-foreground"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -174,18 +192,55 @@
     </section>
   </main>
 
+  <script src="/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+    let awardChartInstance = null;
 
-    // TESTING MODE: Auth check disabled
-    // if (!token || user.role !== 'Committee') {
-    //   window.location.href = '/login.html';
-    // }
+    document.getElementById('welcomeMessage').textContent = `Welcome, ${user.fullName || 'Committee Member'}!`;
 
-    document.getElementById('welcomeMessage').textContent = `Welcome, ${user.username || 'Committee Member'}!`;
+    function updateAwardChart(applications) {
+      const approvedApps = applications.filter(a => a.status === 'Approved');
+      const distribution = {};
 
+      approvedApps.forEach(app => {
+        const title = app.scholarship_title || 'Other';
+        distribution[title] = (distribution[title] || 0) + 1;
+      });
 
+      const ctx = document.getElementById('awardChart').getContext('2d');
+      const labels = Object.keys(distribution);
+      const values = Object.values(distribution);
+
+      if (awardChartInstance) awardChartInstance.destroy();
+
+      awardChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Approved Awards',
+            data: values,
+            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+            borderColor: 'rgb(16, 185, 129)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { beginAtZero: true, ticks: { precision: 0 } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
 
     // Load data from API
     async function loadDashboardData() {
@@ -196,11 +251,14 @@
         const data = await response.json();
         const applications = data.applications || [];
 
-        // Calculate stats from real data
+        // Update Stats
         document.getElementById('reviewedCount').textContent = applications.filter(a => a.status === 'Reviewed').length;
         document.getElementById('pendingCount').textContent = applications.filter(a => a.status === 'Pending').length;
         document.getElementById('approvedCount').textContent = applications.filter(a => a.status === 'Approved').length;
         document.getElementById('rejectedCount').textContent = applications.filter(a => a.status === 'Rejected').length;
+
+        // Update Award Chart
+        updateAwardChart(applications);
 
         const awaitingDiv = document.getElementById('awaitingDecisions');
         const pendingApps = applications.filter(a => a.status === 'Reviewed' || a.status === 'Pending');

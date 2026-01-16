@@ -40,34 +40,31 @@ public class AdminStatsHandler implements HttpHandler {
             Admin admin = new Admin();
             DashboardData data = admin.viewAdminAnalytics(range);
 
-            // Manually building JSON for trends map
-            StringBuilder trendsJson = new StringBuilder("{");
-            boolean first = true;
-            for (java.util.Map.Entry<String, Integer> entry : data.getTrendData().entrySet()) {
-                if (!first)
-                    trendsJson.append(",");
-                first = false;
-                trendsJson.append(String.format("\"%s\": %d", entry.getKey(), entry.getValue()));
-            }
-            trendsJson.append("}");
-            // Manually building JSON for user roles map
-            StringBuilder rolesJson = new StringBuilder("{");
-            first = true;
-            for (java.util.Map.Entry<String, Integer> entry : data.getUserRoles().entrySet()) {
-                if (!first)
-                    rolesJson.append(",");
-                first = false;
-                rolesJson.append(String.format("\"%s\": %d", entry.getKey(), entry.getValue()));
-            }
-            rolesJson.append("}");
-
             return String.format(
-                    "{\"totalUsers\": %d, \"activeScholarships\": %d, \"pendingApps\": %d, \"approvedMonth\": %d, \"trends\": %s, \"userRoles\": %s}",
+                    "{\"totalUsers\": %d, \"activeScholarships\": %d, \"pendingApps\": %d, \"approvedMonth\": %d, \"trends\": %s, \"userRoles\": %s, \"awardDistribution\": %s, \"statusDistribution\": %s}",
                     data.getTotalUsers(), data.getActiveScholarships(), data.getPendingApps(), data.getApprovedMonth(),
-                    trendsJson.toString(), rolesJson.toString());
+                    mapToJson(data.getTrendData()), mapToJson(data.getUserRoles()),
+                    mapToJson(data.getAwardDistribution()), mapToJson(data.getStatusDistribution()));
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"error\": \"" + e.getMessage() + "\"}";
         }
+    }
+
+    private String mapToJson(java.util.Map<String, Integer> map) {
+        if (map == null)
+            return "{}";
+        StringBuilder json = new StringBuilder("{");
+        boolean first = true;
+        for (java.util.Map.Entry<String, Integer> entry : map.entrySet()) {
+            if (!first)
+                json.append(",");
+            first = false;
+            // Escape double quotes in key if necessary
+            String key = entry.getKey().replace("\"", "\\\"");
+            json.append(String.format("\"%s\": %d", key, entry.getValue()));
+        }
+        json.append("}");
+        return json.toString();
     }
 }

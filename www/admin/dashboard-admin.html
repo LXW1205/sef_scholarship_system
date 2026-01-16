@@ -7,6 +7,7 @@
   <title>ScholarNet Admin - Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -138,7 +139,7 @@
                 class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                 <i data-lucide="award" class="w-6 h-6"></i>
               </div>
-              <h3 class="font-semibold">Scholarships</h3>
+              <h3 class="font-semibold">Manage Scholarships</h3>
             </div>
           </a>
 
@@ -149,88 +150,102 @@
                 class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                 <i data-lucide="clipboard-check" class="w-6 h-6"></i>
               </div>
-              <h3 class="font-semibold">Applications</h3>
+              <h3 class="font-semibold">Manage Applications</h3>
             </div>
           </a>
 
-          <a href="/admin/system-analytics.html"
+
+
+          <a href="/admin/system-settings.html"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
             <div class="flex flex-col items-center text-center gap-3">
               <div
                 class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                <i data-lucide="settings" class="w-6 h-6"></i>
               </div>
-              <h3 class="font-semibold">System Reports</h3>
+              <h3 class="font-semibold">Settings</h3>
             </div>
           </a>
         </div>
 
-        <!-- Secondary Actions -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
-          <a href="/admin/send-notifications.html"
-            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
-            <i data-lucide="send" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
-            <span class="text-xs font-medium">Notifications</span>
-          </a>
-          <a href="/admin/audit-logs.html"
-            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
-            <i data-lucide="shield" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
-            <span class="text-xs font-medium">Audit Logs</span>
-          </a>
-          <a href="/admin/system-settings.html"
-            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
-            <i data-lucide="settings" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
-            <span class="text-xs font-medium">Settings</span>
-          </a>
-          <a href="/admin/notification-settings.html"
-            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
-            <i data-lucide="bell" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
-            <span class="text-xs font-medium">Alerts</span>
-          </a>
-          <a href="/admin/backup-maintenance.html"
-            class="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary transition-colors flex flex-col items-center gap-2 group">
-            <i data-lucide="database" class="w-5 h-5 text-muted-foreground group-hover:text-primary"></i>
-            <span class="text-xs font-medium">Backup</span>
-          </a>
-        </div>
 
-        <!-- Recent Activities and System Alerts -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Recent Activities -->
-          <div class="bg-card rounded-xl border border-border p-6">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <i data-lucide="activity" class="w-5 h-5"></i>
-              Recent Activities
-            </h3>
-            <div id="recentActivities" class="space-y-3">
-              <div class="flex items-center justify-center py-8">
-                <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-muted-foreground"></i>
+      </div>
+
+      <!-- Analytics Section -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8" id="analytics-section">
+        <h2 class="text-2xl font-bold mb-6">System Analytics</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <!-- Application Trends (Bar Chart) -->
+          <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-border shadow-sm">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+              <h3 class="text-xl font-bold">Application Trends</h3>
+              <div class="flex gap-3 mt-4 md:mt-0">
+                <select id="timeRange" class="px-4 py-2 bg-background border border-input rounded-lg">
+                  <option value="all">All Time</option>
+                  <option value="year">Past Year</option>
+                  <option value="month">Past Month</option>
+                  <option value="week">Past Week</option>
+                </select>
+                <button onclick="exportCSV()"
+                  class="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
+                  <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+                </button>
               </div>
+            </div>
+            <div class="relative h-96 w-full">
+              <canvas id="analyticsChart"></canvas>
             </div>
           </div>
 
-          <!-- System Alerts -->
-          <div class="bg-card rounded-xl border border-border p-6">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <i data-lucide="bell" class="w-5 h-5"></i>
-              System Alerts
-            </h3>
-            <div id="systemAlerts" class="space-y-3">
-              <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 flex items-start gap-3">
-                <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5"></i>
-                <div>
-                  <p class="font-semibold text-sm">5 Applications Pending Review</p>
-                  <p class="text-xs text-muted-foreground mt-1">Assign reviewers to continue the evaluation process</p>
-                </div>
-              </div>
-              <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-start gap-3">
-                <i data-lucide="info" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
-                <div>
-                  <p class="font-semibold text-sm">3 Scholarships Closing Soon</p>
-                  <p class="text-xs text-muted-foreground mt-1">Deadlines approaching in the next 7 days</p>
-                </div>
-              </div>
+          <!-- User Distribution (Pie Chart) -->
+          <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-bold">User Distribution</h3>
+              <button onclick="exportUserCSV()"
+                class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                title="Export CSV">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
             </div>
+            <div class="relative h-64 w-full flex justify-center">
+              <canvas id="userChart"></canvas>
+            </div>
+            <div class="mt-6 space-y-2" id="userLegend"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Award Distribution -->
+          <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-bold">Award Distribution</h3>
+              <button onclick="exportAwardCSV()"
+                class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                title="Export CSV">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="relative h-64 w-full">
+              <canvas id="awardChart"></canvas>
+            </div>
+            <p class="text-sm text-muted-foreground mt-4">Approved applications per scholarship</p>
+          </div>
+
+          <!-- Application Success Rate -->
+          <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-bold">Status Distribution</h3>
+              <button onclick="exportStatusCSV()"
+                class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                title="Export CSV">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="relative h-64 w-full">
+              <canvas id="statusChart"></canvas>
+            </div>
+            <p class="text-sm text-muted-foreground mt-4">Overall success rate and application pipeline</p>
           </div>
         </div>
       </div>
@@ -250,37 +265,199 @@
 
 
 
+    let chartInstance = null;
+    let userChartInstance = null;
+    let awardChartInstance = null;
+    let statusChartInstance = null;
+
     async function loadDashboardData() {
+      const range = document.getElementById('timeRange') ? document.getElementById('timeRange').value : 'all';
       try {
-        const response = await fetch('/api/admin/stats');
+        const response = await fetch(`/api/admin/stats?range=${range}`);
         const stats = await response.json();
 
-        document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
-        document.getElementById('activeScholarships').textContent = stats.activeScholarships || 0;
-        document.getElementById('pendingApps').textContent = stats.pendingApps || 0;
-        document.getElementById('approvedMonth').textContent = stats.approvedMonth || 0;
+        // Update Cards
+        if (document.getElementById('totalUsers')) document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+        if (document.getElementById('activeScholarships')) document.getElementById('activeScholarships').textContent = stats.activeScholarships || 0;
+        if (document.getElementById('pendingApps')) document.getElementById('pendingApps').textContent = stats.pendingApps || 0;
+        if (document.getElementById('approvedMonth')) document.getElementById('approvedMonth').textContent = stats.approvedMonth || 0;
 
-        // Load recent activities (still mock for now as we don't have an activity log table developed yet)
-        const activities = [
-          { icon: 'user-plus', text: 'System initialized', time: 'Just now', color: 'blue' }
-        ];
-
-        document.getElementById('recentActivities').innerHTML = activities.map(activity => `
-          <div class="flex items-center gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-            <div class="w-8 h-8 bg-${activity.color}-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i data-lucide="${activity.icon}" class="w-4 h-4 text-${activity.color}-600"></i>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm font-medium">${activity.text}</p>
-              <p class="text-xs text-muted-foreground">${activity.time}</p>
-            </div>
-          </div>
-        `).join('');
+        // Update Charts
+        updateChart(stats.trends || {});
+        updateUserChart(stats.userRoles || {});
+        updateAwardChart(stats.awardDistribution || {});
+        updateStatusChart(stats.statusDistribution || {});
 
         lucide.createIcons();
       } catch (error) {
         console.error('[v0] Dashboard load error:', error);
       }
+    }
+
+    function updateChart(trends) {
+      const ctx = document.getElementById('analyticsChart');
+      if (!ctx) return;
+      const labels = Object.keys(trends);
+      const values = Object.values(trends);
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Applications Submitted',
+            data: values,
+            backgroundColor: 'rgba(37, 99, 235, 0.6)',
+            borderColor: 'rgb(37, 99, 235)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+    }
+
+    function updateUserChart(roles) {
+      const ctx = document.getElementById('userChart');
+      if (!ctx) return;
+      const labels = Object.keys(roles);
+      const values = Object.values(roles);
+
+      if (userChartInstance) userChartInstance.destroy();
+
+      userChartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: [
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(245, 158, 11, 0.8)',
+              'rgba(239, 68, 68, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    function updateAwardChart(awards) {
+      const ctx = document.getElementById('awardChart');
+      if (!ctx) return;
+      const labels = Object.keys(awards);
+      const values = Object.values(awards);
+
+      if (awardChartInstance) awardChartInstance.destroy();
+
+      awardChartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Awards Granted',
+            data: values,
+            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+            borderColor: 'rgb(16, 185, 129)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    }
+
+    function updateStatusChart(status) {
+      const ctx = document.getElementById('statusChart');
+      if (!ctx) return;
+      const labels = Object.keys(status);
+      const values = Object.values(status);
+
+      if (statusChartInstance) statusChartInstance.destroy();
+
+      statusChartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: [
+              'rgba(245, 158, 11, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(239, 68, 68, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(107, 114, 128, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    window.exportCSV = function () {
+      const range = document.getElementById('timeRange').value;
+      fetchDataAndDownload(range, 'trends', 'Application Trends');
+    };
+
+    window.exportUserCSV = function () {
+      const range = document.getElementById('timeRange') ? document.getElementById('timeRange').value : 'all';
+      fetchDataAndDownload(range, 'userRoles', 'User Distribution');
+    };
+
+    window.exportAwardCSV = function () {
+      const range = document.getElementById('timeRange') ? document.getElementById('timeRange').value : 'all';
+      fetchDataAndDownload(range, 'awardDistribution', 'Award Distribution');
+    };
+
+    window.exportStatusCSV = function () {
+      const range = document.getElementById('timeRange') ? document.getElementById('timeRange').value : 'all';
+      fetchDataAndDownload(range, 'statusDistribution', 'Status Distribution');
+    };
+
+    function fetchDataAndDownload(range, dataKey, filenamePrefix) {
+      fetch(`/api/admin/stats?range=${range}`)
+        .then(res => res.json())
+        .then(data => {
+          const dataset = data[dataKey] || {};
+          let csvContent = "data:text/csv;charset=utf-8,Category,Count\n";
+          for (const [key, value] of Object.entries(dataset)) {
+            csvContent += `${key},${value}\n`;
+          }
+          const encodedUri = encodeURI(csvContent);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", `${filenamePrefix.replace(/\s+/g, '_')}_${range}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+        .catch(e => console.error(e));
+    }
+
+    if (document.getElementById('timeRange')) {
+      document.getElementById('timeRange').addEventListener('change', loadDashboardData);
     }
 
     loadDashboardData();

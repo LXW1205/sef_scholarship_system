@@ -69,7 +69,7 @@
 
       <!-- Search and Filters -->
       <div class="bg-card rounded-xl border border-border p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="md:col-span-2">
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -89,6 +89,14 @@
               <option value="Admin">Admin</option>
             </select>
           </div>
+          <div>
+            <select id="statusFilter"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              <option value="">All Statuses</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -98,7 +106,7 @@
           <table class="w-full">
             <thead class="bg-muted/50 border-b border-border">
               <tr>
-                <th class="px-6 py-4 text-left text-sm font-semibold">User</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold">Name</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Role</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
@@ -135,11 +143,7 @@
             <input type="text" id="fullName" required
               class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
           </div>
-          <div>
-            <label for="username" class="block text-sm font-medium mb-2">Username *</label>
-            <input type="text" id="username" required
-              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-          </div>
+
           <div>
             <label for="email" class="block text-sm font-medium mb-2">Email *</label>
             <input type="email" id="email" required
@@ -229,8 +233,7 @@
                 <i data-lucide="user" class="w-5 h-5 text-primary"></i>
               </div>
               <div>
-                <p class="font-medium">${u.username}</p>
-                <p class="text-sm text-muted-foreground">@${u.username}</p>
+                <p class="font-medium">${u.fullName}</p>
               </div>
             </div>
           </td>
@@ -251,11 +254,11 @@
               <button onclick="editUser(${u.id})" class="p-2 hover:bg-muted rounded-lg transition-colors" title="Edit">
                 <i data-lucide="edit" class="w-4 h-4"></i>
               </button>
-              <button onclick="toggleUserStatus(${u.id})" class="p-2 hover:bg-muted rounded-lg transition-colors" title="${u.isActive ? 'Disable' : 'Enable'}">
-                <i data-lucide="${u.isActive ? 'user-x' : 'user-check'}" class="w-4 h-4"></i>
+              <button onclick="toggleUserStatus(${u.id}, ${u.isActive})" class="p-2 hover:bg-muted rounded-lg transition-colors" title="${u.isActive ? 'Disable' : 'Enable'}">
+                <i data-lucide="${u.isActive ? 'user-x' : 'user-check'}" class="w-4 h-4 ${u.isActive ? 'text-destructive' : 'text-success'}"></i>
               </button>
-              <button onclick="resetPassword(${u.id})" class="p-2 hover:bg-muted rounded-lg transition-colors" title="Reset Password">
-                <i data-lucide="key" class="w-4 h-4"></i>
+              <button onclick="deleteUser(${u.id})" class="p-2 hover:bg-muted rounded-lg transition-colors" title="Delete">
+                <i data-lucide="trash-2" class="w-4 h-4 text-destructive"></i>
               </button>
             </div>
           </td>
@@ -269,7 +272,17 @@
 
     // Modal handling
     const modal = document.getElementById('userModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const userForm = document.getElementById('userForm');
+    let currentUserId = null;
+
     document.getElementById('addUserBtn').addEventListener('click', () => {
+      currentUserId = null;
+      modalTitle.textContent = "Add New User";
+      userForm.reset();
+      document.getElementById('submitBtn').textContent = "Create User";
+      document.getElementById('role').disabled = false;
+      document.getElementById('password').required = true;
       modal.style.display = 'flex';
       lucide.createIcons();
     });
@@ -288,15 +301,20 @@
 
       const formData = {
         fullName: document.getElementById('fullName').value,
-        username: document.getElementById('username').value,
         email: document.getElementById('email').value,
         role: document.getElementById('role').value,
         password: document.getElementById('password').value,
         department: document.getElementById('department').value,
       };
 
+      if (currentUserId) {
+        formData.id = currentUserId;
+      }
+
+      const url = currentUserId ? '/api/users' : '/api/auth/register';
+
       try {
-        const response = await fetch('/api/auth/register', {
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -308,40 +326,134 @@
         const data = await response.json();
 
         if (response.ok) {
-          document.getElementById('formSuccessText').textContent = 'User created successfully!';
+          document.getElementById('formSuccessText').textContent = currentUserId ? 'User updated successfully!' : 'User created successfully!';
           document.getElementById('formSuccess').style.display = 'flex';
+          document.getElementById('formError').style.display = 'none';
           lucide.createIcons();
 
           setTimeout(() => {
             modal.style.display = 'none';
-            location.reload();
-          }, 2000);
+            loadUsers(); // Refresh list instead of full reload
+            document.getElementById('formSuccess').style.display = 'none';
+          }, 1500);
         } else {
-          document.getElementById('formErrorText').textContent = data.error || 'Failed to create user';
+          document.getElementById('formErrorText').textContent = data.error || 'Operation failed';
           document.getElementById('formError').style.display = 'flex';
+          document.getElementById('formSuccess').style.display = 'none';
           lucide.createIcons();
         }
       } catch (error) {
-        console.error('[v0] Create user error:', error);
+        console.error('[v0] User op error:', error);
         document.getElementById('formErrorText').textContent = 'An error occurred';
         document.getElementById('formError').style.display = 'flex';
+        document.getElementById('formSuccess').style.display = 'none';
         lucide.createIcons();
       }
     });
 
     window.editUser = function (id) {
-      alert('Edit user functionality - ID: ' + id);
+      const userToEdit = allUsers.find(u => u.id === id);
+      if (!userToEdit) return;
+
+      currentUserId = id;
+      modalTitle.textContent = "Edit User";
+      document.getElementById('submitBtn').textContent = "Update User";
+
+      document.getElementById('fullName').value = userToEdit.fullName || '';
+      document.getElementById('email').value = userToEdit.email || '';
+      document.getElementById('role').value = userToEdit.role || '';
+      document.getElementById('role').disabled = true; // Disable role editing
+
+      // Password optional for edit
+      document.getElementById('password').value = '';
+      document.getElementById('password').required = false;
+
+      // Specialized fields
+      if (userToEdit.department) {
+        document.getElementById('department').value = userToEdit.department;
+      } else {
+        document.getElementById('department').value = '';
+      }
+
+      document.getElementById('formError').style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'none';
+
+      modal.style.display = 'flex';
+      lucide.createIcons();
     };
 
-    window.toggleUserStatus = function (id) {
-      if (confirm('Are you sure you want to change this user\'s status?')) {
-        alert('Toggle status - ID: ' + id);
+    window.toggleUserStatus = async function (id, currentStatus) {
+      const userToEdit = allUsers.find(u => u.id === id);
+      if (!userToEdit) return;
+
+      const newStatus = !currentStatus;
+      const action = newStatus ? "enable" : "disable";
+
+      if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+      // Construct payload mimicking a full update but just toggling status
+      // Note: Password field sent as empty string (handler ignores it if empty/null for updates)
+      const formData = {
+        id: userToEdit.id,
+        fullName: userToEdit.fullName,
+        email: userToEdit.email,
+        role: userToEdit.role,
+        isActive: newStatus,
+        // Include role-specific fields to avoid data loss if handler requires them
+        // (Our UserHandler.update checks instance type so sending extra fields is safe/ignored)
+        cgpa: userToEdit.cgpa || 0,
+        major: userToEdit.major || "",
+        qualification: userToEdit.qualification || "",
+        yearOfStudy: userToEdit.yearOfStudy || "",
+        expectedGraduation: userToEdit.expectedGraduation || "",
+        familyIncome: userToEdit.familyIncome || 0,
+        department: userToEdit.department || "",
+        position: userToEdit.position || "",
+        adminLevel: userToEdit.adminLevel || ""
+      };
+      // Password explicitly empty to signal no change
+      formData.password = "";
+
+      try {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          loadUsers();
+        } else {
+          const data = await response.json();
+          alert(data.error || "Failed to update status");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("An error occurred");
       }
     };
 
-    window.resetPassword = function (id) {
-      if (confirm('Send password reset link to this user?')) {
-        alert('Password reset sent - ID: ' + id);
+    window.deleteUser = async function (id) {
+      if (!confirm('Are you sure you want to PERMANENTLY delete this user? This action cannot be undone.')) return;
+
+      try {
+        const response = await fetch(`/api/users?id=${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          loadUsers();
+        } else {
+          const data = await response.json();
+          alert(data.error || "Failed to delete user");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("An error occurred");
       }
     };
 
@@ -355,6 +467,10 @@
         });
         const data = await response.json();
         allUsers = data.users || [];
+
+        // Default sort by role
+        allUsers.sort((a, b) => a.role.localeCompare(b.role));
+
         applyFilters();
       } catch (error) {
         console.error('[v0] Load users error:', error);
@@ -376,7 +492,10 @@
 
         const matchesRole = !roleFilter || user.role === roleFilter;
 
-        return matchesSearch && matchesRole;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const matchesStatus = statusFilter === "" || String(user.isActive) === statusFilter;
+
+        return matchesSearch && matchesRole && matchesStatus;
       });
 
       renderUsers(filtered);
@@ -384,6 +503,7 @@
 
     document.getElementById('searchInput').addEventListener('input', applyFilters);
     document.getElementById('roleFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
 
     loadUsers();
   </script>

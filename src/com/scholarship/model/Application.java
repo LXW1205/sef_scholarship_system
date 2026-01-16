@@ -11,7 +11,7 @@ public class Application {
     private Timestamp submissionDate;
     private String status;
     private String reviewerID; // Staff ID of assigned reviewer
-    private String reviewerName; // Username of assigned reviewer
+    private String reviewerName; // Full name of assigned reviewer
     private String applicantName; // Full name of the applicant
     private java.util.List<Document> documents = new java.util.ArrayList<>();
 

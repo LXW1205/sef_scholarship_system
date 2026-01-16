@@ -181,6 +181,7 @@
 
 
     let allScholarships = [];
+    let currentScholarshipId = null;
 
     async function loadScholarships() {
       try {
@@ -214,10 +215,10 @@
             <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
               <i data-lucide="award" class="w-6 h-6 text-primary"></i>
             </div>
-            <span class="px-3 py-1 text-xs font-medium rounded-full ${s.status === 'Open' ? 'bg-success/10 text-success' :
+            <span class="px-3 py-1 text-xs font-medium rounded-full ${s.status === 'Open' || s.status === 'Active' ? 'bg-success/10 text-success' :
           s.status === 'Closed' ? 'bg-muted text-muted-foreground' :
             'bg-yellow-500/10 text-yellow-600'
-        }">${s.status}</span>
+        }">${s.status === 'Active' ? 'Open' : s.status}</span>
           </div>
           <h3 class="text-xl font-bold mb-2">${s.title}</h3>
           <p class="text-muted-foreground text-sm mb-4 line-clamp-2">${s.description || 'No description'}</p>
@@ -252,13 +253,21 @@
             </div>
           </div>
           <div class="flex gap-2">
-            <button onclick="editScholarship(${s.scholarshipid})" class="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center justify-center gap-1">
+            <a href="/scholarship-details.html?id=${s.id}" class="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center justify-center gap-1">
+                 <i data-lucide="eye" class="w-4 h-4"></i>
+                 View
+            </a>
+            <button onclick="editScholarship(${s.id})" class="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center justify-center gap-1">
               <i data-lucide="edit" class="w-4 h-4"></i>
               Edit
             </button>
-            <button onclick="toggleScholarshipStatus(${s.scholarshipid}, '${s.status}')" class="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-1">
-              <i data-lucide="${s.status === 'Open' ? 'x-circle' : 'check-circle'}" class="w-4 h-4"></i>
-              ${s.status === 'Open' ? 'Close' : 'Open'}
+            <button onclick="toggleScholarshipStatus(${s.id}, '${s.status}')" class="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-1">
+              <i data-lucide="${s.status === 'Open' || s.status === 'Active' ? 'x-circle' : 'check-circle'}" class="w-4 h-4"></i>
+              ${s.status === 'Open' || s.status === 'Active' ? 'Close' : 'Open'}
+            </button>
+            <button onclick="deleteScholarship(${s.id})" class="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors flex items-center justify-center gap-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              Delete
             </button>
           </div>
         </div>
@@ -269,7 +278,16 @@
 
     // Modal handling
     const modal = document.getElementById('scholarshipModal');
+    const scholarshipForm = document.getElementById('scholarshipForm');
+
     document.getElementById('createScholarshipBtn').addEventListener('click', () => {
+      currentScholarshipId = null;
+      scholarshipForm.reset();
+      document.querySelector('#scholarshipModal h3').textContent = 'Create New Scholarship';
+      document.getElementById('submitBtn').textContent = 'Create Scholarship';
+      document.getElementById('formSuccess').style.display = 'none';
+      document.getElementById('formError').style.display = 'none';
+
       modal.style.display = 'flex';
       lucide.createIcons();
     });
@@ -289,37 +307,102 @@
       const formData = {
         title: document.getElementById('title').value,
         description: document.getElementById('description').value,
-        amount: parseFloat(document.getElementById('amount').value),
+        amount: document.getElementById('amount').value,
         deadline: document.getElementById('deadline').value,
         eligibilityCriteria: document.getElementById('eligibility').value,
         status: document.getElementById('status').value,
       };
 
-      // Mock API call
-      console.log('[v0] Creating scholarship:', formData);
-      document.getElementById('formSuccess').style.display = 'flex';
-      lucide.createIcons();
+      if (currentScholarshipId) {
+        formData.id = currentScholarshipId;
+      }
 
-      setTimeout(() => {
-        modal.style.display = 'none';
-        location.reload();
-      }, 2000);
+      try {
+        const response = await fetch('/api/scholarships', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById('formSuccess').querySelector('span').textContent = currentScholarshipId ? 'Scholarship updated!' : 'Scholarship created!';
+          document.getElementById('formSuccess').style.display = 'flex';
+          document.getElementById('formError').style.display = 'none';
+          lucide.createIcons();
+
+          setTimeout(() => {
+            modal.style.display = 'none';
+            loadScholarships();
+          }, 1500);
+        } else {
+          document.getElementById('formErrorText').textContent = data.error || 'Operation failed';
+          document.getElementById('formError').style.display = 'flex';
+          lucide.createIcons();
+        }
+      } catch (e) {
+        console.error(e);
+        document.getElementById('formErrorText').textContent = 'An error occurred';
+        document.getElementById('formError').style.display = 'flex';
+        lucide.createIcons();
+      }
     });
 
     document.getElementById('statusFilter').addEventListener('change', (e) => {
       const filter = e.target.value;
-      const filtered = filter ? allScholarships.filter(s => s.status === filter) : allScholarships;
+      const filtered = filter ? allScholarships.filter(s => s.status === filter || (filter === 'Open' && s.status === 'Active')) : allScholarships;
       displayScholarships(filtered);
     });
 
     window.editScholarship = function (id) {
-      alert('Edit scholarship - ID: ' + id);
+      const s = allScholarships.find(item => item.id === id);
+      if (!s) return;
+
+      currentScholarshipId = id;
+      document.querySelector('#scholarshipModal h3').textContent = 'Edit Scholarship';
+      document.getElementById('submitBtn').textContent = 'Update Scholarship';
+
+      document.getElementById('title').value = s.title;
+      document.getElementById('description').value = s.description;
+      document.getElementById('amount').value = s.amount ? s.amount.replace(/[^0-9.]/g, '') : '';
+      document.getElementById('deadline').value = s.deadline ? s.deadline.split('T')[0] : '';
+      document.getElementById('eligibility').value = s.forQualification || '';
+      document.getElementById('status').value = (s.status === 'Active' || s.status === 'Open') ? 'Open' : 'Draft'; // Simplified mapping
+
+      document.getElementById('formSuccess').style.display = 'none';
+      document.getElementById('formError').style.display = 'none';
+
+      modal.style.display = 'flex';
+      lucide.createIcons();
     };
 
     window.toggleScholarshipStatus = function (id, currentStatus) {
-      const newStatus = currentStatus === 'Open' ? 'Closed' : 'Open';
-      if (confirm(`Are you sure you want to ${newStatus.toLowerCase()} this scholarship?`)) {
-        alert(`Status changed to ${newStatus} - ID: ` + id);
+      // Placeholder for simplified toggling, could be improved to use API
+      editScholarship(id);
+    };
+
+    window.deleteScholarship = async function (id) {
+      if (!confirm('Are you sure you want to PERMANENTLY delete this scholarship? This action cannot be undone.')) return;
+
+      try {
+        const response = await fetch(`/api/scholarships?id=${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          loadScholarships();
+        } else {
+          const data = await response.json();
+          alert(data.error || "Failed to delete scholarship");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("An error occurred");
       }
     };
 

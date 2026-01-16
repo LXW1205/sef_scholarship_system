@@ -176,7 +176,7 @@ public class UserDAO {
         else if (user instanceof Admin)
             tableName = "Admin";
 
-        StringBuilder sql = new StringBuilder("UPDATE " + tableName + " SET fullName = ?");
+        StringBuilder sql = new StringBuilder("UPDATE " + tableName + " SET fullName = ?, isActive = ?");
         if (newPassword != null && !newPassword.isEmpty()) {
             sql.append(", password = ?");
         }
@@ -199,6 +199,8 @@ public class UserDAO {
 
             int i = 1;
             pstmt.setString(i++, user.getFullName());
+            pstmt.setBoolean(i++, user.isActive()); // Set isActive
+
             if (newPassword != null && !newPassword.isEmpty()) {
                 pstmt.setString(i++, newPassword);
             }
@@ -220,9 +222,20 @@ public class UserDAO {
             }
 
             pstmt.setInt(i, user.getId());
-            return pstmt.executeUpdate() > 0; // 1 or more rows (Postgres updates parent too)
-            // Actually it returns 1 for child update.
-            // Wait, standard return for child update is 1.
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean delete(int id) {
+        String sql = "DELETE FROM \"User\" WHERE userID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

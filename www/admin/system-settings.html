@@ -45,7 +45,59 @@
                         <option>UTC+8 (Singapore Time)</option>
                     </select>
                 </div>
-                <button class="px-6 py-2 bg-primary text-white rounded-lg">Save Changes</button>
+                <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">Save
+                    Changes</button>
+            </div>
+
+            <h3 class="text-2xl font-bold mb-6 mt-12">Administration Tools</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <a href="/admin/send-notifications.html"
+                    class="p-6 bg-white rounded-xl border border-gray-200 hover:border-primary hover:shadow-md transition-all group flex items-start gap-4">
+                    <div
+                        class="p-3 bg-blue-500/10 rounded-lg group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                        <i data-lucide="send" class="w-6 h-6 text-blue-600 group-hover:text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-1">Send Notifications</h4>
+                        <p class="text-sm text-gray-500">Blast emails and system alerts to users</p>
+                    </div>
+                </a>
+
+                <a href="/admin/audit-logs.html"
+                    class="p-6 bg-white rounded-xl border border-gray-200 hover:border-primary hover:shadow-md transition-all group flex items-start gap-4">
+                    <div
+                        class="p-3 bg-purple-500/10 rounded-lg group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                        <i data-lucide="shield" class="w-6 h-6 text-purple-600 group-hover:text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-1">Audit Logs</h4>
+                        <p class="text-sm text-gray-500">Track system activities and security events</p>
+                    </div>
+                </a>
+
+                <a href="/admin/notification-settings.html"
+                    class="p-6 bg-white rounded-xl border border-gray-200 hover:border-primary hover:shadow-md transition-all group flex items-start gap-4">
+                    <div
+                        class="p-3 bg-yellow-500/10 rounded-lg group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                        <i data-lucide="bell" class="w-6 h-6 text-yellow-600 group-hover:text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-1">Alert Configuration</h4>
+                        <p class="text-sm text-gray-500">Manage automated triggers and templates</p>
+                    </div>
+                </a>
+
+                <a href="/admin/backup-maintenance.html"
+                    class="p-6 bg-white rounded-xl border border-gray-200 hover:border-primary hover:shadow-md transition-all group flex items-start gap-4">
+                    <div
+                        class="p-3 bg-green-500/10 rounded-lg group-hover:bg-green-500 group-hover:text-white transition-colors">
+                        <i data-lucide="database" class="w-6 h-6 text-green-600 group-hover:text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-1">Backup & Maintenance</h4>
+                        <p class="text-sm text-gray-500">Database snapshots and system health</p>
+                    </div>
+                </a>
             </div>
         </div>
     </main>

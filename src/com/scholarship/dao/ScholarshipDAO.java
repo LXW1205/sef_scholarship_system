@@ -61,6 +61,83 @@ public class ScholarshipDAO {
         return null;
     }
 
+    public int create(Scholarship s) {
+        String sql = "INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive) VALUES (?, ?, ?, ?, ?, ?) RETURNING scholarshipID";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, s.getTitle());
+            pstmt.setString(2, s.getDescription());
+            pstmt.setString(3, s.getAmount());
+            pstmt.setString(4, s.getForQualification());
+            pstmt.setDate(5, s.getDeadline());
+            pstmt.setBoolean(6, s.isActive());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int newId = rs.getInt(1);
+                    // Add criteria
+                    for (Criterion c : s.getCriteria()) {
+                        c.setScholarshipID(newId); // Ensure linked to new ID
+                        createCriterion(c, conn);
+                    }
+                    return newId;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public boolean update(Scholarship s) {
+        String sql = "UPDATE Scholarship SET title = ?, description = ?, amount = ?, forQualification = ?, deadline = ?, isActive = ? WHERE scholarshipID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, s.getTitle());
+            pstmt.setString(2, s.getDescription());
+            pstmt.setString(3, s.getAmount());
+            pstmt.setString(4, s.getForQualification());
+            pstmt.setDate(5, s.getDeadline());
+            pstmt.setBoolean(6, s.isActive());
+            pstmt.setInt(7, s.getScholarshipID());
+
+            int updated = pstmt.executeUpdate();
+            if (updated > 0) {
+                // Update criteria - simpler to delete all and recreate
+                deleteCriteriaByScholarshipId(s.getScholarshipID(), conn);
+                for (Criterion c : s.getCriteria()) {
+                    c.setScholarshipID(s.getScholarshipID());
+                    createCriterion(c, conn);
+                }
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void createCriterion(Criterion c, Connection conn) throws SQLException {
+        String sql = "INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, c.getScholarshipID());
+            pstmt.setString(2, c.getName());
+            pstmt.setInt(3, c.getWeightage());
+            pstmt.setDouble(4, c.getMaxScore());
+            pstmt.executeUpdate();
+        }
+    }
+
+    private void deleteCriteriaByScholarshipId(int scholarshipId, Connection conn) throws SQLException {
+        String sql = "DELETE FROM Criteria WHERE scholarshipID = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, scholarshipId);
+            pstmt.executeUpdate();
+        }
+    }
+
     private List<Criterion> findCriteriaByScholarshipId(int scholarshipId, Connection conn) throws SQLException {
         List<Criterion> criteria = new ArrayList<>();
         String sql = "SELECT * FROM Criteria WHERE scholarshipID = ?";
@@ -78,5 +155,18 @@ public class ScholarshipDAO {
             }
         }
         return criteria;
+    }
+
+    public boolean delete(int id) {
+        String sql = "DELETE FROM Scholarship WHERE scholarshipID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

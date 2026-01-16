@@ -148,7 +148,7 @@
           document.getElementById('scholarshipTitle').textContent = scholarship.title;
           document.getElementById('scholarshipDescription').textContent = scholarship.description || 'No description available';
           document.getElementById('scholarshipAmount').textContent = scholarship.amount
-            ? `$${scholarship.amount.toLocaleString()}`
+            ? `${scholarship.amount.toLocaleString()}`
             : 'N/A';
           document.getElementById('scholarshipDeadline').textContent = scholarship.deadline
             ? new Date(scholarship.deadline).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
