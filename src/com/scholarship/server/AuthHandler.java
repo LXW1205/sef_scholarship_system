@@ -1,5 +1,6 @@
 package com.scholarship.server;
 
+import com.scholarship.dao.AuditLogDAO;
 import com.scholarship.dao.UserDAO;
 import com.scholarship.model.*;
 import com.scholarship.utils.JsonUtils;
@@ -31,9 +32,15 @@ public class AuthHandler implements HttpHandler {
             String response;
             int statusCode;
 
+            String clientIP = exchange.getRemoteAddress().getAddress().getHostAddress();
+
             if (email != null && password != null) {
                 User user = userDAO.authenticate(email, password);
                 if (user != null) {
+                    // Log successful login
+                    AuditLogDAO.log(user.getId(), email, "User Login", "User", String.valueOf(user.getId()),
+                            "Successful login for " + user.getFullName() + " (" + user.getRole() + ")", clientIP);
+
                     String extra = "";
                     if (user instanceof Student) {
                         extra = String.format(", \"studentID\": \"%s\"", ((Student) user).getStudentID());
@@ -49,6 +56,10 @@ public class AuthHandler implements HttpHandler {
                             user.getFullName(), user.getRole(), user.getId(), extra);
                     statusCode = 200;
                 } else {
+                    // Log failed login attempt
+                    AuditLogDAO.log(null, email, "Failed Login Attempt", "User", null,
+                            "Invalid credentials for email: " + email, clientIP);
+
                     response = "{\"error\": \"Invalid credentials\"}";
                     statusCode = 401;
                 }

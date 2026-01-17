@@ -1,5 +1,6 @@
 package com.scholarship.server;
 
+import com.scholarship.dao.AuditLogDAO;
 import com.scholarship.dao.UserDAO;
 import com.scholarship.model.*;
 import com.scholarship.utils.JsonUtils;
@@ -79,6 +80,7 @@ public class UserHandler implements HttpHandler {
     }
 
     private void handleDelete(HttpExchange exchange) throws IOException {
+        String clientIP = exchange.getRemoteAddress().getAddress().getHostAddress();
         String query = exchange.getRequestURI().getQuery();
         int id = -1;
         if (query != null && query.startsWith("id=")) {
@@ -89,15 +91,25 @@ public class UserHandler implements HttpHandler {
             }
         }
 
-        if (id != -1 && userDAO.delete(id)) {
-            String response = "{\"success\": true}";
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, response.length());
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
+        if (id != -1) {
+            // Get user info before deletion for logging
+            User userToDelete = userDAO.findById(id);
+            if (userToDelete != null && userDAO.delete(id)) {
+                // Log the deletion
+                AuditLogDAO.log(null, "Admin", "User Deleted", "User", String.valueOf(id),
+                        "Deleted user: " + userToDelete.getFullName() + " (" + userToDelete.getEmail() + ")", clientIP);
+
+                String response = "{\"success\": true}";
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, response.length());
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
+            } else {
+                sendError(exchange, 400, "User not found or failed to delete");
             }
         } else {
-            sendError(exchange, 400, "Invalid ID or failed to delete");
+            sendError(exchange, 400, "Invalid ID");
         }
     }
 
@@ -146,7 +158,13 @@ public class UserHandler implements HttpHandler {
                 };
             }
 
+            String clientIP = exchange.getRemoteAddress().getAddress().getHostAddress();
+
             if (userDAO.update(user, password)) {
+                // Log the update
+                AuditLogDAO.log(null, "Admin", "User Updated", "User", String.valueOf(id),
+                        "Updated user: " + fullName + " (isActive: " + isActive + ")", clientIP);
+
                 String response = "{\"success\": true}";
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 exchange.sendResponseHeaders(200, response.length());

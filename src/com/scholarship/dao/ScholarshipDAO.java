@@ -10,8 +10,17 @@ import java.util.List;
 public class ScholarshipDAO {
 
     public List<Scholarship> findAllActive() {
+        return findFiltered("isActive = true");
+    }
+
+    public List<Scholarship> findAll() {
+        return findFiltered(null);
+    }
+
+    private List<Scholarship> findFiltered(String condition) {
         List<Scholarship> scholarships = new ArrayList<>();
-        String sql = "SELECT * FROM Scholarship WHERE isActive = true ORDER BY deadline";
+        String sql = "SELECT * FROM Scholarship " + (condition != null ? "WHERE " + condition : "")
+                + " ORDER BY deadline";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 Statement stmt = conn.createStatement();
@@ -120,12 +129,13 @@ public class ScholarshipDAO {
     }
 
     private void createCriterion(Criterion c, Connection conn) throws SQLException {
-        String sql = "INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Criteria (scholarshipID, name, weightage, maxScore, mappedField) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, c.getScholarshipID());
             pstmt.setString(2, c.getName());
             pstmt.setInt(3, c.getWeightage());
             pstmt.setDouble(4, c.getMaxScore());
+            pstmt.setString(5, c.getMappedField());
             pstmt.executeUpdate();
         }
     }
@@ -150,7 +160,8 @@ public class ScholarshipDAO {
                             rs.getInt("scholarshipID"),
                             rs.getString("name"),
                             rs.getInt("weightage"),
-                            rs.getDouble("maxScore")));
+                            rs.getDouble("maxScore"),
+                            rs.getString("mappedField")));
                 }
             }
         }

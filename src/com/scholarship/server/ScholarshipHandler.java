@@ -32,7 +32,9 @@ public class ScholarshipHandler implements HttpHandler {
                     statusCode = response.contains("not found") ? 404 : 500;
                 }
             } else {
-                response = getScholarshipsJson();
+                String query = exchange.getRequestURI().getQuery();
+                boolean all = query != null && query.contains("all=true");
+                response = getScholarshipsJson(all);
                 if (response.contains("\"error\"")) {
                     statusCode = 500;
                 }
@@ -87,7 +89,7 @@ public class ScholarshipHandler implements HttpHandler {
             String amount = JsonUtils.extractValue(requestBody, "amount");
             String deadlineStr = JsonUtils.extractValue(requestBody, "deadline");
             String status = JsonUtils.extractValue(requestBody, "status");
-            String eligibility = JsonUtils.extractValue(requestBody, "eligibilityCriteria");
+            String eligibility = JsonUtils.extractValue(requestBody, "forQualification");
 
             // Basic validation
             if (title == null || title.isEmpty()) {
@@ -104,9 +106,39 @@ public class ScholarshipHandler implements HttpHandler {
             s.setDeadline(java.sql.Date.valueOf(deadlineStr));
             s.setActive("Open".equalsIgnoreCase(status) || "Active".equalsIgnoreCase(status));
 
-            // Note: Criteria parsing would ideally go here if we had a JSON parser library.
-            // For now, initializing empty list to avoid NPE
-            s.setCriteria(new java.util.ArrayList<>());
+            // Parse Criteria from JSON array manually
+            List<Criterion> criteriaList = new java.util.ArrayList<>();
+            String criteriaJson = JsonUtils.extractValue(requestBody, "criteria");
+            if (criteriaJson != null && criteriaJson.startsWith("[") && criteriaJson.endsWith("]")) {
+                // Remove [ and ]
+                String inner = criteriaJson.substring(1, criteriaJson.length() - 1).trim();
+                if (!inner.isEmpty()) {
+                    // Split by objects - this is a crude split, but should work for our simple
+                    // objects
+                    String[] objects = inner.split("\\},\\s*\\{");
+                    for (String obj : objects) {
+                        if (!obj.startsWith("{"))
+                            obj = "{" + obj;
+                        if (!obj.endsWith("}"))
+                            obj = obj + "}";
+
+                        String cName = JsonUtils.extractValue(obj, "name");
+                        String cWeight = JsonUtils.extractValue(obj, "weightage");
+                        String cMax = JsonUtils.extractValue(obj, "maxScore");
+                        String cMap = JsonUtils.extractValue(obj, "mappedField");
+
+                        if (cName != null) {
+                            Criterion c = new Criterion();
+                            c.setName(cName);
+                            c.setWeightage(cWeight != null ? Integer.parseInt(cWeight) : 0);
+                            c.setMaxScore(cMax != null ? Double.parseDouble(cMax) : 0);
+                            c.setMappedField(cMap != null ? cMap : "none");
+                            criteriaList.add(c);
+                        }
+                    }
+                }
+            }
+            s.setCriteria(criteriaList);
 
             boolean success;
             if (id > 0) {
@@ -158,11 +190,12 @@ public class ScholarshipHandler implements HttpHandler {
                     criteriaJson.append(",");
                 firstCriteria = false;
                 criteriaJson.append(String.format(
-                        "{\"id\": %d, \"name\": \"%s\", \"weightage\": %d, \"maxscore\": %.2f}",
+                        "{\"id\": %d, \"name\": \"%s\", \"weightage\": %d, \"maxscore\": %.2f, \"mappedField\": \"%s\"}",
                         c.getCriteriaID(),
                         JsonUtils.escape(c.getName()),
                         c.getWeightage(),
-                        c.getMaxScore()));
+                        c.getMaxScore(),
+                        JsonUtils.escape(c.getMappedField())));
             }
             criteriaJson.append("]");
 
@@ -182,12 +215,13 @@ public class ScholarshipHandler implements HttpHandler {
         }
     }
 
-    private String getScholarshipsJson() {
+    private String getScholarshipsJson(boolean all) {
         StringBuilder json = new StringBuilder("{\"scholarships\": [");
 
         try {
-            List<Scholarship> scholarships = scholarshipDAO.findAllActive();
-
+            List<Scholarship> scholarships = all ? scholarshipDAO.findAll() : scholarshipDAO.findAllActive();
+            // ... (rest of the code is unchanged in functionality but needs to stay within
+            // the method)
             boolean first = true;
             for (Scholarship s : scholarships) {
                 if (!first)
@@ -202,11 +236,12 @@ public class ScholarshipHandler implements HttpHandler {
                         criteriaJson.append(",");
                     firstCriteria = false;
                     criteriaJson.append(String.format(
-                            "{\"id\": %d, \"name\": \"%s\", \"weightage\": %d, \"maxScore\": %.2f}",
+                            "{\"id\": %d, \"name\": \"%s\", \"weightage\": %d, \"maxscore\": %.2f, \"mappedField\": \"%s\"}",
                             c.getCriteriaID(),
                             JsonUtils.escape(c.getName()),
                             c.getWeightage(),
-                            c.getMaxScore()));
+                            c.getMaxScore(),
+                            JsonUtils.escape(c.getMappedField())));
                 }
                 criteriaJson.append("]");
 

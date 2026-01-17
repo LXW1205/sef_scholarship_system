@@ -91,6 +91,7 @@ CREATE TABLE Criteria (
     name VARCHAR(100) NOT NULL,
     weightage INTEGER,
     maxScore DECIMAL(5,2),
+    mappedField VARCHAR(50) DEFAULT 'none',
     CONSTRAINT FK_Criteria_Scholarship FOREIGN KEY (scholarshipID) REFERENCES Scholarship(scholarshipID) ON DELETE CASCADE
 );
 
@@ -167,3 +168,16 @@ CREATE TABLE ApplicationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
 CREATE TABLE EvaluationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
 CREATE TABLE InterviewStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
 CREATE TABLE ClarificationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+
+-- Audit Log Table for tracking all system changes
+CREATE TABLE AuditLog (
+    logID SERIAL PRIMARY KEY,
+    userID INTEGER,
+    userEmail VARCHAR(100),
+    action VARCHAR(100) NOT NULL,
+    entityType VARCHAR(50),
+    entityID VARCHAR(50),
+    details TEXT,
+    ipAddress VARCHAR(45),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

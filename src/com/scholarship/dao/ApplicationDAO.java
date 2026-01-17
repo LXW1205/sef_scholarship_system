@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ApplicationDAO {
 
-    public boolean save(Application app) {
+    public int save(Application app) {
         String sql = "INSERT INTO Application (studentID, scholarshipID, status, personalStatement, otherScholarships) VALUES (?, ?, ?, ?, ?)";
         System.out.println("[DEBUG] ApplicationDAO saving: SQL=" + sql);
 
@@ -33,7 +33,7 @@ public class ApplicationDAO {
 
                         // Save documents
                         saveDocuments(appId, app.getDocuments(), conn);
-                        return true;
+                        return appId;
                     }
                 }
             }
@@ -41,7 +41,7 @@ public class ApplicationDAO {
             System.err.println("[ERROR] ApplicationDAO save failed: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
     private void saveDocuments(int appId, List<Document> documents, Connection conn) throws SQLException {

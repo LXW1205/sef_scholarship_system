@@ -1,50 +1,48 @@
 package com.scholarship.db;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Database migration utility to ensure required tables exist
+ */
 public class DatabaseMigration {
 
     public static void run() {
+        System.out.println("Running database migrations...");
 
         try (Connection conn = DatabaseConnection.getConnection();
                 Statement stmt = conn.createStatement()) {
 
-            // Add columns to Application table if they don't exist
-            // PostgreSQL doesn't support IF NOT EXISTS for ADD COLUMN in older versions,
-            // so we'll wrap each individually or check system tables.
-            // Simplified approach: try to add and catch exception if it already exists
+            // Create AuditLog table if it doesn't exist
+            String createAuditLogTable = "CREATE TABLE IF NOT EXISTS AuditLog (" +
+                    "    logID SERIAL PRIMARY KEY," +
+                    "    userID INTEGER," +
+                    "    userEmail VARCHAR(100)," +
+                    "    action VARCHAR(100) NOT NULL," +
+                    "    entityType VARCHAR(50)," +
+                    "    entityID VARCHAR(50)," +
+                    "    details TEXT," +
+                    "    ipAddress VARCHAR(45)," +
+                    "    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                    ")";
 
-            executeSilently(stmt, "ALTER TABLE Application ADD COLUMN otherScholarships TEXT");
+            stmt.execute(createAuditLogTable);
 
-            // Create Notification table if not exists
-            executeSilently(stmt, "CREATE TABLE IF NOT EXISTS Notification (" +
-                    "notifID SERIAL PRIMARY KEY, " +
-                    "userID INTEGER NOT NULL, " +
-                    "message TEXT NOT NULL, " +
-                    "sentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                    "isRead BOOLEAN DEFAULT FALSE)");
-
-        } catch (SQLException e) {
-            System.err.println("[ERROR] Migration failed: " + e.getMessage());
-        }
-    }
-
-    private static void executeSilently(Statement stmt, String sql) {
-        try {
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            // PostgreSQL Error Codes:
-            // 42701: column already exists
-            // 42703: column does not exist
-            // 42704: table does not exist
-            if ("42701".equals(e.getSQLState()) || "42703".equals(e.getSQLState())) {
-                // Already done or nothing to do, ignore
-            } else {
-                System.err.println("[WARNING] Could not execute migration: " + sql + " - " + e.getMessage()
-                        + " (SQLState: " + e.getSQLState() + ")");
+            // Add mappedField to Criteria if it doesn't exist
+            try {
+                stmt.execute("ALTER TABLE Criteria ADD COLUMN IF NOT EXISTS mappedField VARCHAR(50) DEFAULT 'none'");
+            } catch (Exception e) {
+                // If the DB doesn't support IF NOT EXISTS in ALTER (older Postgres), it might
+                // fail if already exists
+                // We'll just ignore and assume it's there
             }
+
+            System.out.println("Database migrations completed successfully.");
+
+        } catch (Exception e) {
+            System.err.println("Database migration warning: " + e.getMessage());
+            // Don't fail startup if migrations fail - tables might already exist
         }
     }
 }

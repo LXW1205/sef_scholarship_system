@@ -26,37 +26,233 @@
 
     <main class="min-h-screen py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold mb-6">Audit Logs</h2>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-6 h-6 text-primary"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold">Audit Logs</h2>
+                        <p class="text-muted-foreground">Track all system changes and user activities</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="refreshBtn"
+                        class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 flex items-center gap-2">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        Refresh
+                    </button>
+                    <button id="exportBtn"
+                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                        <input type="text" id="searchInput" placeholder="Search by user, action, or details..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Action Type</label>
+                        <select id="actionFilter"
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                            <option value="">All Actions</option>
+                            <option value="login">Login</option>
+                            <option value="user">User Management</option>
+                            <option value="backup">Backup</option>
+                            <option value="settings">Settings</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Limit</label>
+                        <select id="limitFilter"
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                            <option value="50">50 entries</option>
+                            <option value="100" selected>100 entries</option>
+                            <option value="200">200 entries</option>
+                            <option value="500">500 entries</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs Table -->
             <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <table class="w-full">
+                <div id="loadingState" class="p-8 text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p class="text-gray-500">Loading audit logs...</p>
+                </div>
+                <div id="emptyState" class="p-8 text-center hidden">
+                    <i data-lucide="file-x" class="w-12 h-12 text-gray-300 mx-auto mb-4"></i>
+                    <p class="text-gray-500">No audit logs found</p>
+                </div>
+                <table id="logsTable" class="w-full hidden">
                     <thead class="bg-gray-50 border-b">
                         <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Timestamp</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">User</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Action</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Details</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">IP Address</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Timestamp</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr>
-                            <td class="px-6 py-4">admin001</td>
-                            <td class="px-6 py-4">Updated Scholarship Settings</td>
-                            <td class="px-6 py-4">192.168.1.5</td>
-                            <td class="px-6 py-4 text-gray-500">2026-01-07 14:30:22</td>
-                        </tr>
-                        <tr>
-                            <td class="px-6 py-4">admin001</td>
-                            <td class="px-6 py-4">Created User 'reviewer002'</td>
-                            <td class="px-6 py-4">192.168.1.5</td>
-                            <td class="px-6 py-4 text-gray-500">2026-01-07 13:15:10</td>
-                        </tr>
+                    <tbody id="logsBody" class="divide-y divide-gray-200">
                     </tbody>
                 </table>
             </div>
+
+            <div id="logCount" class="mt-4 text-sm text-gray-500 text-right"></div>
         </div>
     </main>
     <div id="footer-container"></div>
     <script src="/common.js"></script>
+    <script>
+        let allLogs = [];
+
+        async function loadAuditLogs() {
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const logsTable = document.getElementById('logsTable');
+            const logsBody = document.getElementById('logsBody');
+            const logCount = document.getElementById('logCount');
+            const limit = document.getElementById('limitFilter').value;
+
+            loadingState.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            logsTable.classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/system/audit-logs?limit=${limit}`);
+                if (!response.ok) throw new Error('Failed to fetch audit logs');
+
+                allLogs = await response.json();
+                filterAndDisplayLogs();
+            } catch (err) {
+                console.error('Error loading audit logs:', err);
+                loadingState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                logCount.textContent = 'Error loading logs';
+            }
+        }
+
+        function filterAndDisplayLogs() {
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const logsTable = document.getElementById('logsTable');
+            const logsBody = document.getElementById('logsBody');
+            const logCount = document.getElementById('logCount');
+
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const actionFilter = document.getElementById('actionFilter').value.toLowerCase();
+
+            let filteredLogs = allLogs.filter(log => {
+                const matchesSearch = !searchTerm ||
+                    (log.userEmail && log.userEmail.toLowerCase().includes(searchTerm)) ||
+                    (log.action && log.action.toLowerCase().includes(searchTerm)) ||
+                    (log.details && log.details.toLowerCase().includes(searchTerm));
+
+                const matchesAction = !actionFilter ||
+                    (log.action && log.action.toLowerCase().includes(actionFilter));
+
+                return matchesSearch && matchesAction;
+            });
+
+            loadingState.classList.add('hidden');
+
+            if (filteredLogs.length === 0) {
+                emptyState.classList.remove('hidden');
+                logsTable.classList.add('hidden');
+                logCount.textContent = '0 entries';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            logsTable.classList.remove('hidden');
+
+            logsBody.innerHTML = filteredLogs.map(log => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">${log.createdAt || '-'}</td>
+                    <td class="px-6 py-4">
+                        <span class="font-medium">${escapeHtml(log.userEmail || 'System')}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${getActionBadgeClass(log.action)}">
+                            ${escapeHtml(log.action)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600 max-w-md truncate" title="${escapeHtml(log.details || '')}">
+                        ${escapeHtml(log.details || '-')}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(log.ipAddress || '-')}</td>
+                </tr>
+            `).join('');
+
+            logCount.textContent = `Showing ${filteredLogs.length} of ${allLogs.length} entries`;
+        }
+
+        function getActionBadgeClass(action) {
+            if (!action) return 'bg-gray-100 text-gray-800';
+            action = action.toLowerCase();
+            if (action.includes('login')) return 'bg-blue-100 text-blue-800';
+            if (action.includes('failed')) return 'bg-red-100 text-red-800';
+            if (action.includes('delete')) return 'bg-red-100 text-red-800';
+            if (action.includes('create') || action.includes('backup')) return 'bg-green-100 text-green-800';
+            if (action.includes('update') || action.includes('change')) return 'bg-yellow-100 text-yellow-800';
+            return 'bg-gray-100 text-gray-800';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function exportToCSV() {
+            if (allLogs.length === 0) {
+                alert('No logs to export');
+                return;
+            }
+
+            const headers = ['Timestamp', 'User Email', 'Action', 'Entity Type', 'Entity ID', 'Details', 'IP Address'];
+            const rows = allLogs.map(log => [
+                log.createdAt || '',
+                log.userEmail || '',
+                log.action || '',
+                log.entityType || '',
+                log.entityID || '',
+                (log.details || '').replace(/"/g, '""'),
+                log.ipAddress || ''
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            csv += rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `audit_logs_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        document.getElementById('refreshBtn').addEventListener('click', loadAuditLogs);
+        document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+        document.getElementById('searchInput').addEventListener('input', filterAndDisplayLogs);
+        document.getElementById('actionFilter').addEventListener('change', filterAndDisplayLogs);
+        document.getElementById('limitFilter').addEventListener('change', loadAuditLogs);
+
+        // Initial load
+        loadAuditLogs();
+    </script>
 </body>
 
 </html>

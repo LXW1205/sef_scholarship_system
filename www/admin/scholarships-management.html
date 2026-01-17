@@ -127,18 +127,40 @@
         </div>
 
         <div>
-          <label for="eligibility" class="block text-sm font-medium mb-2">Eligibility Criteria *</label>
-          <textarea id="eligibility" rows="3" required
-            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="e.g., Minimum GPA 3.0, Full-time student, etc."></textarea>
+          <label for="qualification" class="block text-sm font-medium mb-2">Target Qualification *</label>
+          <select id="qualification" required
+            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <option value="Any">Any Qualification</option>
+            <option value="Foundation">Foundation</option>
+            <option value="Diploma">Diploma</option>
+            <option value="Degree">Degree</option>
+            <option value="Master">Master</option>
+            <option value="PhD">PhD</option>
+          </select>
+        </div>
+
+        <div class="border rounded-lg p-4 bg-muted/20">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-bold">Evaluation Criteria</h4>
+            <button type="button" onclick="addCriterionRow()"
+              class="text-xs px-2 py-1 bg-primary text-primary-foreground rounded hover:bg-primary/90">
+              + Add Criterion
+            </button>
+          </div>
+          <div id="criteriaList" class="space-y-3">
+            <!-- Criteria rows will be added here -->
+          </div>
+          <p class="text-xs text-muted-foreground mt-3">Criteria will be used for both evaluation and student
+            eligibility checking.</p>
         </div>
 
         <div>
           <label for="status" class="block text-sm font-medium mb-2">Status *</label>
           <select id="status" required
             class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-            <option value="Draft">Save as Draft</option>
-            <option value="Open">Publish (Open for Applications)</option>
+            <option value="Open">Active (Open for Applications)</option>
+            <option value="Closed">Inactive (Closed)</option>
+            <option value="Draft">Draft (Hidden)</option>
           </select>
         </div>
 
@@ -185,7 +207,7 @@
 
     async function loadScholarships() {
       try {
-        const response = await fetch('/api/scholarships');
+        const response = await fetch('/api/scholarships?all=true');
         const data = await response.json();
 
         allScholarships = data.scholarships || [];
@@ -230,7 +252,7 @@
           s.criteria.map(c => `
                   <span class="px-2 py-1 bg-secondary text-secondary-foreground font-medium rounded border border-border flex flex-col">
                     <span>${c.name}</span>
-                    <span class="opacity-70 text-[10px]">${c.weightage}% (Max: ${c.maxScore})</span>
+                    <span class="opacity-70 text-[10px]">${c.weightage}% (Max: ${c.maxScore}) ${c.mappedField !== 'none' ? `[Linked: ${c.mappedField}]` : ''}</span>
                   </span>
                 `).join('') :
           '<span class="text-xs text-muted-foreground italic">No criteria defined</span>'
@@ -253,17 +275,9 @@
             </div>
           </div>
           <div class="flex gap-2">
-            <a href="/scholarship-details.html?id=${s.id}" class="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center justify-center gap-1">
-                 <i data-lucide="eye" class="w-4 h-4"></i>
-                 View
-            </a>
             <button onclick="editScholarship(${s.id})" class="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center justify-center gap-1">
               <i data-lucide="edit" class="w-4 h-4"></i>
               Edit
-            </button>
-            <button onclick="toggleScholarshipStatus(${s.id}, '${s.status}')" class="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-1">
-              <i data-lucide="${s.status === 'Open' || s.status === 'Active' ? 'x-circle' : 'check-circle'}" class="w-4 h-4"></i>
-              ${s.status === 'Open' || s.status === 'Active' ? 'Close' : 'Open'}
             </button>
             <button onclick="deleteScholarship(${s.id})" class="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors flex items-center justify-center gap-1">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -304,13 +318,30 @@
     document.getElementById('scholarshipForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const criteria = [];
+      document.querySelectorAll('.criterion-row').forEach(row => {
+        const name = row.querySelector('.crit-name').value;
+        const weight = row.querySelector('.crit-weight').value;
+        const max = row.querySelector('.crit-max').value;
+        const mapped = row.querySelector('.crit-map').value;
+        if (name) {
+          criteria.push({
+            name: name,
+            weightage: parseInt(weight) || 0,
+            maxScore: parseFloat(max) || 0,
+            mappedField: mapped
+          });
+        }
+      });
+
       const formData = {
         title: document.getElementById('title').value,
         description: document.getElementById('description').value,
         amount: document.getElementById('amount').value,
         deadline: document.getElementById('deadline').value,
-        eligibilityCriteria: document.getElementById('eligibility').value,
+        forQualification: document.getElementById('qualification').value,
         status: document.getElementById('status').value,
+        criteria: criteria
       };
 
       if (currentScholarshipId) {
@@ -370,13 +401,60 @@
       document.getElementById('description').value = s.description;
       document.getElementById('amount').value = s.amount ? s.amount.replace(/[^0-9.]/g, '') : '';
       document.getElementById('deadline').value = s.deadline ? s.deadline.split('T')[0] : '';
-      document.getElementById('eligibility').value = s.forQualification || '';
-      document.getElementById('status').value = (s.status === 'Active' || s.status === 'Open') ? 'Open' : 'Draft'; // Simplified mapping
+      document.getElementById('qualification').value = s.forQualification || 'Any';
+      document.getElementById('status').value = s.status === 'Active' ? 'Open' : s.status;
+
+      // Populate Criteria
+      const container = document.getElementById('criteriaList');
+      container.innerHTML = '';
+      if (s.criteria && s.criteria.length > 0) {
+        s.criteria.forEach(c => addCriterionRow(c));
+      } else {
+        addCriterionRow(); // Add one empty row by default
+      }
 
       document.getElementById('formSuccess').style.display = 'none';
       document.getElementById('formError').style.display = 'none';
 
       modal.style.display = 'flex';
+      lucide.createIcons();
+    };
+
+    window.addCriterionRow = function (data = null) {
+      const container = document.getElementById('criteriaList');
+      const div = document.createElement('div');
+      div.className = 'criterion-row grid grid-cols-12 gap-2 items-end border-b pb-2 mb-2';
+      div.innerHTML = `
+        <div class="col-span-6">
+          <label class="block text-[10px] uppercase text-muted-foreground mb-1">Name</label>
+          <input type="text" class="crit-name w-full px-2 py-1 text-sm bg-background border border-input rounded" 
+                 placeholder="e.g. Academic Performance" value="${data ? data.name : ''}">
+        </div>
+        <div class="col-span-3">
+          <label class="block text-[10px] uppercase text-muted-foreground mb-1">Weight (%)</label>
+          <input type="number" class="crit-weight w-full px-2 py-1 text-sm bg-background border border-input rounded" 
+                 value="${data ? data.weightage : '0'}">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-[10px] uppercase text-muted-foreground mb-1">Max</label>
+          <input type="number" class="crit-max w-full px-2 py-1 text-sm bg-background border border-input rounded" 
+                 value="${data ? data.maxScore : '100'}">
+        </div>
+        <div class="col-span-1 flex justify-end">
+          <button type="button" onclick="this.closest('.criterion-row').remove()" class="text-destructive hover:text-destructive/80 p-1">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="col-span-12 mt-1">
+          <label class="block text-[10px] uppercase text-muted-foreground mb-1">Link to profile field (Automated Check)</label>
+          <select class="crit-map w-full px-2 py-1 text-xs bg-background border border-input rounded">
+            <option value="none" ${data && data.mappedField === 'none' ? 'selected' : ''}>None (Manual Input)</option>
+            <option value="cgpa" ${data && (data.mappedField === 'cgpa' || data.mappedField === 'CGPA') ? 'selected' : ''}>CGPA</option>
+            <option value="familyIncome" ${data && (data.mappedField === 'familyIncome' || data.mappedField === 'family_income') ? 'selected' : ''}>Family Income</option>
+          </select>
+        </div>
+      `;
+      container.appendChild(div);
       lucide.createIcons();
     };
 

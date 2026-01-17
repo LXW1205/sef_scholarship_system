@@ -78,12 +78,22 @@ public class ApplicationHandler implements HttpHandler {
     private void handleCreateApplication(HttpExchange exchange, String requestBody) throws IOException {
         System.out.println("[DEBUG] Handling Create Application...");
         try {
-            // Extract studentID and scholarshipID from request
+            // Extract studentID and scholarshipID from request (handle casing variations)
             String studentID = JsonUtils.extractValue(requestBody, "studentId");
+            if (studentID == null)
+                studentID = JsonUtils.extractValue(requestBody, "studentID");
+
             String sIdStr = JsonUtils.extractValue(requestBody, "scholarshipID");
-            int scholarshipID = (sIdStr != null) ? Integer.parseInt(sIdStr.trim()) : 0;
+            if (sIdStr == null)
+                sIdStr = JsonUtils.extractValue(requestBody, "scholarshipId");
+            if (sIdStr == null)
+                sIdStr = JsonUtils.extractValue(requestBody, "id");
+
+            int scholarshipID = (sIdStr != null && !sIdStr.equals("null")) ? Integer.parseInt(sIdStr.trim()) : 0;
 
             if (studentID == null || studentID.isEmpty() || scholarshipID <= 0) {
+                System.out.println(
+                        "[ERROR] Validation failed: studentID=" + studentID + ", scholarshipID=" + scholarshipID);
                 sendError(exchange, 400, "Invalid student ID or scholarship ID");
                 return;
             }
@@ -108,9 +118,12 @@ public class ApplicationHandler implements HttpHandler {
                     app.addDocument(new com.scholarship.model.Document(0, 0, idCard, "ID", null));
             }
 
-            if (applicationDAO.save(app)) {
-                System.out.println("[DEBUG] Application SAVED successfully");
-                String response = "{\"success\": true, \"message\": \"Application submitted successfully\"}";
+            int appId = applicationDAO.save(app);
+            if (appId > 0) {
+                System.out.println("[DEBUG] Application SAVED successfully with ID: " + appId);
+                String response = String.format(
+                        "{\"success\": true, \"message\": \"Application submitted successfully\", \"application\": {\"appid\": %d}}",
+                        appId);
                 sendResponse(exchange, 200, response);
             } else {
                 System.out.println("[ERROR] DAO failed to save application");

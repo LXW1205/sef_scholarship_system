@@ -13,24 +13,54 @@ public class JsonUtils {
             return null;
 
         int start = colonIndex + 1;
-        while (start < json.length() && (Character.isWhitespace(json.charAt(start)) || json.charAt(start) == '"')) {
+        while (start < json.length() && (Character.isWhitespace(json.charAt(start)))) {
             start++;
         }
 
-        int end = start;
-        boolean inQuotes = json.charAt(start - 1) == '"';
+        if (start >= json.length())
+            return null;
 
-        if (inQuotes) {
+        int end = start;
+        char firstChar = json.charAt(start);
+
+        if (firstChar == '"') {
+            start++;
             end = json.indexOf("\"", start);
+        } else if (firstChar == '[') {
+            int bracketCount = 0;
+            for (int i = start; i < json.length(); i++) {
+                if (json.charAt(i) == '[')
+                    bracketCount++;
+                else if (json.charAt(i) == ']') {
+                    bracketCount--;
+                    if (bracketCount == 0) {
+                        end = i + 1;
+                        break;
+                    }
+                }
+            }
+        } else if (firstChar == '{') {
+            int braceCount = 0;
+            for (int i = start; i < json.length(); i++) {
+                if (json.charAt(i) == '{')
+                    braceCount++;
+                else if (json.charAt(i) == '}') {
+                    braceCount--;
+                    if (braceCount == 0) {
+                        end = i + 1;
+                        break;
+                    }
+                }
+            }
         } else {
             // Find end of number or boolean
-            while (end < json.length() && json.charAt(end) != ',' && json.charAt(end) != '}'
+            while (end < json.length() && json.charAt(end) != ',' && json.charAt(end) != '}' && json.charAt(end) != ']'
                     && !Character.isWhitespace(json.charAt(end))) {
                 end++;
             }
         }
 
-        if (end == -1)
+        if (end == -1 || end <= start)
             return null;
 
         return json.substring(start, end).trim();
