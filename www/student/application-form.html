@@ -262,10 +262,8 @@
           const missingFields = requiredFields.filter(field => !profile[field] || profile[field] === "0.00");
 
           if (missingFields.length > 0) {
-            document.getElementById('errorMessage').style.display = 'flex';
-            document.getElementById('errorText').innerHTML = `Your profile is incomplete. Please <a href="/student/profile-student.html" class="underline font-bold">complete your profile</a> (Major, CGPA, Year of Study, Graduation Date) before applying.`;
-            document.getElementById('nextBtn').disabled = true;
-            document.getElementById('nextBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            sessionStorage.setItem('profileRedirect', 'true');
+            window.location.href = '/student/profile-student.html';
           }
         }
       } catch (error) {

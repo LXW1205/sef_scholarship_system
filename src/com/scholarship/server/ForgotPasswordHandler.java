@@ -22,22 +22,31 @@ public class ForgotPasswordHandler implements HttpHandler {
         try {
             InputStream is = exchange.getRequestBody();
             String requestBody = new String(is.readAllBytes());
-            
-            String email = JsonUtils.extractJsonValue(requestBody, "email");
-            
-            // TODO: Generate reset token and store in database
-            // TODO: Send email with reset link
-            
-            // For now, just return success (placeholder implementation)
-            String response = "{\"success\": true, \"message\": \"Password reset instructions sent to email\"}";
-            sendResponse(exchange, 200, response);
-            
+
+            String userId = JsonUtils.extractValue(requestBody, "id");
+            String fullName = JsonUtils.extractValue(requestBody, "fullName");
+            String role = JsonUtils.extractValue(requestBody, "role");
+
+            com.scholarship.dao.UserDAO userDAO = new com.scholarship.dao.UserDAO();
+            com.scholarship.model.User user = userDAO.verifyUserForReset(userId, fullName, role);
+
+            if (user != null) {
+                // Return a "reset token" which is just the user's ID for now
+                String response = String.format(
+                        "{\"success\": true, \"message\": \"Verification successful\", \"resetToken\": \"%d\"}",
+                        user.getId());
+                sendResponse(exchange, 200, response);
+            } else {
+                sendResponse(exchange, 401,
+                        "{\"error\": \"Verification failed: User details do not match our records.\"}");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             sendResponse(exchange, 500, "{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
-    
+
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(statusCode, response.length());

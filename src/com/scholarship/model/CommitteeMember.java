@@ -11,6 +11,11 @@ public class CommitteeMember extends User {
         this.position = position;
     }
 
+    public CommitteeMember() {
+        super();
+        this.role = "Committee";
+    }
+
     public String getCommitteeID() {
         return committeeID;
     }

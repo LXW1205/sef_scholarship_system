@@ -22,6 +22,22 @@ public class EvaluationDAO {
         return false;
     }
 
+    public boolean update(Evaluation eval) {
+        String sql = "UPDATE Evaluation SET scholarshipComments = ?, interviewScore = ?, interviewComments = ?, status = ?, evaluatedDate = CURRENT_TIMESTAMP WHERE appID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, eval.getScholarshipComments());
+            pstmt.setFloat(2, eval.getInterviewScore());
+            pstmt.setString(3, eval.getInterviewComments());
+            pstmt.setString(4, eval.getStatus());
+            pstmt.setInt(5, eval.getAppID());
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public Evaluation findByAppId(int appId) {
         String sql = "SELECT * FROM Evaluation WHERE appID = ?";
         try (Connection conn = DatabaseConnection.getConnection();

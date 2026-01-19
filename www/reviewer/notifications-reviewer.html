@@ -61,42 +61,8 @@
                 <button class="text-sm text-primary hover:underline">Mark all as read</button>
             </div>
 
-            <div class="space-y-4">
-                <!-- Notification Item -->
-                <div class="bg-card p-6 rounded-xl border border-border shadow-sm flex gap-4 items-start">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <i data-lucide="file-plus" class="w-5 h-5 text-blue-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <h3 class="font-semibold text-lg">New Assignment</h3>
-                            <span class="text-xs text-muted-foreground">2 hours ago</span>
-                        </div>
-                        <p class="text-muted-foreground mt-1">You have been assigned 3 new applications for the
-                            "Engineering Excellence" scholarship.</p>
-                    </div>
-                    <button class="text-muted-foreground hover:text-foreground">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-
-                <!-- Notification Item -->
-                <div class="bg-card p-6 rounded-xl border border-border shadow-sm flex gap-4 items-start">
-                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                        <i data-lucide="clock" class="w-5 h-5 text-red-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <h3 class="font-semibold text-lg">Deadline Approaching</h3>
-                            <span class="text-xs text-muted-foreground">1 day ago</span>
-                        </div>
-                        <p class="text-muted-foreground mt-1">Reminder: The review deadline for batch #2024-05 is in 2
-                            days.</p>
-                    </div>
-                    <button class="text-muted-foreground hover:text-foreground">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
+            <div id="notificationsList" class="space-y-4">
+                <!-- Notifications will be loaded here -->
             </div>
         </div>
     </main>

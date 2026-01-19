@@ -266,18 +266,78 @@
             return;
           }
 
-          uploadedFiles[type] = file;
-          fileName.textContent = file.name;
-          preview.style.display = 'block';
-          lucide.createIcons();
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const base64 = event.target.result;
+            uploadedFiles[type] = {
+              name: file.name,
+              type: file.type,
+              content: base64
+            };
+
+            fileName.textContent = file.name;
+            preview.style.display = 'block';
+
+            // Show image preview if applicable
+            const previewContainer = preview.querySelector('div');
+            let imgPreview = previewContainer.querySelector('img.thumb');
+            if (file.type.startsWith('image/')) {
+              if (!imgPreview) {
+                imgPreview = document.createElement('img');
+                imgPreview.className = 'thumb w-10 h-10 rounded object-cover ml-2';
+                previewContainer.insertBefore(imgPreview, fileName);
+              }
+              imgPreview.src = base64;
+              imgPreview.style.display = 'block';
+            } else if (imgPreview) {
+              imgPreview.style.display = 'none';
+            }
+
+            saveToSession();
+            lucide.createIcons();
+          };
+          reader.readAsDataURL(file);
         }
       });
+    }
+
+    function saveToSession() {
+      sessionStorage.setItem(`uploadedFileState_${scholarshipId}`, JSON.stringify(uploadedFiles));
+    }
+
+    function loadFromSession() {
+      const saved = sessionStorage.getItem(`uploadedFileState_${scholarshipId}`);
+      if (saved) {
+        const data = JSON.parse(saved);
+        Object.keys(data).forEach(type => {
+          const file = data[type];
+          uploadedFiles[type] = file;
+
+          const preview = document.getElementById(`${type}Preview`);
+          const fileName = document.getElementById(`${type}Name`);
+          fileName.textContent = file.name;
+          preview.style.display = 'block';
+
+          if (file.content && file.content.startsWith('data:image/')) {
+            const previewContainer = preview.querySelector('div');
+            let imgPreview = previewContainer.querySelector('img.thumb');
+            if (!imgPreview) {
+              imgPreview = document.createElement('img');
+              imgPreview.className = 'thumb w-10 h-10 rounded object-cover ml-2';
+              previewContainer.insertBefore(imgPreview, fileName);
+            }
+            imgPreview.src = file.content;
+          }
+        });
+        lucide.createIcons();
+      }
     }
 
     window.removeFile = function (type) {
       delete uploadedFiles[type];
       document.getElementById(`${type}File`).value = '';
       document.getElementById(`${type}Preview`).style.display = 'none';
+      saveToSession();
     };
 
     function showError(message) {
@@ -300,11 +360,14 @@
         return;
       }
 
-      // Store file info in session storage (in real app, would upload to server)
+      // Final state for preview/submit
       sessionStorage.setItem(`documents_${scholarshipId}`, JSON.stringify({
-        transcript: uploadedFiles.transcript?.name,
-        recommendation: uploadedFiles.recommendation?.name,
-        id: uploadedFiles.id?.name
+        transcript: uploadedFiles.transcript.name,
+        transcriptContent: uploadedFiles.transcript.content,
+        recommendation: uploadedFiles.recommendation.name,
+        recommendationContent: uploadedFiles.recommendation.content,
+        id: uploadedFiles.id?.name || "",
+        idContent: uploadedFiles.id?.content || ""
       }));
 
       window.location.href = `/student/application-preview.html?id=${scholarshipId}`;
@@ -313,6 +376,7 @@
     setupFileUpload('transcript');
     setupFileUpload('recommendation');
     setupFileUpload('id');
+    loadFromSession();
     lucide.createIcons();
   </script>
   <div id="footer-container"></div>

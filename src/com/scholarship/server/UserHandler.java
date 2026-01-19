@@ -139,7 +139,7 @@ public class UserHandler implements HttpHandler {
                 Student s = new Student();
                 s.setId(id);
                 s.setFullName(fullName);
-                s.setActive(isActive); // Set explicit status
+                s.setActive(isActive);
                 s.setCgpa(Double.parseDouble(JsonUtils.extractValue(requestBody, "cgpa")));
                 s.setMajor(JsonUtils.extractValue(requestBody, "major"));
                 s.setQualification(JsonUtils.extractValue(requestBody, "qualification"));
@@ -147,8 +147,29 @@ public class UserHandler implements HttpHandler {
                 s.setExpectedGraduation(JsonUtils.extractValue(requestBody, "expectedGraduation"));
                 s.setFamilyIncome(Double.parseDouble(JsonUtils.extractValue(requestBody, "familyIncome")));
                 user = s;
+            } else if ("Reviewer".equals(role)) {
+                Reviewer r = new Reviewer();
+                r.setId(id);
+                r.setFullName(fullName);
+                r.setActive(isActive);
+                r.setDepartment(JsonUtils.extractValue(requestBody, "department"));
+                user = r;
+            } else if ("Committee".equals(role) || "CommitteeMember".equals(role)) {
+                CommitteeMember c = new CommitteeMember();
+                c.setId(id);
+                c.setFullName(fullName);
+                c.setActive(isActive);
+                c.setPosition(JsonUtils.extractValue(requestBody, "position"));
+                user = c;
+            } else if ("Admin".equals(role)) {
+                Admin a = new Admin();
+                a.setId(id);
+                a.setFullName(fullName);
+                a.setActive(isActive);
+                a.setAdminLevel(JsonUtils.extractValue(requestBody, "adminLevel"));
+                user = a;
             } else {
-                user = new User(id, fullName, "", "", isActive) { // Set explicit status
+                user = new User(id, fullName, "", "", isActive) {
                     public boolean login() {
                         return false;
                     }
@@ -156,6 +177,7 @@ public class UserHandler implements HttpHandler {
                     public void logout() {
                     }
                 };
+                user.setRole(role);
             }
 
             String clientIP = exchange.getRemoteAddress().getAddress().getHostAddress();
@@ -215,10 +237,11 @@ public class UserHandler implements HttpHandler {
         }
 
         return String.format(
-                "{\"user\": {\"id\": %d, \"fullName\": \"%s\", \"email\": \"%s\", \"role\": \"%s\", \"isActive\": %b%s}}",
+                "{\"user\": {\"id\": %d, \"fullName\": \"%s\", \"email\": \"%s\", \"password\": \"%s\", \"role\": \"%s\", \"isActive\": %b%s}}",
                 user.getId(),
                 JsonUtils.escape(user.getFullName()),
                 JsonUtils.escape(user.getEmail()),
+                JsonUtils.escape(user.getPassword()),
                 JsonUtils.escape(user.getRole()),
                 user.isActive(),
                 detailedJson);
@@ -259,10 +282,11 @@ public class UserHandler implements HttpHandler {
                 }
 
                 json.append(String.format(
-                        "{\"id\": %d, \"fullName\": \"%s\", \"email\": \"%s\", \"role\": \"%s\", \"isActive\": %b%s}",
+                        "{\"id\": %d, \"fullName\": \"%s\", \"email\": \"%s\", \"password\": \"%s\", \"role\": \"%s\", \"isActive\": %b%s}",
                         user.getId(),
                         JsonUtils.escape(user.getFullName()),
                         JsonUtils.escape(user.getEmail()),
+                        JsonUtils.escape(user.getPassword()),
                         JsonUtils.escape(user.getRole()),
                         user.isActive(),
                         detailedJson));

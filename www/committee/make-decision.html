@@ -79,6 +79,17 @@
             <p class="text-muted-foreground text-sm">Merit Award 2024</p>
           </div>
 
+          <!-- Documents -->
+          <div id="documentsSection" class="bg-card rounded-xl border border-border p-6" style="display: none;">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="paperclip" class="w-5 h-5"></i>
+              Supporting Documents
+            </h3>
+            <div id="documentsList" class="space-y-3">
+              <!-- Will be populated by JS -->
+            </div>
+          </div>
+
           <!-- Review Scores -->
           <div class="bg-card rounded-xl border border-border p-6">
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
@@ -192,20 +203,104 @@
     // }
 
 
-    document.getElementById('decisionForm').addEventListener('submit', (e) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const appId = urlParams.get('id');
+
+    if (!appId) {
+      alert('No application ID provided');
+      window.location.href = '/committee/applications-committee.html';
+    }
+
+    async function fetchApplication() {
+      try {
+        const response = await fetch(`/api/applications?id=${appId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const app = await response.json();
+          updateUI(app);
+        }
+      } catch (error) {
+        console.error('Error fetching application:', error);
+      }
+    }
+
+    function updateUI(app) {
+      if (app.applicantName) document.querySelector('h3.text-2xl').textContent = app.applicantName;
+      if (app.studentID) {
+        const spans = document.querySelectorAll('div.grid span.font-medium');
+        if (spans.length > 0) spans[0].textContent = app.studentID;
+      }
+      if (app.title) document.querySelector('p.text-muted-foreground.text-sm').textContent = app.title;
+
+      // Update Documents
+      if (app.documents && app.documents.length > 0) {
+        document.getElementById('documentsSection').style.display = 'block';
+        const list = document.getElementById('documentsList');
+        list.innerHTML = app.documents.map(doc => `
+          <div class="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+            <div class="flex items-center gap-3">
+              <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+              <span class="text-sm font-medium">${doc.fileName}</span>
+            </div>
+            <button onclick="previewFile('${doc.fileContent}')" class="px-3 py-1 bg-secondary text-secondary-foreground rounded text-sm hover:bg-secondary/80">
+              View
+            </button>
+          </div>
+        `).join('');
+      } else {
+        document.getElementById('documentsSection').style.display = 'none';
+      }
+      lucide.createIcons();
+    }
+
+    window.previewFile = function (base64) {
+      if (!base64 || base64 === "null" || base64 === "") {
+        alert("File content not available");
+        return;
+      }
+      const win = window.open();
+      if (base64.startsWith('data:image/')) {
+        win.document.write(`<img src="${base64}" style="max-width: 100%;">`);
+      } else if (base64.startsWith('data:application/pdf')) {
+        win.document.write(`<iframe src="${base64}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+      } else {
+        win.location.href = base64;
+      }
+    };
+
+    fetchApplication();
+
+    document.getElementById('decisionForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const decision = document.querySelector('input[name="decision"]:checked').value;
       const comments = document.getElementById('comments').value;
 
-      console.log('[v0] Decision submitted:', { decision, comments });
+      try {
+        const response = await fetch('/api/applications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ appId, decision, comments })
+        });
 
-      document.getElementById('formSuccess').style.display = 'flex';
-      lucide.createIcons();
-
-      setTimeout(() => {
-        window.location.href = '/committee/applications-committee.html';
-      }, 2000);
+        if (response.ok) {
+          document.getElementById('formSuccess').style.display = 'flex';
+          lucide.createIcons();
+          setTimeout(() => {
+            window.location.href = '/committee/applications-committee.html';
+          }, 2000);
+        } else {
+          const data = await response.json();
+          alert('Error: ' + (data.error || 'Failed to submit decision'));
+        }
+      } catch (error) {
+        console.error('Decision error:', error);
+        alert('An error occurred.');
+      }
     });
 
     lucide.createIcons();

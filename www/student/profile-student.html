@@ -60,6 +60,18 @@
                 <p class="text-muted-foreground">Manage your personal information and preferences</p>
             </div>
 
+            <!-- Profile Completion Alert -->
+            <div id="completionAlert"
+                class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-start gap-3 transition-all"
+                style="display: none;">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0"></i>
+                <div>
+                    <h4 class="font-bold text-yellow-800 text-sm">Profile Completion Required</h4>
+                    <p class="text-sm text-yellow-700 mt-1">Please ensure your <b>Major, CGPA, Qualification, and Year
+                            of Study</b> are fully populated before you can apply for scholarships.</p>
+                </div>
+            </div>
+
             <div class="bg-card rounded-xl border border-border overflow-hidden">
                 <div class="p-8 border-b border-border bg-muted/30">
                     <div class="flex items-center gap-6">
@@ -227,6 +239,13 @@
 
         if (user.role === 'Student') {
             fetchUserProfile();
+
+            // Check for redirect message
+            if (sessionStorage.getItem('profileRedirect') === 'true') {
+                document.getElementById('completionAlert').style.display = 'flex';
+                sessionStorage.removeItem('profileRedirect');
+                lucide.createIcons();
+            }
         }
 
         // Handle Form Submission

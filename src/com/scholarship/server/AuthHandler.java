@@ -27,6 +27,8 @@ public class AuthHandler implements HttpHandler {
             }
 
             String email = JsonUtils.extractValue(requestBody, "email");
+            if (email != null)
+                email = email.toLowerCase();
             String password = JsonUtils.extractValue(requestBody, "password");
 
             String response;

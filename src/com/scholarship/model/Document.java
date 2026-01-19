@@ -7,13 +7,15 @@ public class Document {
     private int appID;
     private String fileName;
     private String fileType;
+    private String fileContent;
     private Timestamp uploadDate;
 
-    public Document(int docID, int appID, String fileName, String fileType, Timestamp uploadDate) {
+    public Document(int docID, int appID, String fileName, String fileType, String fileContent, Timestamp uploadDate) {
         this.docID = docID;
         this.appID = appID;
         this.fileName = fileName;
         this.fileType = fileType;
+        this.fileContent = fileContent;
         this.uploadDate = uploadDate;
     }
 
@@ -31,6 +33,14 @@ public class Document {
 
     public String getFileType() {
         return fileType;
+    }
+
+    public String getFileContent() {
+        return fileContent;
+    }
+
+    public void setFileContent(String fileContent) {
+        this.fileContent = fileContent;
     }
 
     public Timestamp getUploadDate() {

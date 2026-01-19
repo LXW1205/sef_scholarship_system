@@ -10,6 +10,11 @@ public class Reviewer extends User {
         this.department = department;
     }
 
+    public Reviewer() {
+        super();
+        this.role = "Reviewer";
+    }
+
     public String getReviewerID() {
         return reviewerID;
     }

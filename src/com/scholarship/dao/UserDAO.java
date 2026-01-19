@@ -13,7 +13,7 @@ import java.util.List;
 public class UserDAO {
 
     public User authenticate(String email, String password) {
-        String sql = "SELECT userID, fullName, email, role, isActive FROM \"User\" WHERE email = ? AND password = ? AND isActive = true";
+        String sql = "SELECT userID, fullName, email, password, role, isActive FROM \"User\" WHERE LOWER(email) = LOWER(?) AND password = ? AND isActive = true";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -35,7 +35,7 @@ public class UserDAO {
 
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT userID, fullName, email, role, isActive FROM \"User\" ORDER BY userID";
+        String sql = "SELECT userID, fullName, email, password, role, isActive FROM \"User\" ORDER BY userID";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 Statement stmt = conn.createStatement();
@@ -53,7 +53,7 @@ public class UserDAO {
 
     public List<User> findByRole(String role) {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT userID, fullName, email, role, isActive FROM \"User\" WHERE role = ? ORDER BY userID";
+        String sql = "SELECT userID, fullName, email, password, role, isActive FROM \"User\" WHERE role = ? ORDER BY userID";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -81,11 +81,13 @@ public class UserDAO {
                     uStmt.setInt(1, userId);
                     try (ResultSet uRs = uStmt.executeQuery()) {
                         if (uRs.next()) {
-                            return new Student(userId, uRs.getString("fullName"), uRs.getString("email"),
+                            Student s = new Student(userId, uRs.getString("fullName"), uRs.getString("email"),
                                     uRs.getBoolean("isActive"), uRs.getString("studentID"),
                                     uRs.getDouble("cgpa"), uRs.getString("major"), uRs.getString("qualification"),
                                     uRs.getString("yearOfStudy"), uRs.getString("expectedGraduation"),
                                     uRs.getDouble("familyIncome"));
+                            s.setPassword(uRs.getString("password"));
+                            return s;
                         }
                     }
                 }
@@ -96,9 +98,11 @@ public class UserDAO {
                     rStmt.setInt(1, userId);
                     try (ResultSet rRs = rStmt.executeQuery()) {
                         if (rRs.next()) {
-                            return new Reviewer(userId, rRs.getString("fullName"), rRs.getString("email"),
+                            Reviewer r = new Reviewer(userId, rRs.getString("fullName"), rRs.getString("email"),
                                     rRs.getBoolean("isActive"), rRs.getString("reviewerID"),
                                     rRs.getString("department"));
+                            r.setPassword(rRs.getString("password"));
+                            return r;
                         }
                     }
                 }
@@ -110,9 +114,12 @@ public class UserDAO {
                     cmStmt.setInt(1, userId);
                     try (ResultSet cmRs = cmStmt.executeQuery()) {
                         if (cmRs.next()) {
-                            return new CommitteeMember(userId, cmRs.getString("fullName"), cmRs.getString("email"),
+                            CommitteeMember c = new CommitteeMember(userId, cmRs.getString("fullName"),
+                                    cmRs.getString("email"),
                                     cmRs.getBoolean("isActive"), cmRs.getString("committeeID"),
                                     cmRs.getString("position"));
+                            c.setPassword(cmRs.getString("password"));
+                            return c;
                         }
                     }
                 }
@@ -123,9 +130,11 @@ public class UserDAO {
                     aStmt.setInt(1, userId);
                     try (ResultSet aRs = aStmt.executeQuery()) {
                         if (aRs.next()) {
-                            return new Admin(userId, aRs.getString("fullName"), aRs.getString("email"),
+                            Admin a = new Admin(userId, aRs.getString("fullName"), aRs.getString("email"),
                                     aRs.getBoolean("isActive"), aRs.getString("adminID"),
                                     aRs.getString("adminLevel"));
+                            a.setPassword(aRs.getString("password"));
+                            return a;
                         }
                     }
                 }
@@ -146,7 +155,7 @@ public class UserDAO {
     }
 
     public User findById(int id) {
-        String sql = "SELECT userID, fullName, email, role, isActive FROM \"User\" WHERE userID = ?";
+        String sql = "SELECT userID, fullName, email, password, role, isActive FROM \"User\" WHERE userID = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -240,5 +249,81 @@ public class UserDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean emailExists(String email) {
+        String sql = "SELECT COUNT(*) FROM \"User\" WHERE LOWER(email) = LOWER(?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, email);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public User verifyUserForReset(String identifier, String fullName, String role) {
+        // identifier is studentID, reviewerID, committeeID, or adminID
+        String table = "\"User\"";
+        String idColumn = "";
+
+        switch (role) {
+            case "Student":
+                table = "Student";
+                idColumn = "studentID";
+                break;
+            case "Reviewer":
+                table = "Reviewer";
+                idColumn = "reviewerID";
+                break;
+            case "Committee":
+            case "CommitteeMember":
+                table = "CommitteeMember";
+                idColumn = "committeeID";
+                break;
+            case "Admin":
+                table = "Admin";
+                idColumn = "adminID";
+                break;
+            default:
+                return null;
+        }
+
+        String sql = "SELECT userID, fullName, email, role, isActive FROM " + table + " WHERE " + idColumn
+                + " = ? AND fullName = ? AND role = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, identifier);
+            pstmt.setString(2, fullName);
+            pstmt.setString(3, role);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new User(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"),
+                            rs.getString("role"), rs.getBoolean("isActive")) {
+                        @Override
+                        public boolean login() {
+                            return true;
+                        }
+
+                        @Override
+                        public void logout() {
+                        }
+                    };
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

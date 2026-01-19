@@ -48,12 +48,13 @@ public class ApplicationDAO {
         if (documents == null || documents.isEmpty())
             return;
 
-        String sql = "INSERT INTO Document (appID, fileName, fileType) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Document (appID, fileName, fileType, fileContent) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             for (Document doc : documents) {
                 pstmt.setInt(1, appId);
                 pstmt.setString(2, doc.getFileName());
                 pstmt.setString(3, doc.getFileType());
+                pstmt.setString(4, doc.getFileContent());
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
@@ -163,6 +164,42 @@ public class ApplicationDAO {
         return apps;
     }
 
+    public boolean updateStatus(int appId, String status) {
+        String sql = "UPDATE Application SET status = ? WHERE appID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, status);
+            pstmt.setInt(2, appId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Application findById(int appId) {
+        String sql = "SELECT a.*, s.title, st.fullName as applicantName, e.reviewerID, r.fullName as reviewerName " +
+                "FROM Application a " +
+                "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
+                "JOIN Student st ON a.studentID = st.studentID " +
+                "LEFT JOIN Evaluation e ON a.appID = e.appID " +
+                "LEFT JOIN Reviewer r ON e.reviewerID = r.reviewerID " +
+                "WHERE a.appID = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, appId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToApplication(rs, conn);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private Application mapResultSetToApplication(ResultSet rs, Connection conn) throws SQLException {
         Application app = new Application(
                 rs.getInt("appID"),
@@ -192,6 +229,7 @@ public class ApplicationDAO {
                             rs.getInt("appID"),
                             rs.getString("fileName"),
                             rs.getString("fileType"),
+                            rs.getString("fileContent"),
                             rs.getTimestamp("uploadDate")));
                 }
             }

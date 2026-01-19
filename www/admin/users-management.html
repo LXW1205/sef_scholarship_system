@@ -108,14 +108,16 @@
               <tr>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Name</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold">Password</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Role</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold">Role Specific</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody id="usersTableBody" class="divide-y divide-border">
               <tr>
-                <td colspan="5" class="px-6 py-8 text-center">
+                <td colspan="7" class="px-6 py-8 text-center">
                   <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-muted-foreground mx-auto"></i>
                 </td>
               </tr>
@@ -154,6 +156,7 @@
             <select id="role" required
               class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
               <option value="">Select Role</option>
+              <option value="Student">Student</option>
               <option value="Reviewer">Reviewer</option>
               <option value="Committee">Committee Member</option>
               <option value="Admin">Admin</option>
@@ -162,13 +165,14 @@
           <div>
             <label for="password" class="block text-sm font-medium mb-2">Password *</label>
             <div class="relative">
-              <input type="password" id="password" required minlength="8"
+              <input type="text" id="password" required minlength="8"
                 class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
             </div>
           </div>
-          <div>
-            <label for="department" class="block text-sm font-medium mb-2">Department</label>
-            <input type="text" id="department"
+          <div id="roleSpecificContainer">
+            <label id="roleSpecificLabel" for="roleSpecificValue"
+              class="block text-sm font-medium mb-2">Department</label>
+            <input type="text" id="roleSpecificValue"
               class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
           </div>
         </div>
@@ -217,7 +221,7 @@
       if (users.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="5" class="px-6 py-8 text-center text-muted-foreground">
+            <td colspan="7" class="px-6 py-8 text-center text-muted-foreground">
               No users found
             </td>
           </tr>
@@ -225,7 +229,14 @@
         return;
       }
 
-      tbody.innerHTML = users.map(u => `
+      tbody.innerHTML = users.map(u => {
+        let roleSpecific = '-';
+        if (u.role === 'Student') roleSpecific = u.major || '-';
+        else if (u.role === 'Reviewer') roleSpecific = u.department || '-';
+        else if (u.role === 'Committee') roleSpecific = u.position || '-';
+        else if (u.role === 'Admin') roleSpecific = u.adminLevel || '-';
+
+        return `
         <tr class="hover:bg-muted/30 transition-colors">
           <td class="px-6 py-4">
             <div class="flex items-center gap-3">
@@ -237,17 +248,19 @@
               </div>
             </div>
           </td>
-          <td class="px-6 py-4 text-muted-foreground">${u.email}</td>
+          <td class="px-6 py-4 text-muted-foreground font-mono text-xs">${u.email}</td>
+          <td class="px-6 py-4 text-muted-foreground font-mono text-xs">${u.password || '********'}</td>
           <td class="px-6 py-4">
             <span class="px-3 py-1 text-xs font-medium rounded-full ${u.role === 'Admin' ? 'bg-purple-500/10 text-purple-600' :
-          u.role === 'Reviewer' ? 'bg-blue-500/10 text-blue-600' :
-            u.role === 'Committee' ? 'bg-green-500/10 text-green-600' :
-              'bg-muted text-muted-foreground'
-        }">${u.role}</span>
+            u.role === 'Reviewer' ? 'bg-blue-500/10 text-blue-600' :
+              u.role === 'Committee' ? 'bg-green-500/10 text-green-600' :
+                'bg-muted text-muted-foreground'
+          }">${u.role}</span>
           </td>
+          <td class="px-6 py-4 text-sm">${roleSpecific}</td>
           <td class="px-6 py-4">
             <span class="px-3 py-1 text-xs font-medium rounded-full ${u.isActive ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
-        }">${u.isActive ? 'Active' : 'Inactive'}</span>
+          }">${u.isActive ? 'Active' : 'Inactive'}</span>
           </td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-2">
@@ -263,7 +276,7 @@
             </div>
           </td>
         </tr>
-      `).join('');
+      `}).join('');
 
       lucide.createIcons();
     } // end renderUsers
@@ -274,12 +287,37 @@
     const modal = document.getElementById('userModal');
     const modalTitle = document.getElementById('modalTitle');
     const userForm = document.getElementById('userForm');
+    const roleSelect = document.getElementById('role');
+    const roleSpecificLabel = document.getElementById('roleSpecificLabel');
+    const roleSpecificValue = document.getElementById('roleSpecificValue');
     let currentUserId = null;
+
+    roleSelect.addEventListener('change', (e) => {
+      const role = e.target.value;
+      updateRoleSpecificUI(role);
+    });
+
+    function updateRoleSpecificUI(role) {
+      if (role === 'Student') {
+        roleSpecificLabel.textContent = "Major *";
+        roleSpecificValue.placeholder = "e.g. Computer Science";
+      } else if (role === 'Committee') {
+        roleSpecificLabel.textContent = "Position *";
+        roleSpecificValue.placeholder = "e.g. Chair";
+      } else if (role === 'Admin') {
+        roleSpecificLabel.textContent = "Admin Level *";
+        roleSpecificValue.placeholder = "e.g. Super Admin";
+      } else {
+        roleSpecificLabel.textContent = "Department *";
+        roleSpecificValue.placeholder = "e.g. Science Faculty";
+      }
+    }
 
     document.getElementById('addUserBtn').addEventListener('click', () => {
       currentUserId = null;
       modalTitle.textContent = "Add New User";
       userForm.reset();
+      updateRoleSpecificUI('');
       document.getElementById('submitBtn').textContent = "Create User";
       document.getElementById('role').disabled = false;
       document.getElementById('password').required = true;
@@ -299,16 +337,35 @@
     document.getElementById('userForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const role = document.getElementById('role').value;
+      const specificValue = document.getElementById('roleSpecificValue').value;
+
       const formData = {
         fullName: document.getElementById('fullName').value,
         email: document.getElementById('email').value,
-        role: document.getElementById('role').value,
+        role: role,
         password: document.getElementById('password').value,
-        department: document.getElementById('department').value,
       };
+
+      // Map role specific field
+      if (role === 'Student') formData.major = specificValue;
+      else if (role === 'Reviewer') formData.department = specificValue;
+      else if (role === 'Committee') formData.position = specificValue;
+      else if (role === 'Admin') formData.adminLevel = specificValue;
 
       if (currentUserId) {
         formData.id = currentUserId;
+        const existing = allUsers.find(u => u.id === currentUserId);
+        formData.isActive = existing ? existing.isActive : true;
+
+        // If student, include other mandatory fields to avoid nulls
+        if (role === 'Student' && existing) {
+          formData.cgpa = existing.cgpa || 0;
+          formData.qualification = existing.qualification || "";
+          formData.yearOfStudy = existing.yearOfStudy || "";
+          formData.expectedGraduation = existing.expectedGraduation || "";
+          formData.familyIncome = existing.familyIncome || 0;
+        }
       }
 
       const url = currentUserId ? '/api/users' : '/api/auth/register';
@@ -352,28 +409,28 @@
     });
 
     window.editUser = function (id) {
-      const userToEdit = allUsers.find(u => u.id === id);
-      if (!userToEdit) return;
+      const u = allUsers.find(u => u.id === id);
+      if (!u) return;
 
       currentUserId = id;
       modalTitle.textContent = "Edit User";
       document.getElementById('submitBtn').textContent = "Update User";
 
-      document.getElementById('fullName').value = userToEdit.fullName || '';
-      document.getElementById('email').value = userToEdit.email || '';
-      document.getElementById('role').value = userToEdit.role || '';
+      document.getElementById('fullName').value = u.fullName || '';
+      document.getElementById('email').value = u.email || '';
+      document.getElementById('role').value = u.role || '';
       document.getElementById('role').disabled = true; // Disable role editing
 
-      // Password optional for edit
-      document.getElementById('password').value = '';
-      document.getElementById('password').required = false;
+      // Password populated from DB
+      document.getElementById('password').value = u.password || '';
+      document.getElementById('password').required = true;
 
       // Specialized fields
-      if (userToEdit.department) {
-        document.getElementById('department').value = userToEdit.department;
-      } else {
-        document.getElementById('department').value = '';
-      }
+      updateRoleSpecificUI(u.role);
+      if (u.role === 'Student') roleSpecificValue.value = u.major || '';
+      else if (u.role === 'Reviewer') roleSpecificValue.value = u.department || '';
+      else if (u.role === 'Committee') roleSpecificValue.value = u.position || '';
+      else if (u.role === 'Admin') roleSpecificValue.value = u.adminLevel || '';
 
       document.getElementById('formError').style.display = 'none';
       document.getElementById('formSuccess').style.display = 'none';

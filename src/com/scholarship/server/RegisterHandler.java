@@ -28,6 +28,8 @@ public class RegisterHandler implements HttpHandler {
             String requestBody = new String(is.readAllBytes());
 
             String email = JsonUtils.extractJsonValue(requestBody, "email");
+            if (email != null)
+                email = email.toLowerCase();
             String password = JsonUtils.extractJsonValue(requestBody, "password");
             String role = JsonUtils.extractJsonValue(requestBody, "role");
             String fullName = JsonUtils.extractJsonValue(requestBody, "fullName");

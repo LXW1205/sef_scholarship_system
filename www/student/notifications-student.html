@@ -61,42 +61,8 @@
                 <button class="text-sm text-primary hover:underline">Mark all as read</button>
             </div>
 
-            <div class="space-y-4">
-                <!-- Notification Item -->
-                <div class="bg-card p-6 rounded-xl border border-border shadow-sm flex gap-4 items-start">
-                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <h3 class="font-semibold text-lg">Application Approved</h3>
-                            <span class="text-xs text-muted-foreground">3 hours ago</span>
-                        </div>
-                        <p class="text-muted-foreground mt-1">Your application for the "Future Leaders Scholarship" has
-                            been approved!</p>
-                    </div>
-                    <button class="text-muted-foreground hover:text-foreground">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-
-                <!-- Notification Item -->
-                <div class="bg-card p-6 rounded-xl border border-border shadow-sm flex gap-4 items-start">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <i data-lucide="bell" class="w-5 h-5 text-blue-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <h3 class="font-semibold text-lg">Scholarship Deadline Extended</h3>
-                            <span class="text-xs text-muted-foreground">2 days ago</span>
-                        </div>
-                        <p class="text-muted-foreground mt-1">The deadline for the "Tech Innovation Grant" has been
-                            extended to January 30th.</p>
-                    </div>
-                    <button class="text-muted-foreground hover:text-foreground">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
+            <div id="notificationsList" class="space-y-4">
+                <!-- Notifications will be loaded here -->
             </div>
         </div>
     </main>

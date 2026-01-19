@@ -37,6 +37,7 @@ public class DocumentDAO {
                             rs.getInt("appID"),
                             rs.getString("fileName"),
                             rs.getString("fileType"),
+                            rs.getString("fileContent"),
                             rs.getTimestamp("uploadDate")));
                 }
             }

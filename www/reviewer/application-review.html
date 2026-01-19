@@ -226,6 +226,79 @@
     // }
 
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const appId = urlParams.get('id');
+
+    if (!appId) {
+      alert('No application ID provided');
+      window.location.href = '/reviewer/application-assignments.html';
+    }
+
+    // Load application details
+    async function fetchApplicationDetails() {
+      try {
+        const response = await fetch(`/api/applications?id=${appId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const app = await response.json();
+          updateUI(app);
+        } else {
+          console.error('Failed to fetch application');
+        }
+      } catch (error) {
+        console.error('Error fetching application:', error);
+      }
+    }
+
+    function updateUI(app) {
+      if (app.applicantName) {
+        document.querySelector('h3.text-xl')?.nextElementSibling.querySelectorAll('span.font-medium')[0].textContent = app.applicantName;
+      }
+      if (app.studentID) {
+        const spans = document.querySelectorAll('div.grid span.font-medium');
+        if (spans.length > 2) spans[2].textContent = app.studentID;
+      }
+      if (app.personalStatement) {
+        document.querySelector('div.bg-card:has(i[data-lucide="file-text"]) p').textContent = app.personalStatement;
+      }
+
+      // Update Documents Section
+      const docHeading = Array.from(document.querySelectorAll('h3')).find(h => h.textContent.includes('Supporting Documents'));
+      const docContainer = docHeading ? docHeading.nextElementSibling : null;
+      if (docContainer && app.documents) {
+        docContainer.innerHTML = app.documents.map(doc => `
+          <div class="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+            <div class="flex items-center gap-3">
+              <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+              <span class="text-sm font-medium">${doc.fileName}</span>
+            </div>
+            <button onclick="previewFile('${doc.fileContent}')" class="px-3 py-1 bg-secondary text-secondary-foreground rounded text-sm hover:bg-secondary/80">
+              View
+            </button>
+          </div>
+        `).join('');
+      }
+      lucide.createIcons();
+    }
+
+    window.previewFile = function (base64) {
+      if (!base64 || base64 === "null" || base64 === "") {
+        alert("File content not available");
+        return;
+      }
+      const win = window.open();
+      if (base64.startsWith('data:image/')) {
+        win.document.write(`<img src="${base64}" style="max-width: 100%;">`);
+      } else if (base64.startsWith('data:application/pdf')) {
+        win.document.write(`<iframe src="${base64}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+      } else {
+        win.location.href = base64;
+      }
+    };
+
+    fetchApplicationDetails();
+
     // Calculate total score
     const scoreInputs = ['academicScore', 'leadershipScore', 'communityScore', 'statementScore'];
     scoreInputs.forEach(id => {
@@ -240,13 +313,14 @@
     }
 
     document.getElementById('saveDraftBtn').addEventListener('click', () => {
-      alert('Draft saved successfully!');
+      alert('Draft functionality not fully implemented. Your progress is not saved.');
     });
 
-    document.getElementById('evaluationForm').addEventListener('submit', (e) => {
+    document.getElementById('evaluationForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const evaluation = {
+        appId: appId,
         academicScore: document.getElementById('academicScore').value,
         leadershipScore: document.getElementById('leadershipScore').value,
         communityScore: document.getElementById('communityScore').value,
@@ -255,14 +329,30 @@
         recommendation: document.getElementById('recommendation').value,
       };
 
-      console.log('[v0] Submitting evaluation:', evaluation);
+      try {
+        const response = await fetch('/api/applications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(evaluation)
+        });
 
-      document.getElementById('formSuccess').style.display = 'flex';
-      lucide.createIcons();
-
-      setTimeout(() => {
-        window.location.href = '/reviewer/application-assignments.html';
-      }, 2000);
+        if (response.ok) {
+          document.getElementById('formSuccess').style.display = 'flex';
+          lucide.createIcons();
+          setTimeout(() => {
+            window.location.href = '/reviewer/application-assignments.html';
+          }, 2000);
+        } else {
+          const data = await response.json();
+          alert('Error: ' + (data.error || 'Failed to submit evaluation'));
+        }
+      } catch (error) {
+        console.error('Submit error:', error);
+        alert('An error occurred while submitting.');
+      }
     });
 
     lucide.createIcons();

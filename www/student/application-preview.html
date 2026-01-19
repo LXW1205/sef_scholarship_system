@@ -202,23 +202,32 @@
             <i data-lucide="paperclip" class="w-5 h-5"></i>
             Uploaded Documents
           </h3>
-          <div class="space-y-2">
+          <div class="space-y-4">
             ${documents.transcript ? `
-              <div class="flex items-center gap-2 text-sm bg-muted/30 rounded-lg p-3">
-                <i data-lucide="file-text" class="w-4 h-4 text-primary"></i>
-                <span>Academic Transcript: ${documents.transcript}</span>
+              <div class="flex items-center justify-between bg-muted/30 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+                    <span class="text-sm">Academic Transcript: ${documents.transcript}</span>
+                </div>
+                <button type="button" onclick="previewFile('${documents.transcriptContent}')" class="text-sm text-primary hover:underline">View</button>
               </div>
             ` : ''}
             ${documents.recommendation ? `
-              <div class="flex items-center gap-2 text-sm bg-muted/30 rounded-lg p-3">
-                <i data-lucide="file-signature" class="w-4 h-4 text-primary"></i>
-                <span>Recommendation Letter: ${documents.recommendation}</span>
+              <div class="flex items-center justify-between bg-muted/30 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="file-signature" class="w-5 h-5 text-primary"></i>
+                    <span class="text-sm">Recommendation Letter: ${documents.recommendation}</span>
+                </div>
+                <button type="button" onclick="previewFile('${documents.recommendationContent}')" class="text-sm text-primary hover:underline">View</button>
               </div>
             ` : ''}
             ${documents.id ? `
-              <div class="flex items-center gap-2 text-sm bg-muted/30 rounded-lg p-3">
-                <i data-lucide="id-card" class="w-4 h-4 text-primary"></i>
-                <span>ID/Passport: ${documents.id}</span>
+              <div class="flex items-center justify-between bg-muted/30 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="id-card" class="w-5 h-5 text-primary"></i>
+                    <span class="text-sm">ID/Passport: ${documents.id}</span>
+                </div>
+                <button type="button" onclick="previewFile('${documents.idContent}')" class="text-sm text-primary hover:underline">View</button>
               </div>
             ` : ''}
           </div>
@@ -227,6 +236,19 @@
 
       lucide.createIcons();
     }
+
+    window.previewFile = function (base64) {
+      if (!base64) return;
+      const win = window.open();
+      if (base64.startsWith('data:image/')) {
+        win.document.write(`<img src="${base64}" style="max-width: 100%;">`);
+      } else if (base64.startsWith('data:application/pdf')) {
+        win.document.write(`<iframe src="${base64}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+      } else {
+        // For other types, try to open or download
+        win.location.href = base64;
+      }
+    };
 
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const confirmCheckbox = document.getElementById('confirmCheckbox');
@@ -266,6 +288,7 @@
           // Clear session storage
           sessionStorage.removeItem(`applicationDraft_${scholarshipId}`);
           sessionStorage.removeItem(`documents_${scholarshipId}`);
+          sessionStorage.removeItem(`uploadedFileState_${scholarshipId}`);
 
           // Redirect to confirmation page
           window.location.href = `/student/application-submitted.html?id=${data.application.appid}`;

@@ -108,6 +108,7 @@ CREATE TABLE Document (
     appID INTEGER NOT NULL,
     fileName VARCHAR(255) NOT NULL,
     fileType VARCHAR(50),
+    fileContent TEXT, -- Added for base64 content
     uploadDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT FK_Document_Application FOREIGN KEY (appID) REFERENCES Application(appID) ON DELETE CASCADE
 );
