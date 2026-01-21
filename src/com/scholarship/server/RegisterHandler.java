@@ -33,7 +33,13 @@ public class RegisterHandler implements HttpHandler {
             String password = JsonUtils.extractJsonValue(requestBody, "password");
             String role = JsonUtils.extractJsonValue(requestBody, "role");
             String fullName = JsonUtils.extractJsonValue(requestBody, "fullName");
+
+            // Extract role-specific fields
             String studentID = JsonUtils.extractJsonValue(requestBody, "studentID");
+            String major = JsonUtils.extractJsonValue(requestBody, "major");
+            String department = JsonUtils.extractJsonValue(requestBody, "department");
+            String position = JsonUtils.extractJsonValue(requestBody, "position");
+            String adminLevel = JsonUtils.extractJsonValue(requestBody, "adminLevel");
 
             // Default to Student if no role specified
             if (role == null || role.isEmpty()) {
@@ -46,15 +52,16 @@ public class RegisterHandler implements HttpHandler {
                 return;
             }
 
-            // Create user based on role (single insert into inherited table)
+            // Create user based on role
             int userId = -1;
             if ("Student".equals(role)) {
-                userId = createStudent(fullName, email, password, studentID);
+                userId = createStudent(fullName, email, password, studentID, major);
             } else if ("Reviewer".equals(role)) {
-                // For now, reviewers/admins/committees aren't registered via this public
-                // handler
-                // but if they were, we'd handle them similarly.
-                userId = createUser(fullName, email, password, role);
+                userId = createReviewer(fullName, email, password, department);
+            } else if ("Committee".equals(role) || "CommitteeMember".equals(role)) {
+                userId = createCommitteeMember(fullName, email, password, position);
+            } else if ("Admin".equals(role)) {
+                userId = createAdmin(fullName, email, password, adminLevel);
             } else {
                 userId = createUser(fullName, email, password, role);
             }
@@ -91,14 +98,78 @@ public class RegisterHandler implements HttpHandler {
         return false;
     }
 
-    private int createStudent(String fullName, String email, String password, String studentID) {
-        String sql = "INSERT INTO Student (fullName, email, password, role, isActive, studentID, cgpa) VALUES (?, ?, ?, 'Student', true, ?, 0.0) RETURNING userID";
+    private int createStudent(String fullName, String email, String password, String studentID, String major) {
+        if (studentID == null || studentID.isEmpty()) {
+            studentID = "S" + System.currentTimeMillis() % 10000000;
+        }
+        String sql = "INSERT INTO Student (fullName, email, password, role, isActive, studentID, cgpa, major) VALUES (?, ?, ?, 'Student', true, ?, 0.0, ?) RETURNING userID";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, fullName);
             pstmt.setString(2, email);
             pstmt.setString(3, password);
             pstmt.setString(4, studentID);
+            pstmt.setString(5, major != null ? major : "");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    private int createReviewer(String fullName, String email, String password, String department) {
+        String reviewerID = "R" + (System.currentTimeMillis() % 10000);
+        String sql = "INSERT INTO Reviewer (fullName, email, password, role, isActive, reviewerID, department) VALUES (?, ?, ?, 'Reviewer', true, ?, ?) RETURNING userID";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, email);
+            pstmt.setString(3, password);
+            pstmt.setString(4, reviewerID);
+            pstmt.setString(5, department != null ? department : "");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    private int createCommitteeMember(String fullName, String email, String password, String position) {
+        String committeeID = "C" + (System.currentTimeMillis() % 10000);
+        String sql = "INSERT INTO CommitteeMember (fullName, email, password, role, isActive, committeeID, position) VALUES (?, ?, ?, 'Committee', true, ?, ?) RETURNING userID";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, email);
+            pstmt.setString(3, password);
+            pstmt.setString(4, committeeID);
+            pstmt.setString(5, position != null ? position : "");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    private int createAdmin(String fullName, String email, String password, String adminLevel) {
+        String adminID = "A" + (System.currentTimeMillis() % 10000);
+        String sql = "INSERT INTO Admin (fullName, email, password, role, isActive, adminID, adminLevel) VALUES (?, ?, ?, 'Admin', true, ?, ?) RETURNING userID";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, email);
+            pstmt.setString(3, password);
+            pstmt.setString(4, adminID);
+            pstmt.setString(5, adminLevel != null ? adminLevel : "Staff");
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next())
                     return rs.getInt(1);

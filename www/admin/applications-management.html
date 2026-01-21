@@ -179,7 +179,7 @@
                 const data = await response.json();
                 const reviewers = data.users || [];
                 reviewerSelect.innerHTML = '<option value="">Select Reviewer</option>' +
-                    reviewers.map(r => `<option value="${r.staffID}">${r.username} (${r.department})</option>`).join('');
+                    reviewers.map(r => `<option value="${r.reviewerID}">${r.fullName} (${r.department})</option>`).join('');
             } catch (e) {
                 console.error(e);
             }

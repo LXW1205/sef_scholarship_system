@@ -108,7 +108,6 @@
               <tr>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Name</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
-                <th class="px-6 py-4 text-left text-sm font-semibold">Password</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Role</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Role Specific</th>
                 <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
@@ -249,7 +248,6 @@
             </div>
           </td>
           <td class="px-6 py-4 text-muted-foreground font-mono text-xs">${u.email}</td>
-          <td class="px-6 py-4 text-muted-foreground font-mono text-xs">${u.password || '********'}</td>
           <td class="px-6 py-4">
             <span class="px-3 py-1 text-xs font-medium rounded-full ${u.role === 'Admin' ? 'bg-purple-500/10 text-purple-600' :
             u.role === 'Reviewer' ? 'bg-blue-500/10 text-blue-600' :

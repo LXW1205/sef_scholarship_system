@@ -13,33 +13,56 @@ public class ApplicationDAO {
         String sql = "INSERT INTO Application (studentID, scholarshipID, status, personalStatement, otherScholarships) VALUES (?, ?, ?, ?, ?)";
         System.out.println("[DEBUG] ApplicationDAO saving: SQL=" + sql);
 
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false); // Start transaction
 
-            pstmt.setString(1, app.getStudentID());
-            pstmt.setInt(2, app.getScholarshipID());
-            pstmt.setString(3, app.getStatus());
-            pstmt.setString(4, app.getPersonalStatement());
-            pstmt.setString(5, app.getOtherScholarships());
+            try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                pstmt.setString(1, app.getStudentID());
+                pstmt.setInt(2, app.getScholarshipID());
+                pstmt.setString(3, app.getStatus());
+                pstmt.setString(4, app.getPersonalStatement());
+                pstmt.setString(5, app.getOtherScholarships());
 
-            int affectedRows = pstmt.executeUpdate();
-            System.out.println("[DEBUG] Rows affected: " + affectedRows);
+                int affectedRows = pstmt.executeUpdate();
+                System.out.println("[DEBUG] Rows affected: " + affectedRows);
 
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int appId = generatedKeys.getInt(1);
-                        System.out.println("[DEBUG] Generated AppID: " + appId);
+                if (affectedRows > 0) {
+                    try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            int appId = generatedKeys.getInt(1);
+                            System.out.println("[DEBUG] Generated AppID: " + appId);
 
-                        // Save documents
-                        saveDocuments(appId, app.getDocuments(), conn);
-                        return appId;
+                            // Save documents (part of transaction)
+                            saveDocuments(appId, app.getDocuments(), conn);
+
+                            conn.commit(); // Success!
+                            return appId;
+                        }
                     }
                 }
+                conn.rollback();
             }
         } catch (SQLException e) {
             System.err.println("[ERROR] ApplicationDAO save failed: " + e.getMessage());
             e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return 0;
     }

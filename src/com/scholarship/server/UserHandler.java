@@ -67,9 +67,6 @@ public class UserHandler implements HttpHandler {
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
-            }
         } else if ("POST".equals(exchange.getRequestMethod())) {
             handlePost(exchange);
         } else if ("DELETE".equals(exchange.getRequestMethod())) {
