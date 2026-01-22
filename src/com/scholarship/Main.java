@@ -16,6 +16,9 @@ public class Main {
         // Test DB Connection
         DatabaseConnection.testConnection();
 
+        // Init Scheduled Tasks (Deadline Notifications)
+        com.scholarship.server.SystemHandler.initScheduledTasks();
+
         int port = 8080;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 

@@ -57,11 +57,14 @@ public class RegisterHandler implements HttpHandler {
             if ("Student".equals(role)) {
                 userId = createStudent(fullName, email, password, studentID, major);
             } else if ("Reviewer".equals(role)) {
-                userId = createReviewer(fullName, email, password, department);
+                String rID = JsonUtils.extractJsonValue(requestBody, "reviewerID");
+                userId = createReviewer(fullName, email, password, rID, department);
             } else if ("Committee".equals(role) || "CommitteeMember".equals(role)) {
-                userId = createCommitteeMember(fullName, email, password, position);
+                String cID = JsonUtils.extractJsonValue(requestBody, "committeeID");
+                userId = createCommitteeMember(fullName, email, password, cID, position);
             } else if ("Admin".equals(role)) {
-                userId = createAdmin(fullName, email, password, adminLevel);
+                String aID = JsonUtils.extractJsonValue(requestBody, "adminID");
+                userId = createAdmin(fullName, email, password, aID, adminLevel);
             } else {
                 userId = createUser(fullName, email, password, role);
             }
@@ -120,8 +123,10 @@ public class RegisterHandler implements HttpHandler {
         return -1;
     }
 
-    private int createReviewer(String fullName, String email, String password, String department) {
-        String reviewerID = "R" + (System.currentTimeMillis() % 10000);
+    private int createReviewer(String fullName, String email, String password, String reviewerID, String department) {
+        if (reviewerID == null || reviewerID.isEmpty()) {
+            reviewerID = "R" + (System.currentTimeMillis() % 10000);
+        }
         String sql = "INSERT INTO Reviewer (fullName, email, password, role, isActive, reviewerID, department) VALUES (?, ?, ?, 'Reviewer', true, ?, ?) RETURNING userID";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -140,8 +145,11 @@ public class RegisterHandler implements HttpHandler {
         return -1;
     }
 
-    private int createCommitteeMember(String fullName, String email, String password, String position) {
-        String committeeID = "C" + (System.currentTimeMillis() % 10000);
+    private int createCommitteeMember(String fullName, String email, String password, String committeeID,
+            String position) {
+        if (committeeID == null || committeeID.isEmpty()) {
+            committeeID = "C" + (System.currentTimeMillis() % 10000);
+        }
         String sql = "INSERT INTO CommitteeMember (fullName, email, password, role, isActive, committeeID, position) VALUES (?, ?, ?, 'Committee', true, ?, ?) RETURNING userID";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -160,8 +168,10 @@ public class RegisterHandler implements HttpHandler {
         return -1;
     }
 
-    private int createAdmin(String fullName, String email, String password, String adminLevel) {
-        String adminID = "A" + (System.currentTimeMillis() % 10000);
+    private int createAdmin(String fullName, String email, String password, String adminID, String adminLevel) {
+        if (adminID == null || adminID.isEmpty()) {
+            adminID = "A" + (System.currentTimeMillis() % 10000);
+        }
         String sql = "INSERT INTO Admin (fullName, email, password, role, isActive, adminID, adminLevel) VALUES (?, ?, ?, 'Admin', true, ?, ?) RETURNING userID";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {

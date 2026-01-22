@@ -6,6 +6,27 @@ import java.sql.*;
 
 public class EvaluationDAO {
 
+    public EvaluationDAO() {
+        createScoreTableIfNotExists();
+    }
+
+    private void createScoreTableIfNotExists() {
+        String sql = "CREATE TABLE IF NOT EXISTS EvaluationScore (" +
+                "scoreID SERIAL PRIMARY KEY, " +
+                "evalID INTEGER NOT NULL, " +
+                "criteriaID INTEGER NOT NULL, " +
+                "score DECIMAL(5,2), " +
+                "CONSTRAINT FK_EvaluationScore_Evaluation FOREIGN KEY (evalID) REFERENCES Evaluation(evalID) ON DELETE CASCADE, "
+                +
+                "CONSTRAINT FK_EvaluationScore_Criteria FOREIGN KEY (criteriaID) REFERENCES Criteria(criteriaID) ON DELETE CASCADE)";
+        try (Connection conn = DatabaseConnection.getConnection();
+                Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.err.println("[WARN] Failed to check/create EvaluationScore table: " + e.getMessage());
+        }
+    }
+
     public boolean save(Evaluation eval) {
         String sql = "INSERT INTO Evaluation (appID, reviewerID, scholarshipComments, status) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -36,6 +57,57 @@ public class EvaluationDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void saveScores(int evalId, java.util.List<com.scholarship.model.EvaluationScore> scores) {
+        String delSql = "DELETE FROM EvaluationScore WHERE evalID = ?";
+        String insSql = "INSERT INTO EvaluationScore (evalID, criteriaID, score) VALUES (?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Delete old scores for this eval first (replace strategy)
+            try (PreparedStatement delStmt = conn.prepareStatement(delSql)) {
+                delStmt.setInt(1, evalId);
+                delStmt.executeUpdate();
+            }
+
+            // Insert new scores
+            try (PreparedStatement insStmt = conn.prepareStatement(insSql)) {
+                for (com.scholarship.model.EvaluationScore s : scores) {
+                    insStmt.setInt(1, evalId);
+                    insStmt.setInt(2, s.getCriteriaID());
+                    insStmt.setDouble(3, s.getScore());
+                    insStmt.addBatch();
+                }
+                insStmt.executeBatch();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public java.util.List<com.scholarship.model.EvaluationScore> findScoresByEvalId(int evalId) {
+        java.util.List<com.scholarship.model.EvaluationScore> list = new java.util.ArrayList<>();
+        String sql = "SELECT es.*, c.name as criteriaName FROM EvaluationScore es " +
+                "JOIN Criteria c ON es.criteriaID = c.criteriaID " +
+                "WHERE es.evalID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, evalId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    com.scholarship.model.EvaluationScore s = new com.scholarship.model.EvaluationScore(
+                            rs.getInt("scoreID"),
+                            rs.getInt("evalID"),
+                            rs.getInt("criteriaID"),
+                            rs.getDouble("score"));
+                    s.setCriteriaName(rs.getString("criteriaName"));
+                    list.add(s);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     public Evaluation findByAppId(int appId) {

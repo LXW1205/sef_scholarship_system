@@ -63,7 +63,18 @@
           <i data-lucide="book-open" class="w-12 h-12 text-primary"></i>
         </div>
         <h2 class="text-3xl lg:text-4xl font-bold mb-3">Available Scholarships</h2>
-        <p class="text-lg text-muted-foreground">Browse and apply to scholarships that match your profile</p>
+        <p class="text-lg text-muted-foreground mb-6">Browse and apply to scholarships that match your profile</p>
+
+        <!-- Eligibility Toggle (Hidden by default, shown if student logged in) -->
+        <div id="eligibilityToggleContainer" class="flex justify-center hidden">
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="eligibilityToggle" class="sr-only peer" onchange="toggleEligibility()">
+            <div
+              class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+            </div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Show Eligible Only</span>
+          </label>
+        </div>
       </div>
     </section>
 
@@ -81,18 +92,47 @@
 
 
   <script>
-    async function loadScholarships() {
+    async function checkUserRole() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.role === 'Student') {
+        document.getElementById('eligibilityToggleContainer').classList.remove('hidden');
+      }
+    }
+
+    async function toggleEligibility() {
+      const isChecked = document.getElementById('eligibilityToggle').checked;
+      loadScholarships(isChecked);
+    }
+
+    async function loadScholarships(eligibleOnly = false) {
       const loadingMessage = document.getElementById('loadingMessage');
       const scholarshipsList = document.getElementById('scholarshipsList');
       const errorMessage = document.getElementById('errorMessage');
 
+      loadingMessage.style.display = 'block';
+      scholarshipsList.innerHTML = '';
+      errorMessage.style.display = 'none';
+
       try {
-        const response = await fetch('/api/scholarships?active=true');
+        let url = '/api/scholarships?active=true';
+        if (eligibleOnly) {
+          const user = JSON.parse(localStorage.getItem('user'));
+          // Use username (which is essentially ID in this system for now, OR rely on a stored ID)
+          // Wait, the system uses "S..." as ID. Login response usually has "id" (int) and "username" (string/email?).
+          // Let's check what Student ID is. It's usually stored in localStorage user object or we need to fetch it.
+          // Based on previous contexts, `user.username` might be the student ID like "S2025...".
+          // Let's assume user.username is the ID for now as per AuthHandler.
+          if (user && user.username) {
+            url += `&eligibleFor=${user.username}`;
+          }
+        }
+
+        const response = await fetch(url);
         const data = await response.json();
 
         loadingMessage.style.display = 'none';
 
-        if (response.ok && data.scholarships.length > 0) {
+        if (response.ok && data.scholarships && data.scholarships.length > 0) {
           scholarshipsList.innerHTML = data.scholarships.map(scholarship => `
             <div class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg flex flex-col h-full">
               <div class="flex items-start justify-between mb-4">
@@ -158,6 +198,7 @@
     }
 
     loadScholarships();
+    checkUserRole();
   </script>
   <div id="footer-container"></div>
   <script src="common.js"></script>

@@ -34,7 +34,16 @@ public class ScholarshipHandler implements HttpHandler {
             } else {
                 String query = exchange.getRequestURI().getQuery();
                 boolean all = query != null && query.contains("all=true");
-                response = getScholarshipsJson(all);
+                String studentId = null;
+                if (query != null && query.contains("eligibleFor=")) {
+                    for (String param : query.split("&")) {
+                        if (param.startsWith("eligibleFor=")) {
+                            studentId = param.split("=")[1];
+                            break;
+                        }
+                    }
+                }
+                response = getScholarshipsJson(all, studentId);
                 if (response.contains("\"error\"")) {
                     statusCode = 500;
                 }
@@ -215,13 +224,22 @@ public class ScholarshipHandler implements HttpHandler {
         }
     }
 
-    private String getScholarshipsJson(boolean all) {
+    private String getScholarshipsJson(boolean all, String studentId) {
         StringBuilder json = new StringBuilder("{\"scholarships\": [");
 
         try {
             List<Scholarship> scholarships = all ? scholarshipDAO.findAll() : scholarshipDAO.findAllActive();
-            // ... (rest of the code is unchanged in functionality but needs to stay within
-            // the method)
+
+            // Filter by eligibility if studentId is provided
+            if (studentId != null) {
+                com.scholarship.dao.UserDAO userDAO = new com.scholarship.dao.UserDAO();
+                com.scholarship.model.User user = userDAO.verifyUserForReset(studentId, "", "Student");
+                if (user instanceof com.scholarship.model.Student) {
+                    com.scholarship.model.Student student = (com.scholarship.model.Student) user;
+                    scholarships.removeIf(s -> !isEligible(student, s));
+                }
+            }
+
             boolean first = true;
             for (Scholarship s : scholarships) {
                 if (!first)
@@ -263,5 +281,24 @@ public class ScholarshipHandler implements HttpHandler {
 
         json.append("]}");
         return json.toString();
+    }
+
+    private boolean isEligible(com.scholarship.model.Student student, Scholarship scholarship) {
+        // 1. Check Qualification
+        String reqQual = scholarship.getForQualification();
+        String studQual = student.getQualification();
+
+        if (reqQual != null && !reqQual.equalsIgnoreCase("Any") && !reqQual.isEmpty()) {
+            if (studQual == null || !studQual.equalsIgnoreCase(reqQual)) {
+                return false;
+            }
+        }
+
+        // 2. Check specific criteria if mapped (e.g., minimum CGPA)
+        // Note: Currently we don't store a "Min Value" in Criterion, so we assume
+        // strict qualification matching is the main eligibility check for now.
+        // Future: If Criterion name contains "CGPA" and we parsed a min value...
+
+        return true;
     }
 }

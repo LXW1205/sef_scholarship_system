@@ -14,18 +14,45 @@ import java.util.zip.*;
 
 public class SystemHandler implements HttpHandler {
 
-    // In-memory mock storage for settings
-    private static Map<String, String> settings = new HashMap<>();
     private static boolean maintenanceMode = false;
+
     private static final String BACKUPS_DIR = "backups";
 
-    static {
-        settings.put("systemName", "DSX - Digital Scholarship Experience");
-        settings.put("supportEmail", "support@dsx.edu");
-        settings.put("timezone", "UTC+8 (Singapore Time)");
+    public static void initScheduledTasks() {
+        Timer timer = new Timer("DeadlineChecker", true);
+        // Check once a day (start after 30 seconds)
+        long period = 24 * 60 * 60 * 1000L;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    com.scholarship.dao.ScholarshipDAO sDAO = new com.scholarship.dao.ScholarshipDAO();
+                    com.scholarship.dao.NotificationDAO nDAO = new com.scholarship.dao.NotificationDAO();
 
-        // Ensure backups directory exists
-        new File(BACKUPS_DIR).mkdirs();
+                    List<com.scholarship.model.Scholarship> all = sDAO.findAll();
+                    long now = System.currentTimeMillis();
+                    long days3 = 3L * 24 * 60 * 60 * 1000L;
+
+                    for (com.scholarship.model.Scholarship s : all) {
+                        if (s.getDeadline() != null) {
+                            long deadline = s.getDeadline().getTime();
+                            long diff = deadline - now;
+                            // If deadline is within 3 days and in future
+                            if (diff > 0 && diff <= days3) {
+                                // Create notification for ADMIN (simplified)
+                                // We could check if notification already exists to avoid spam, but for now
+                                // simple logic
+                                nDAO.createForRole("Admin",
+                                        "Scholarship '" + s.getTitle() + "' is closing in less than 3 days.");
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Scheduled task error: " + e.getMessage());
+                }
+            }
+        }, 30000L, period);
+        System.out.println("Scheduled tasks initialized.");
     }
 
     @Override
@@ -38,8 +65,6 @@ public class SystemHandler implements HttpHandler {
             handleBackupsList(exchange);
         } else if (path.endsWith("/maintenance")) {
             handleMaintenance(exchange);
-        } else if (path.endsWith("/settings")) {
-            handleSettings(exchange);
         } else if (path.endsWith("/audit-logs")) {
             handleAuditLogs(exchange);
         } else if (path.contains("/backup/download/")) {
@@ -327,50 +352,6 @@ public class SystemHandler implements HttpHandler {
             } else {
                 sendError(exchange, 400, "Missing 'enabled' field");
             }
-        } else {
-            sendError(exchange, 405, "Method Not Allowed");
-        }
-    }
-
-    private void handleSettings(HttpExchange exchange) throws IOException {
-        String clientIP = exchange.getRemoteAddress().getAddress().getHostAddress();
-
-        if ("GET".equals(exchange.getRequestMethod())) {
-            StringBuilder json = new StringBuilder("{");
-            json.append("\"systemName\": \"").append(JsonUtils.escape(settings.get("systemName"))).append("\",");
-            json.append("\"supportEmail\": \"").append(JsonUtils.escape(settings.get("supportEmail"))).append("\",");
-            json.append("\"timezone\": \"").append(JsonUtils.escape(settings.get("timezone"))).append("\"");
-            json.append("}");
-            sendResponse(exchange, 200, json.toString());
-
-        } else if ("POST".equals(exchange.getRequestMethod())) {
-            String requestBody = new String(exchange.getRequestBody().readAllBytes());
-            String name = JsonUtils.extractValue(requestBody, "systemName");
-            String email = JsonUtils.extractValue(requestBody, "supportEmail");
-            String tz = JsonUtils.extractValue(requestBody, "timezone");
-
-            StringBuilder changes = new StringBuilder();
-            if (name != null) {
-                changes.append("systemName: ").append(settings.get("systemName")).append(" -> ").append(name)
-                        .append("; ");
-                settings.put("systemName", name);
-            }
-            if (email != null) {
-                changes.append("supportEmail: ").append(settings.get("supportEmail")).append(" -> ").append(email)
-                        .append("; ");
-                settings.put("supportEmail", email);
-            }
-            if (tz != null) {
-                changes.append("timezone: ").append(settings.get("timezone")).append(" -> ").append(tz);
-                settings.put("timezone", tz);
-            }
-
-            // Log the settings change
-            if (changes.length() > 0) {
-                AuditLogDAO.log(null, "System", "Settings Changed", "System", null, changes.toString(), clientIP);
-            }
-
-            sendResponse(exchange, 200, "{\"success\": true}");
         } else {
             sendError(exchange, 405, "Method Not Allowed");
         }

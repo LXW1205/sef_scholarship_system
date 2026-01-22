@@ -27,8 +27,8 @@ public class AuthHandler implements HttpHandler {
             }
 
             String email = JsonUtils.extractValue(requestBody, "email");
-            if (email != null)
-                email = email.toLowerCase();
+            // Do not force lowercase, as it might be a case-sensitive ID.
+            // UserDAO handles email case-insensitivity.
             String password = JsonUtils.extractValue(requestBody, "password");
 
             String response;

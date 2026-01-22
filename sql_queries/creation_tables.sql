@@ -146,6 +146,15 @@ CREATE TABLE ClarificationRequest (
     CONSTRAINT FK_ClarificationRequest_Evaluation FOREIGN KEY (evalID) REFERENCES Evaluation(evalID) ON DELETE CASCADE
 );
 
+CREATE TABLE EvaluationScore (
+    scoreID SERIAL PRIMARY KEY,
+    evalID INTEGER NOT NULL,
+    criteriaID INTEGER NOT NULL,
+    score DECIMAL(5,2),
+    CONSTRAINT FK_EvaluationScore_Evaluation FOREIGN KEY (evalID) REFERENCES Evaluation(evalID) ON DELETE CASCADE,
+    CONSTRAINT FK_EvaluationScore_Criteria FOREIGN KEY (criteriaID) REFERENCES Criteria(criteriaID) ON DELETE CASCADE
+);
+
 CREATE TABLE Report (
     reportID SERIAL PRIMARY KEY,
     adminID VARCHAR(20) NOT NULL, -- Matched Admin.adminID type

@@ -24,6 +24,7 @@ public class ApplicationHandler implements HttpHandler {
             String query = exchange.getRequestURI().getQuery();
             String studentId = null;
             String reviewerId = null;
+            String idStr = null;
             if (query != null) {
                 if (query.contains("studentId=")) {
                     studentId = query.split("studentId=")[1].split("&")[0];
@@ -31,10 +32,20 @@ public class ApplicationHandler implements HttpHandler {
                 if (query.contains("reviewerId=")) {
                     reviewerId = query.split("reviewerId=")[1].split("&")[0];
                 }
+                if (query.contains("id=")) {
+                    idStr = query.split("id=")[1].split("&")[0];
+                }
             }
 
             String response;
-            if (studentId != null) {
+            if (idStr != null) {
+                try {
+                    int appId = Integer.parseInt(idStr);
+                    response = getApplicationJsonById(appId);
+                } catch (NumberFormatException e) {
+                    response = "{\"error\": \"Invalid application ID\"}";
+                }
+            } else if (studentId != null) {
                 response = getApplicationsJsonByStudentId(studentId);
             } else if (reviewerId != null) {
                 response = getApplicationsJsonByReviewerId(reviewerId);
@@ -195,12 +206,44 @@ public class ApplicationHandler implements HttpHandler {
             int appId = Integer.parseInt(JsonUtils.extractValue(requestBody, "appId"));
             String comments = JsonUtils.extractValue(requestBody, "comments");
             String recommendation = JsonUtils.extractValue(requestBody, "recommendation");
+            String scoresJson = JsonUtils.extractValue(requestBody, "scores"); // Expecting array string
 
             Evaluation eval = evaluationDAO.findByAppId(appId);
             if (eval != null) {
                 eval.setScholarshipComments(comments);
                 eval.setStatus(recommendation); // Using recommendation as status for simplicity
                 if (evaluationDAO.update(eval)) {
+
+                    // Parse and save scores
+                    if (scoresJson != null && scoresJson.startsWith("[")) {
+                        List<com.scholarship.model.EvaluationScore> scoresList = new java.util.ArrayList<>();
+                        // Simple parser for objects in array
+                        // Remove [ and ]
+                        String clean = scoresJson.replaceAll("^\\[|\\]$", "");
+                        if (!clean.isEmpty()) {
+                            // Split by "}," which separates objects (assuming no nested objects or strings
+                            // containing "},")
+                            // This is a naive split but sufficient for this specific JSON structure
+                            String[] scoreObjs = clean.split("\\},");
+                            for (String obj : scoreObjs) {
+                                // Add closing brace back if missing (split eats it except for last one maybe)
+                                if (!obj.trim().endsWith("}"))
+                                    obj = obj + "}";
+
+                                String cIdStr = JsonUtils.extractValue(obj, "criteriaID");
+                                String sStr = JsonUtils.extractValue(obj, "score");
+
+                                if (cIdStr != null && sStr != null) {
+                                    int cId = Integer.parseInt(cIdStr);
+                                    double sc = Double.parseDouble(sStr);
+                                    scoresList.add(
+                                            new com.scholarship.model.EvaluationScore(0, eval.getEvalID(), cId, sc));
+                                }
+                            }
+                        }
+                        evaluationDAO.saveScores(eval.getEvalID(), scoresList);
+                    }
+
                     applicationDAO.updateStatus(appId, "Evaluated");
                     notificationDAO.createForRole("Committee", "New evaluation submitted for Application ID: " + appId);
                     sendResponse(exchange, 200, "{\"success\": true}");
@@ -211,6 +254,7 @@ public class ApplicationHandler implements HttpHandler {
                 sendError(exchange, 404, "Evaluation record not found");
             }
         } catch (Exception e) {
+            e.printStackTrace(); // Print stack trace for debugging
             sendError(exchange, 500, "Error submitting evaluation: " + e.getMessage());
         }
     }
@@ -319,5 +363,74 @@ public class ApplicationHandler implements HttpHandler {
         }
         json.append("]}");
         return json.toString();
+    }
+
+    private String getApplicationJsonById(int appId) {
+        Application a = applicationDAO.findById(appId);
+        if (a == null)
+            return "{\"error\": \"Application not found\"}";
+
+        // Get scholarship details for criteria
+        com.scholarship.dao.ScholarshipDAO sDAO = new com.scholarship.dao.ScholarshipDAO();
+        com.scholarship.model.Scholarship s = sDAO.findById(a.getScholarshipID());
+
+        StringBuilder json = new StringBuilder();
+        json.append(formatApplicationJsonSingle(a, s));
+        return json.toString();
+    }
+
+    // Helper to format a single application nicely including criteria
+    private String formatApplicationJsonSingle(Application a, com.scholarship.model.Scholarship s) {
+        String reviewerInfo = "";
+        if (a.getReviewerID() != null) {
+            reviewerInfo = String.format(", \"reviewerId\": \"%s\", \"reviewerName\": \"%s\"",
+                    JsonUtils.escape(a.getReviewerID()), JsonUtils.escape(a.getReviewerName()));
+        }
+
+        StringBuilder docsJson = new StringBuilder("[");
+        List<com.scholarship.model.Document> docs = a.getDocuments();
+        for (int i = 0; i < docs.size(); i++) {
+            com.scholarship.model.Document d = docs.get(i);
+            docsJson.append(String.format(
+                    "{\"docID\": %d, \"fileName\": \"%s\", \"fileType\": \"%s\", \"fileContent\": \"%s\"}",
+                    d.getDocID(), JsonUtils.escape(d.getFileName()), JsonUtils.escape(d.getFileType()),
+                    JsonUtils.escape(d.getFileContent() != null ? d.getFileContent() : "")));
+            if (i < docs.size() - 1)
+                docsJson.append(",");
+        }
+        docsJson.append("]");
+
+        StringBuilder criteriaJson = new StringBuilder("[");
+        if (s != null) {
+            boolean first = true;
+            for (com.scholarship.model.Criterion c : s.getCriteria()) {
+                if (!first)
+                    criteriaJson.append(",");
+                first = false;
+                criteriaJson.append(String.format(
+                        "{\"id\": %d, \"name\": \"%s\", \"weightage\": %d, \"maxscore\": %.2f, \"mappedField\": \"%s\"}",
+                        c.getCriteriaID(),
+                        JsonUtils.escape(c.getName()),
+                        c.getWeightage(),
+                        c.getMaxScore(),
+                        JsonUtils.escape(c.getMappedField())));
+            }
+        }
+        criteriaJson.append("]");
+
+        return String.format(
+                "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"scholarshipID\": %d, \"fullname\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s, \"criteria\": %s%s}",
+                a.getAppID(),
+                a.getAppID(),
+                JsonUtils.escape(a.getScholarshipTitle()),
+                a.getScholarshipID(),
+                JsonUtils.escape(a.getApplicantName()),
+                a.getSubmissionDate(),
+                JsonUtils.escape(a.getStatus()),
+                JsonUtils.escape(a.getPersonalStatement() != null ? a.getPersonalStatement() : ""),
+                JsonUtils.escape(a.getOtherScholarships() != null ? a.getOtherScholarships() : ""),
+                docsJson.toString(),
+                criteriaJson.toString(),
+                reviewerInfo);
     }
 }

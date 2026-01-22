@@ -134,32 +134,10 @@
             </h3>
 
             <form id="evaluationForm" class="space-y-6">
-              <!-- Academic Excellence -->
-              <div>
-                <label class="block text-sm font-medium mb-2">Academic Excellence (0-25)</label>
-                <input type="number" id="academicScore" min="0" max="25" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-              </div>
 
-              <!-- Leadership -->
-              <div>
-                <label class="block text-sm font-medium mb-2">Leadership (0-25)</label>
-                <input type="number" id="leadershipScore" min="0" max="25" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-              </div>
-
-              <!-- Community Service -->
-              <div>
-                <label class="block text-sm font-medium mb-2">Community Service (0-25)</label>
-                <input type="number" id="communityScore" min="0" max="25" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-              </div>
-
-              <!-- Personal Statement -->
-              <div>
-                <label class="block text-sm font-medium mb-2">Personal Statement (0-25)</label>
-                <input type="number" id="statementScore" min="0" max="25" required
-                  class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+              <div id="dynamicCriteriaContainer">
+                <!-- Criteria inputs will be injected here -->
+                <p class="text-muted-foreground text-sm">Loading criteria...</p>
               </div>
 
               <!-- Total Score -->
@@ -167,7 +145,7 @@
                 <div class="flex justify-between items-center">
                   <span class="font-medium">Total Score:</span>
                   <span id="totalScore" class="text-2xl font-bold text-primary">0</span>
-                  <span class="text-muted-foreground">/ 100</span>
+                  <!-- Optional: show max total if needed -->
                 </div>
               </div>
 
@@ -279,9 +257,35 @@
           </div>
         `).join('');
       }
+
+      // Update Criteria Section
+      const criteriaContainer = document.getElementById('dynamicCriteriaContainer');
+      if (criteriaContainer && app.criteria && app.criteria.length > 0) {
+        criteriaContainer.innerHTML = app.criteria.map(c => `
+          <div class="criteria-item" data-id="${c.id}">
+            <label class="block text-sm font-medium mb-2">${c.name} (Max: ${c.maxscore})</label>
+            <input type="number" min="0" max="${c.maxscore}" step="0.1" required
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring criteria-input"
+              oninput="calculateTotal()">
+          </div>
+        `).join('');
+      } else {
+        criteriaContainer.innerHTML = '<p class="text-sm text-muted-foreground">No specific criteria defined. Please provide general comments.</p>';
+      }
+
       lucide.createIcons();
     }
 
+    function calculateTotal() {
+      const inputs = document.querySelectorAll('.criteria-input');
+      let total = 0;
+      inputs.forEach(input => {
+        total += parseFloat(input.value) || 0;
+      });
+      document.getElementById('totalScore').textContent = total.toFixed(1);
+    }
+
+    // Preview logic and fetch calls...
     window.previewFile = function (base64) {
       if (!base64 || base64 === "null" || base64 === "") {
         alert("File content not available");
@@ -299,19 +303,6 @@
 
     fetchApplicationDetails();
 
-    // Calculate total score
-    const scoreInputs = ['academicScore', 'leadershipScore', 'communityScore', 'statementScore'];
-    scoreInputs.forEach(id => {
-      document.getElementById(id).addEventListener('input', calculateTotal);
-    });
-
-    function calculateTotal() {
-      const total = scoreInputs.reduce((sum, id) => {
-        return sum + (parseInt(document.getElementById(id).value) || 0);
-      }, 0);
-      document.getElementById('totalScore').textContent = total;
-    }
-
     document.getElementById('saveDraftBtn').addEventListener('click', () => {
       alert('Draft functionality not fully implemented. Your progress is not saved.');
     });
@@ -319,12 +310,18 @@
     document.getElementById('evaluationForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const scores = [];
+      document.querySelectorAll('.criteria-item').forEach(item => {
+        const id = item.getAttribute('data-id');
+        const val = item.querySelector('input').value;
+        if (id && val) {
+          scores.push({ criteriaID: parseInt(id), score: parseFloat(val) });
+        }
+      });
+
       const evaluation = {
         appId: appId,
-        academicScore: document.getElementById('academicScore').value,
-        leadershipScore: document.getElementById('leadershipScore').value,
-        communityScore: document.getElementById('communityScore').value,
-        statementScore: document.getElementById('statementScore').value,
+        scores: JSON.stringify(scores), // Send as JSON string for simple parsing backend side
         comments: document.getElementById('comments').value,
         recommendation: document.getElementById('recommendation').value,
       };

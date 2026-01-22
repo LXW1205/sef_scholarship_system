@@ -151,6 +151,12 @@
               class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
           </div>
           <div>
+            <label for="customID" class="block text-sm font-medium mb-2">User ID (Optional - Auto-detects Role)</label>
+            <input type="text" id="customID" placeholder="e.g. S12345, R101, A001"
+              class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <p class="text-xs text-muted-foreground mt-1">Start with S: Student, R: Reviewer, C: Committee, A: Admin</p>
+          </div>
+          <div>
             <label for="role" class="block text-sm font-medium mb-2">Role *</label>
             <select id="role" required
               class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
@@ -288,7 +294,29 @@
     const roleSelect = document.getElementById('role');
     const roleSpecificLabel = document.getElementById('roleSpecificLabel');
     const roleSpecificValue = document.getElementById('roleSpecificValue');
+    const customIDInput = document.getElementById('customID');
     let currentUserId = null;
+
+    // Auto-detect role from ID
+    customIDInput.addEventListener('input', (e) => {
+      if (document.getElementById('role').disabled) return; // Don't auto-detect if editing existing and role locked
+
+      const val = e.target.value.toUpperCase();
+      if (!val) return;
+
+      const firstChar = val.charAt(0);
+      let detectedRole = "";
+
+      if (firstChar === 'S') detectedRole = 'Student';
+      else if (firstChar === 'R') detectedRole = 'Reviewer';
+      else if (firstChar === 'C') detectedRole = 'Committee';
+      else if (firstChar === 'A') detectedRole = 'Admin';
+
+      if (detectedRole && roleSelect.value !== detectedRole) {
+        roleSelect.value = detectedRole;
+        updateRoleSpecificUI(detectedRole);
+      }
+    });
 
     roleSelect.addEventListener('change', (e) => {
       const role = e.target.value;
@@ -319,6 +347,7 @@
       document.getElementById('submitBtn').textContent = "Create User";
       document.getElementById('role').disabled = false;
       document.getElementById('password').required = true;
+      document.getElementById('customID').disabled = false;
       modal.style.display = 'flex';
       lucide.createIcons();
     });
@@ -337,6 +366,7 @@
 
       const role = document.getElementById('role').value;
       const specificValue = document.getElementById('roleSpecificValue').value;
+      const customID = document.getElementById('customID').value;
 
       const formData = {
         fullName: document.getElementById('fullName').value,
@@ -345,11 +375,23 @@
         password: document.getElementById('password').value,
       };
 
-      // Map role specific field
-      if (role === 'Student') formData.major = specificValue;
-      else if (role === 'Reviewer') formData.department = specificValue;
-      else if (role === 'Committee') formData.position = specificValue;
-      else if (role === 'Admin') formData.adminLevel = specificValue;
+      // Map role specific field and ID
+      if (role === 'Student') {
+        formData.major = specificValue;
+        if (customID) formData.studentID = customID;
+      }
+      else if (role === 'Reviewer') {
+        formData.department = specificValue;
+        if (customID) formData.reviewerID = customID;
+      }
+      else if (role === 'Committee') {
+        formData.position = specificValue;
+        if (customID) formData.committeeID = customID;
+      }
+      else if (role === 'Admin') {
+        formData.adminLevel = specificValue;
+        if (customID) formData.adminID = customID;
+      }
 
       if (currentUserId) {
         formData.id = currentUserId;
@@ -418,6 +460,15 @@
       document.getElementById('email').value = u.email || '';
       document.getElementById('role').value = u.role || '';
       document.getElementById('role').disabled = true; // Disable role editing
+
+      // Populate ID if available (read-only in edit usually, but let's allow viewing)
+      const cInput = document.getElementById('customID');
+      cInput.value = "";
+      if (u.role === 'Student') cInput.value = u.studentID || "";
+      else if (u.role === 'Reviewer') cInput.value = u.reviewerID || "";
+      else if (u.role === 'Committee') cInput.value = u.committeeID || "";
+      else if (u.role === 'Admin') cInput.value = u.adminID || "";
+      cInput.disabled = true; // Disable ID editing for now as it's a primary key/identifier
 
       // Password populated from DB
       document.getElementById('password').value = u.password || '';

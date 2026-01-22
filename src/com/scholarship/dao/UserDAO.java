@@ -12,23 +12,71 @@ import java.util.List;
 
 public class UserDAO {
 
-    public User authenticate(String email, String password) {
-        String sql = "SELECT userID, fullName, email, password, role, isActive FROM \"User\" WHERE LOWER(email) = LOWER(?) AND password = ? AND isActive = true";
+    public User authenticate(String identifier, String password) {
+        if (identifier == null || password == null)
+            return null;
 
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, email);
-            pstmt.setString(2, password);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return fetchDetailedUser(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"),
-                            rs.getString("role"), rs.getBoolean("isActive"), conn);
+        // Determine if logging in by Email or ID
+        if (identifier.contains("@")) {
+            // Login by Email
+            String sql = "SELECT userID, fullName, email, password, role, isActive FROM \"User\" WHERE LOWER(email) = LOWER(?) AND password = ? AND isActive = true";
+            try (Connection conn = DatabaseConnection.getConnection();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, identifier);
+                pstmt.setString(2, password);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return fetchDetailedUser(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"),
+                                rs.getString("role"), rs.getBoolean("isActive"), conn);
+                    }
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } else {
+            // Login by ID
+            String table = "";
+            String idCol = "";
+
+            char prefix = identifier.toUpperCase().charAt(0);
+            switch (prefix) {
+                case 'S':
+                    table = "Student";
+                    idCol = "studentID";
+                    break;
+                case 'R':
+                    table = "Reviewer";
+                    idCol = "reviewerID";
+                    break;
+                case 'C':
+                    table = "CommitteeMember";
+                    idCol = "committeeID";
+                    break;
+                case 'A':
+                    table = "Admin";
+                    idCol = "adminID";
+                    break;
+                default:
+                    // Unknown prefix, potentially fail or try generic?
+                    // But IDs are strict. Return null.
+                    return null;
+            }
+
+            String sql = "SELECT userID, fullName, email, password, role, isActive FROM " + table + " WHERE " + idCol
+                    + " = ? AND password = ? AND isActive = true";
+            try (Connection conn = DatabaseConnection.getConnection();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, identifier); // Case sensitive ID? Usually yes.
+                pstmt.setString(2, password);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return fetchDetailedUser(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"),
+                                rs.getString("role"), rs.getBoolean("isActive"), conn);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
