@@ -291,13 +291,19 @@ public class ScholarshipHandler implements HttpHandler {
         return json.toString();
     }
 
-    private boolean isEligible(com.scholarship.model.Student student, Scholarship scholarship) {
+    public static boolean isEligible(com.scholarship.model.Student student, Scholarship scholarship) {
         // 1. Check Qualification
         String reqQual = scholarship.getForQualification();
         String studQual = student.getQualification();
 
-        if (reqQual != null && !reqQual.equalsIgnoreCase("Any") && !reqQual.isEmpty()) {
-            if (studQual == null || !studQual.equalsIgnoreCase(reqQual)) {
+        if (reqQual != null && !reqQual.equalsIgnoreCase("Any") && !reqQual.equalsIgnoreCase("All")
+                && !reqQual.isEmpty()) {
+
+            // Normalize for comparison
+            String reqNorm = reqQual.equalsIgnoreCase("Bachelor") ? "Degree" : reqQual;
+            String studNorm = (studQual != null && studQual.equalsIgnoreCase("Bachelor")) ? "Degree" : studQual;
+
+            if (studNorm == null || !studNorm.equalsIgnoreCase(reqNorm)) {
                 return false;
             }
         }

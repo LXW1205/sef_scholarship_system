@@ -158,7 +158,7 @@
                     document.getElementById('email').value = profile.email;
 
                     if (profile.role === 'Reviewer') {
-                        document.getElementById('staffID').value = profile.staffID || 'N/A';
+                        document.getElementById('staffID').value = profile.reviewerID || 'N/A';
                         document.getElementById('department').value = profile.department || 'N/A';
                     }
                 }
@@ -196,15 +196,20 @@
                     body: JSON.stringify({
                         id: user.id,
                         fullName: fullName,
-                        password: password
+                        password: password,
+                        role: user.role,
+                        isActive: user.isActive
                     })
                 });
 
                 const result = await response.json();
                 if (result.success) {
                     alert('Profile updated successfully!');
-                    // Update local storage name if changed
+                    // Update local storage
                     user.fullName = fullName;
+                    if (document.getElementById('department')) {
+                        user.department = document.getElementById('department').value;
+                    }
                     localStorage.setItem('user', JSON.stringify(user));
                     window.location.reload();
                 } else {

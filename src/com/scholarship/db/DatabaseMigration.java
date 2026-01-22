@@ -43,6 +43,16 @@ public class DatabaseMigration {
             addColumnIfNotExists(stmt, "Scholarship", "minCGPA", "DECIMAL(3,2) DEFAULT 0.0");
             addColumnIfNotExists(stmt, "Scholarship", "maxFamilyIncome", "DECIMAL(12,2) DEFAULT 0.0");
 
+            // Alter expectedGraduation to DATE if it's still VARCHAR
+            try {
+                stmt.execute(
+                        "ALTER TABLE Student ALTER COLUMN expectedGraduation TYPE DATE USING expectedGraduation::DATE");
+                System.out.println("Altered expectedGraduation to DATE.");
+            } catch (Exception e) {
+                // Ignore if already changed or no data to convert easily (sample reload will
+                // fix it)
+            }
+
             // Check if we should force reload sample data or if tables are empty
             boolean forceReload = Files.exists(Paths.get("sql_queries/.reload_data"));
             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM Scholarship");

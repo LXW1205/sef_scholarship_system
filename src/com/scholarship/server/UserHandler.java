@@ -115,22 +115,29 @@ public class UserHandler implements HttpHandler {
 
         try {
             int id = Integer.parseInt(JsonUtils.extractValue(requestBody, "id"));
-            String fullName = JsonUtils.extractValue(requestBody, "fullName");
-            String password = JsonUtils.extractValue(requestBody, "password");
-
-            // Fix: Extract isActive status properly
-            String isActiveStr = JsonUtils.extractValue(requestBody, "isActive");
-            boolean isActive = "true".equalsIgnoreCase(isActiveStr);
-
-            // Basic validation
-            if (fullName == null || fullName.isEmpty()) {
-                sendError(exchange, 400, "Full Name is required");
+            User existingUser = userDAO.findById(id);
+            if (existingUser == null) {
+                sendError(exchange, 404, "User not found");
                 return;
             }
+
+            String fullName = JsonUtils.extractValue(requestBody, "fullName");
+            if (fullName == null || fullName.isEmpty()) {
+                fullName = existingUser.getFullName();
+            }
+
+            String password = JsonUtils.extractValue(requestBody, "password");
+
+            // Fix: Extract isActive status properly or preserve existing
+            String isActiveStr = JsonUtils.extractValue(requestBody, "isActive");
+            boolean isActive = (isActiveStr != null) ? "true".equalsIgnoreCase(isActiveStr) : existingUser.isActive();
 
             // Create a temp user object for updating
             User user;
             String role = JsonUtils.extractValue(requestBody, "role"); // Need role to know if Student
+            if (role == null) {
+                role = existingUser.getRole();
+            }
 
             if ("Student".equals(role)) {
                 Student s = new Student();

@@ -129,10 +129,17 @@ public class UserDAO {
                     uStmt.setInt(1, userId);
                     try (ResultSet uRs = uStmt.executeQuery()) {
                         if (uRs.next()) {
+                            System.out.println("[DEBUG] Detailed Student found: ID=" + uRs.getString("studentID") +
+                                    ", Qual=" + uRs.getString("qualification") +
+                                    ", Year=" + uRs.getString("yearOfStudy"));
+                            String rawGrad = uRs.getString("expectedGraduation");
+                            String fmtGrad = (rawGrad != null && rawGrad.length() >= 7) ? rawGrad.substring(0, 7)
+                                    : rawGrad;
+
                             Student s = new Student(userId, uRs.getString("fullName"), uRs.getString("email"),
                                     uRs.getBoolean("isActive"), uRs.getString("studentID"),
                                     uRs.getDouble("cgpa"), uRs.getString("major"), uRs.getString("qualification"),
-                                    uRs.getString("yearOfStudy"), uRs.getString("expectedGraduation"),
+                                    uRs.getString("yearOfStudy"), fmtGrad,
                                     uRs.getDouble("familyIncome"));
                             s.setPassword(uRs.getString("password"));
                             return s;
@@ -268,7 +275,11 @@ public class UserDAO {
                 pstmt.setString(i++, s.getMajor());
                 pstmt.setString(i++, s.getQualification());
                 pstmt.setString(i++, s.getYearOfStudy());
-                pstmt.setString(i++, s.getExpectedGraduation());
+                String gradDate = s.getExpectedGraduation();
+                if (gradDate != null && gradDate.length() == 7 && gradDate.contains("-")) {
+                    gradDate += "-01"; // Convert YYYY-MM to YYYY-MM-DD
+                }
+                pstmt.setString(i++, gradDate);
                 pstmt.setDouble(i++, s.getFamilyIncome());
             } else if (user instanceof Reviewer) {
                 pstmt.setString(i++, ((Reviewer) user).getDepartment());

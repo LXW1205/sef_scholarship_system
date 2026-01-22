@@ -66,17 +66,20 @@
         <div class="lg:col-span-2 space-y-6">
           <!-- Applicant Card -->
           <div class="bg-card rounded-xl border border-border p-6">
-            <h3 class="text-2xl font-bold mb-4">John Smith</h3>
+            <h3 class="text-2xl font-bold mb-4" id="applicantName">Loading...</h3>
             <div class="grid grid-cols-2 gap-4 text-sm mb-4">
-              <div><span class="text-muted-foreground">Student ID:</span> <span class="font-medium">STU12345</span>
+              <div><span class="text-muted-foreground">Student ID:</span> <span id="studentID"
+                  class="font-medium">Loading...</span>
               </div>
-              <div><span class="text-muted-foreground">Email:</span> <span
-                  class="font-medium">john.smith@email.com</span></div>
-              <div><span class="text-muted-foreground">Major:</span> <span class="font-medium">Computer Science</span>
+              <div><span class="text-muted-foreground">Email:</span> <span id="studentEmail"
+                  class="font-medium">Loading...</span></div>
+              <div><span class="text-muted-foreground">Major:</span> <span id="studentMajor"
+                  class="font-medium">Loading...</span>
               </div>
-              <div><span class="text-muted-foreground">GPA:</span> <span class="font-medium">3.85</span></div>
+              <div><span class="text-muted-foreground">GPA:</span> <span id="studentGPA" class="font-medium">-</span>
+              </div>
             </div>
-            <p class="text-muted-foreground text-sm">Merit Award 2024</p>
+            <p class="text-muted-foreground text-sm" id="scholarshipTitle">Loading...</p>
           </div>
 
           <!-- Documents -->
@@ -96,33 +99,13 @@
               <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
               Review Scores Summary
             </h3>
-            <div class="space-y-4">
-              <div class="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                <div>
-                  <p class="font-semibold">Reviewer 1: Dr. Alice Johnson</p>
-                  <p class="text-sm text-muted-foreground">Recommendation: Highly Recommend</p>
-                </div>
-                <div class="text-2xl font-bold text-primary">95</div>
-              </div>
-              <div class="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                <div>
-                  <p class="font-semibold">Reviewer 2: Prof. Bob Smith</p>
-                  <p class="text-sm text-muted-foreground">Recommendation: Recommend</p>
-                </div>
-                <div class="text-2xl font-bold text-primary">90</div>
-              </div>
-              <div class="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                <div>
-                  <p class="font-semibold">Reviewer 3: Dr. Carol White</p>
-                  <p class="text-sm text-muted-foreground">Recommendation: Highly Recommend</p>
-                </div>
-                <div class="text-2xl font-bold text-primary">91</div>
-              </div>
+            <div class="space-y-4" id="reviewerScoresList">
+              <p class="text-sm text-muted-foreground">Loading reviewer evaluation...</p>
             </div>
             <div class="mt-6 p-4 bg-primary/5 rounded-lg">
               <div class="flex justify-between items-center">
-                <span class="text-lg font-semibold">Average Score:</span>
-                <span class="text-3xl font-bold text-primary">92</span>
+                <span class="text-lg font-semibold">Total Review Score:</span>
+                <span class="text-3xl font-bold text-primary" id="combinedScore">-</span>
               </div>
             </div>
           </div>
@@ -197,10 +180,9 @@
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
-    // TESTING MODE: Auth check disabled
-    // if (!token || user.role !== 'Committee') {
-    //   window.location.href = '/login.html';
-    // }
+    if (!token || user.role !== 'Committee') {
+      window.location.href = '/login.html';
+    }
 
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -226,12 +208,18 @@
     }
 
     function updateUI(app) {
-      if (app.applicantName) document.querySelector('h3.text-2xl').textContent = app.applicantName;
-      if (app.studentID) {
-        const spans = document.querySelectorAll('div.grid span.font-medium');
-        if (spans.length > 0) spans[0].textContent = app.studentID;
+      console.log("[DEBUG] Committee Decisions: Updating UI with app data:", app);
+      try {
+        if (app.fullname) document.getElementById('applicantName').textContent = app.fullname;
+        if (document.getElementById('studentID')) document.getElementById('studentID').textContent = app.studentid || 'N/A';
+        if (document.getElementById('studentEmail')) document.getElementById('studentEmail').textContent = app.email || 'N/A';
+        if (document.getElementById('studentMajor')) document.getElementById('studentMajor').textContent = app.major || 'N/A';
+        if (document.getElementById('studentGPA')) document.getElementById('studentGPA').textContent = app.cgpa ? app.cgpa.toFixed(2) : '-';
+
+        if (app.scholarship_title) document.getElementById('scholarshipTitle').textContent = app.scholarship_title;
+      } catch (e) {
+        console.error("[ERROR] Committee UI update failed:", e);
       }
-      if (app.title) document.querySelector('p.text-muted-foreground.text-sm').textContent = app.title;
 
       // Update Documents
       if (app.documents && app.documents.length > 0) {
@@ -251,6 +239,60 @@
       } else {
         document.getElementById('documentsSection').style.display = 'none';
       }
+
+      // Update Evaluation
+      if (app.evaluation) {
+        const evalList = document.getElementById('reviewerScoresList');
+
+        let totalScore = 0;
+        let count = 0;
+        if (app.evaluation.scores) {
+          app.evaluation.scores.forEach(s => {
+            totalScore += s.score;
+            count++;
+          });
+        }
+        const average = count > 0 ? totalScore / count : 0;
+
+        evalList.innerHTML = `
+              <div class="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                <div>
+                  <p class="font-semibold">Reviewer: ${app.reviewerName || 'N/A'}</p>
+                  <p class="text-sm text-muted-foreground">Recommendation: ${app.evaluation.recommendation || 'N/A'}</p>
+                  <p class="text-xs text-muted-foreground mt-2 italic">"${app.evaluation.comments || 'No comments'}"</p>
+                </div>
+                <div class="text-2xl font-bold text-primary">${average.toFixed(1)}</div>
+              </div>
+          `;
+        document.getElementById('combinedScore').textContent = average.toFixed(1);
+      }
+
+      // Dynamic Decision Options
+      const decisionContainer = document.querySelector('div.space-y-2');
+      if (app.status === 'Reviewed') {
+        decisionContainer.innerHTML = `
+                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                    <input type="radio" name="decision" value="Shortlisted" required class="w-4 h-4 text-primary">
+                    <span class="ml-3 font-medium">Shortlist for Interview</span>
+                  </label>
+                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                    <input type="radio" name="decision" value="Rejected" required class="w-4 h-4 text-primary">
+                    <span class="ml-3 font-medium">Reject</span>
+                  </label>
+          `;
+      } else if (app.status === 'Shortlisted') {
+        decisionContainer.innerHTML = `
+                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                    <input type="radio" name="decision" value="Approved" required class="w-4 h-4 text-primary">
+                    <span class="ml-3 font-medium">Award Scholarship (Approve)</span>
+                  </label>
+                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                    <input type="radio" name="decision" value="Rejected" required class="w-4 h-4 text-primary">
+                    <span class="ml-3 font-medium">Reject</span>
+                  </label>
+          `;
+      }
+
       lucide.createIcons();
     }
 

@@ -180,6 +180,34 @@
             document.getElementById('applySection').style.display = 'none';
           }
 
+          // Hard eligibility check
+          const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+          let ineligibleReason = "";
+
+          if (user.role === 'Student') {
+            const reqQual = scholarship.forQualification;
+            const studQual = user.qualification;
+
+            if (reqQual && reqQual !== 'Any' && reqQual !== 'All' && reqQual.toLowerCase() !== (studQual || "").toLowerCase()) {
+              ineligibleReason = `This scholarship requires a ${reqQual} qualification. Your profile shows: ${studQual || 'None'}.`;
+            } else if (user.cgpa < (scholarship.minCGPA || 0)) {
+              ineligibleReason = `This scholarship requires a minimum CGPA of ${scholarship.minCGPA}. Your CGPA is ${user.cgpa}.`;
+            } else if (scholarship.maxFamilyIncome > 0 && user.familyIncome > scholarship.maxFamilyIncome) {
+              ineligibleReason = `Your family income (RM ${user.familyIncome.toLocaleString()}) exceeds the maximum limit for this scholarship (RM ${scholarship.maxFamilyIncome.toLocaleString()}).`;
+            }
+
+            if (ineligibleReason) {
+              const applyBtn = document.getElementById('applyBtn');
+              const applyMsg = document.getElementById('applyMessage');
+              applyBtn.disabled = true;
+              applyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+              applyBtn.textContent = 'Ineligible to Apply';
+              applyMsg.textContent = ineligibleReason;
+              applyMsg.classList.add('bg-destructive/10', 'text-destructive', 'border', 'border-destructive/20');
+              applyMsg.style.display = 'block';
+            }
+          }
+
           scholarshipDetails.style.display = 'block';
           lucide.createIcons();
         } else {
@@ -195,12 +223,15 @@
     }
 
     document.getElementById('applyBtn')?.addEventListener('click', () => {
+      const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
       if (!token) {
         window.location.href = '/login.html';
         return;
       }
+
+      if (document.getElementById('applyBtn').disabled) return;
 
       window.location.href = `/student/application-form.html?id=${scholarshipId}`;
     });

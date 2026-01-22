@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - ScholarNet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(222.2 84% 4.9%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(0 84.2% 60.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)',
+                        },
+                        accent: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans antialiased min-h-screen flex flex-col">
+    <div id="header-container"></div>
+
+    <main class="flex-grow py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold mb-8">Contact Us</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Get in Touch</h3>
+                    <p class="text-muted-foreground mb-8">Have questions about scholarships or the application process?
+                        We're here to help. Reach out to us using the contact form or through our contact information.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <i data-lucide="mail" class="w-6 h-6 text-primary mt-1"></i>
+                            <div>
+                                <h3 class="font-medium">Email Support</h3>
+                                <p class="text-muted-foreground">support@scholarnet.mmu.edu.my</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <i data-lucide="phone" class="w-6 h-6 text-primary mt-1"></i>
+                            <div>
+                                <h3 class="font-medium">Phone Number</h3>
+                                <p class="text-muted-foreground">1-300-80-0668</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <i data-lucide="map-pin" class="w-6 h-6 text-primary mt-1"></i>
+                            <div>
+                                <h3 class="font-medium">Address</h3>
+                                <p class="text-muted-foreground">Persiaran Multimedia, 63100 Cyberjaya, Selangor,
+                                    Malaysia.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="common.js"></script>
+    <script>
+        document.getElementById('contactForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('contactForm').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+        });
+    </script>
+</body>
+
+</html>

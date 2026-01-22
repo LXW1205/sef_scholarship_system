@@ -45,7 +45,12 @@ public class AuthHandler implements HttpHandler {
 
                     String extra = "";
                     if (user instanceof Student) {
-                        extra = String.format(", \"studentID\": \"%s\"", ((Student) user).getStudentID());
+                        Student s = (Student) user;
+                        extra = String.format(
+                                ", \"studentID\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"qualification\": \"%s\", \"yearOfStudy\": \"%s\", \"expectedGraduation\": \"%s\", \"familyIncome\": %.2f",
+                                JsonUtils.escape(s.getStudentID()), s.getCgpa(), JsonUtils.escape(s.getMajor()),
+                                JsonUtils.escape(s.getQualification()), JsonUtils.escape(s.getYearOfStudy()),
+                                JsonUtils.escape(s.getExpectedGraduation()), s.getFamilyIncome());
                     } else if (user instanceof Reviewer) {
                         extra = String.format(", \"reviewerID\": \"%s\"", ((Reviewer) user).getReviewerID());
                     } else if (user instanceof CommitteeMember) {

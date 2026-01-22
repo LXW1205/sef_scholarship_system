@@ -66,7 +66,7 @@
       <!-- Search and Filters -->
       <div class="bg-card rounded-xl border border-border p-6 mb-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="md:col-span-2">
+          <div class="md:col-span-1">
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i data-lucide="search" class="w-5 h-5 text-muted-foreground"></i>
@@ -82,6 +82,15 @@
               <option value="Open">Open</option>
               <option value="Closed">Closed</option>
             </select>
+          </div>
+          <div class="flex items-center justify-end px-2">
+            <label class="inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="eligibilityToggle" class="sr-only peer" onchange="filterScholarships()">
+              <div
+                class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+              </div>
+              <span class="ms-3 text-sm font-medium text-foreground">Eligible Only</span>
+            </label>
           </div>
         </div>
       </div>
@@ -167,10 +176,24 @@
 
           <div class="space-y-2 mb-6 mt-auto">
             <div class="flex items-center gap-2 text-sm text-primary font-bold">
-              <i data-lucide="dollar-sign" class="w-4 h-4"></i>
-              <span>$${scholarship.amount ? scholarship.amount.toLocaleString() : 'N/A'}</span>
+              <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+              <span>${(scholarship.forQualification && scholarship.forQualification !== 'Any' && scholarship.forQualification !== 'All') ? scholarship.forQualification : 'All Qualifications'}</span>
             </div>
-            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+            <div class="flex items-center gap-2 text-sm text-primary font-bold">
+              <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+              <span>${scholarship.amount ? (typeof scholarship.amount === 'number' ? scholarship.amount.toLocaleString() : scholarship.amount) : 'N/A'}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/50">
+              <div class="flex flex-col">
+                <span class="text-[10px] text-muted-foreground uppercase tracking-tight">Min. CGPA</span>
+                <span class="text-xs font-semibold">${scholarship.minCGPA || '0.00'}</span>
+              </div>
+              <div class="flex flex-col border-l border-border/50 pl-2">
+                <span class="text-[10px] text-muted-foreground uppercase tracking-tight">Max Income</span>
+                <span class="text-xs font-semibold">${scholarship.maxFamilyIncome ? (scholarship.maxFamilyIncome === 0 ? 'No Limit' : 'RM ' + scholarship.maxFamilyIncome.toLocaleString()) : 'No Limit'}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-muted-foreground pt-2">
               <i data-lucide="calendar" class="w-4 h-4"></i>
               <span>Deadline: ${scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'N/A'}</span>
             </div>
@@ -192,13 +215,36 @@
     function filterScholarships() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       const statusFilter = document.getElementById('statusFilter').value;
+      const eligibleOnly = document.getElementById('eligibilityToggle').checked;
 
       const filtered = allScholarships.filter(scholarship => {
         const matchesSearch = scholarship.title.toLowerCase().includes(searchTerm) ||
           scholarship.description.toLowerCase().includes(searchTerm);
-        const matchesStatus = !statusFilter || scholarship.status === statusFilter;
+        const matchesStatus = !statusFilter || scholarship.status === statusFilter || (statusFilter === 'Open' && scholarship.status === 'Active');
 
-        return matchesSearch && matchesStatus;
+        if (!matchesSearch || !matchesStatus) return false;
+
+        if (eligibleOnly) {
+          // Qualification check
+          const reqQual = scholarship.forQualification;
+          if (reqQual && reqQual !== 'Any' && reqQual !== 'All') {
+            if (!user.qualification || user.qualification.toLowerCase() !== reqQual.toLowerCase()) {
+              return false;
+            }
+          }
+
+          // CGPA check
+          if (user.cgpa < (scholarship.minCGPA || 0)) {
+            return false;
+          }
+
+          // Family Income check
+          if (scholarship.maxFamilyIncome > 0 && user.familyIncome > scholarship.maxFamilyIncome) {
+            return false;
+          }
+        }
+
+        return true;
       });
 
       displayScholarships(filtered);

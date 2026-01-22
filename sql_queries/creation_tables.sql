@@ -19,6 +19,8 @@ DROP TABLE IF EXISTS CommitteeMember CASCADE;
 DROP TABLE IF EXISTS Reviewer CASCADE;
 DROP TABLE IF EXISTS Student CASCADE;
 DROP TABLE IF EXISTS "User" CASCADE;
+DROP TABLE IF EXISTS EvaluationScore CASCADE;
+DROP TABLE IF EXISTS AuditLog CASCADE;
 
 -- Create Tables
 
@@ -38,7 +40,7 @@ CREATE TABLE Student (
     major VARCHAR(100),
     qualification VARCHAR(20),
     yearOfStudy VARCHAR(20),
-    expectedGraduation VARCHAR(20),
+    expectedGraduation DATE,
     familyIncome DECIMAL(12,2),
     UNIQUE (email)
 ) INHERITS ("User");

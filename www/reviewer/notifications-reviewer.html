@@ -68,7 +68,54 @@
     </main>
 
     <div id="footer-container"></div>
-    <script src="/common.js"></script>
+    <script>
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+        if (!token || user.role !== 'Reviewer') {
+            window.location.href = '/login.html';
+        }
+
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/api/notifications?role=Reviewer', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                const notifications = data.notifications || [];
+
+                const list = document.getElementById('notificationsList');
+                if (notifications.length === 0) {
+                    list.innerHTML = `
+                        <div class="bg-card rounded-xl border border-border p-12 text-center">
+                            <i data-lucide="bell-off" class="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50"></i>
+                            <h3 class="text-xl font-bold mb-2">No Notifications</h3>
+                            <p class="text-muted-foreground">You're all caught up!</p>
+                        </div>
+                    `;
+                } else {
+                    list.innerHTML = notifications.map(notif => `
+                        <div class="bg-card rounded-xl border border-border p-4 hover:border-primary transition-all">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="info" class="w-5 h-5 text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">${notif.message}</p>
+                                    <p class="text-xs text-muted-foreground mt-1">${new Date(notif.createdAt).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Failed to load notifications:', error);
+            }
+        }
+
+        loadNotifications();
+    </script>
 </body>
 
 </html>

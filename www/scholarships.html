@@ -164,13 +164,23 @@
               <div class="space-y-2 mb-6 mt-auto">
                 <div class="flex items-center gap-2 text-sm text-primary font-bold">
                   <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-                  <span>${(scholarship.forQualification && scholarship.forQualification !== 'Any') ? scholarship.forQualification : 'Any Qualification'}</span>
+                  <span>${(scholarship.forQualification && scholarship.forQualification !== 'Any' && scholarship.forQualification !== 'All') ? scholarship.forQualification : 'All Qualifications'}</span>
                 </div>
                 <div class="flex items-center gap-2 text-sm text-primary font-bold">
                   <i data-lucide="dollar-sign" class="w-4 h-4"></i>
-                  <span>${scholarship.amount ? scholarship.amount.toLocaleString() : 'N/A'}</span>
+                  <span>${scholarship.amount ? (typeof scholarship.amount === 'number' ? scholarship.amount.toLocaleString() : scholarship.amount) : 'N/A'}</span>
                 </div>
-                <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/50">
+                  <div class="flex flex-col">
+                    <span class="text-[10px] text-muted-foreground uppercase tracking-tight">Min. CGPA</span>
+                    <span class="text-xs font-semibold">${scholarship.minCGPA || '0.00'}</span>
+                  </div>
+                  <div class="flex flex-col border-l border-border/50 pl-2">
+                    <span class="text-[10px] text-muted-foreground uppercase tracking-tight">Max Income</span>
+                    <span class="text-xs font-semibold">${scholarship.maxFamilyIncome ? (scholarship.maxFamilyIncome === 0 ? 'No Limit' : 'RM ' + scholarship.maxFamilyIncome.toLocaleString()) : 'No Limit'}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-muted-foreground pt-2">
                   <i data-lucide="calendar" class="w-4 h-4"></i>
                   <span>Deadline: ${scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'N/A'}</span>
                 </div>

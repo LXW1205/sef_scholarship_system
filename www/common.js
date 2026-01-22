@@ -113,7 +113,68 @@ function checkAuth() {
         return false;
     }
 
+    if (path.includes('/student/') && user.role === 'Student') {
+        // Protected student pages that require full profile
+        const protectedPages = [
+            'scholarships-student.html',
+            'applications-student.html',
+            'notifications-student.html',
+            'application-form.html',
+            'scholarship-details.html'
+        ];
+
+        const isProtectedPage = protectedPages.some(page => path.includes(page));
+
+        if (isProtectedPage && !isProfileComplete(user)) {
+            // We rely on the async server check to handle redirection if needed.
+            // This avoids race conditions where localStorage is temporarily stale.
+            checkProfileOnServer(user.id).then(complete => {
+                if (!complete) {
+                    sessionStorage.setItem('profileRedirect', 'true');
+                    window.location.href = "/student/profile-student.html";
+                }
+            });
+        }
+    }
+
     return true;
+}
+
+/**
+ * Quick check for profile completion based on local storage
+ */
+function isProfileComplete(user) {
+    if (!user) return false;
+    // Basic fields required
+    // Ensure we handle 0 as a valid value for cgpa and familyIncome
+    return user.qualification &&
+        user.major &&
+        user.cgpa !== undefined && user.cgpa !== null &&
+        user.yearOfStudy &&
+        user.familyIncome !== undefined && user.familyIncome !== null;
+}
+
+/**
+ * Verify profile completion with the server
+ */
+async function checkProfileOnServer(userId) {
+    try {
+        const response = await fetch(`/api/users?id=${userId}`);
+        if (response.ok) {
+            const data = await response.json();
+            const profile = data.user;
+
+            // Update local storage with latest data
+            const currentUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "{}");
+            Object.assign(currentUser, profile);
+            localStorage.setItem("user", JSON.stringify(currentUser));
+
+            return isProfileComplete(profile);
+        }
+    } catch (e) {
+        console.error("Profile check failed", e);
+    }
+    return true; // Default to true on error to avoid lockout loops
 }
 
 
@@ -196,7 +257,7 @@ function injectAdminHeader(container) {
                     <a href="/admin/users-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('users') ? 'font-semibold' : ''}">
                         <i data-lucide="users" class="w-4 h-4"></i> Users
                     </a>
-                    <a href="/admin/scholarships-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('scholarships') ? 'font-semibold' : ''}">
+                    <a href="/admin/application-management-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('application-management-admin') ? 'font-semibold' : ''}">
                         <i data-lucide="award" class="w-4 h-4"></i> Scholarships
                     </a>
                     <a href="/admin/applications-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
@@ -307,6 +368,9 @@ function injectCommitteeHeader(container) {
                     <a href="/committee/application-decisions.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('decisions') ? 'font-semibold' : ''}">
                         <i data-lucide="gavel" class="w-4 h-4"></i> Decisions
                     </a>
+                    <a href="/committee/application-management-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('application-management-committee') ? 'font-semibold' : ''}">
+                        <i data-lucide="award" class="w-4 h-4"></i> Scholarships
+                    </a>
                     <a href="/committee/schedule-interviews.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('interviews') ? 'font-semibold' : ''}">
                         <i data-lucide="calendar" class="w-4 h-4"></i> Interviews
                     </a>
@@ -340,9 +404,9 @@ function injectFooter() {
                 </div>
                 <p class="text-center text-muted-foreground text-sm">&copy; 2026 ScholarNet. All rights reserved.</p>
                 <div class="flex gap-6">
-                    <a href="#" class="text-muted-foreground hover:text-primary transition-colors text-sm">Privacy Policy</a>
-                    <a href="#" class="text-muted-foreground hover:text-primary transition-colors text-sm">Terms of Service</a>
-                    <a href="#" class="text-muted-foreground hover:text-primary transition-colors text-sm">Contact Us</a>
+                    <a href="/privacy-policy.html" class="text-muted-foreground hover:text-primary transition-colors text-sm">Privacy Policy</a>
+                    <a href="/terms-of-service.html" class="text-muted-foreground hover:text-primary transition-colors text-sm">Terms of Service</a>
+                    <a href="/contact-us.html" class="text-muted-foreground hover:text-primary transition-colors text-sm">Contact Us</a>
                 </div>
             </div>
         </div>

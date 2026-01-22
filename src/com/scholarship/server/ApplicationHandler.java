@@ -120,6 +120,23 @@ public class ApplicationHandler implements HttpHandler {
                 return;
             }
 
+            // Fetch scholarship and student to verify eligibility
+            com.scholarship.dao.ScholarshipDAO sDAO = new com.scholarship.dao.ScholarshipDAO();
+            com.scholarship.model.Scholarship scholarship = sDAO.findById(scholarshipID);
+            com.scholarship.model.Student student = (com.scholarship.model.Student) userDAO.findUserByRoleID(studentID,
+                    "Student");
+
+            if (scholarship == null || student == null) {
+                sendError(exchange, 404, "Scholarship or Student not found");
+                return;
+            }
+
+            // Perform hard eligibility check
+            if (!ScholarshipHandler.isEligible(student, scholarship)) {
+                sendError(exchange, 403, "You are not eligible for this scholarship.");
+                return;
+            }
+
             Application app = new Application(0, studentID, scholarshipID, "", null, "Pending");
 
             app.setPersonalStatement(JsonUtils.extractValue(requestBody, "essay"));
@@ -203,10 +220,15 @@ public class ApplicationHandler implements HttpHandler {
     private void handleEvaluate(HttpExchange exchange, String requestBody) throws IOException {
         System.out.println("[DEBUG] Handling Evaluate...");
         try {
+            System.out.println("[DEBUG] Request Body: " + requestBody);
             int appId = Integer.parseInt(JsonUtils.extractValue(requestBody, "appId"));
             String comments = JsonUtils.extractValue(requestBody, "comments");
             String recommendation = JsonUtils.extractValue(requestBody, "recommendation");
             String scoresJson = JsonUtils.extractValue(requestBody, "scores"); // Expecting array string
+
+            System.out.println(
+                    "[DEBUG] appId: " + appId + ", comments: " + comments + ", recommendation: " + recommendation);
+            System.out.println("[DEBUG] scoresJson: " + scoresJson);
 
             Evaluation eval = evaluationDAO.findByAppId(appId);
             if (eval != null) {
@@ -241,10 +263,12 @@ public class ApplicationHandler implements HttpHandler {
                                 }
                             }
                         }
+                        System.out.println(
+                                "[DEBUG] Saving " + scoresList.size() + " scores for evalID: " + eval.getEvalID());
                         evaluationDAO.saveScores(eval.getEvalID(), scoresList);
                     }
 
-                    applicationDAO.updateStatus(appId, "Evaluated");
+                    applicationDAO.updateStatus(appId, "Reviewed");
                     notificationDAO.createForRole("Committee", "New evaluation submitted for Application ID: " + appId);
                     sendResponse(exchange, 200, "{\"success\": true}");
                 } else {
@@ -344,18 +368,47 @@ public class ApplicationHandler implements HttpHandler {
                 }
                 docsJson.append("]");
 
+                // Add evaluation details if available
+                String evalInfo = "";
+                Evaluation eval = evaluationDAO.findByAppId(a.getAppID());
+                if (eval != null) {
+                    StringBuilder scoresJson = new StringBuilder("[");
+                    List<com.scholarship.model.EvaluationScore> scores = evaluationDAO
+                            .findScoresByEvalId(eval.getEvalID());
+                    for (int i = 0; i < scores.size(); i++) {
+                        com.scholarship.model.EvaluationScore s = scores.get(i);
+                        scoresJson.append(String.format("{\"criteriaName\": \"%s\", \"score\": %.2f}",
+                                JsonUtils.escape(s.getCriteriaName()), s.getScore()));
+                        if (i < scores.size() - 1)
+                            scoresJson.append(",");
+                    }
+                    scoresJson.append("]");
+
+                    evalInfo = String.format(
+                            ", \"evaluation\": {\"comments\": \"%s\", \"recommendation\": \"%s\", \"scores\": %s}",
+                            JsonUtils.escape(eval.getScholarshipComments()),
+                            JsonUtils.escape(eval.getStatus()),
+                            scoresJson.toString());
+                }
+
                 json.append(String.format(
-                        "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"fullname\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s%s}",
+                        "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s%s%s}",
                         a.getAppID(),
                         a.getAppID(),
                         JsonUtils.escape(a.getScholarshipTitle()),
                         JsonUtils.escape(a.getApplicantName()),
+                        JsonUtils.escape(a.getApplicantEmail() != null ? a.getApplicantEmail() : ""),
+                        a.getCgpa(),
+                        JsonUtils.escape(a.getMajor() != null ? a.getMajor() : ""),
+                        JsonUtils.escape(a.getYearOfStudy() != null ? a.getYearOfStudy() : ""),
+                        JsonUtils.escape(a.getStudentID()),
                         a.getSubmissionDate(),
                         JsonUtils.escape(a.getStatus()),
                         JsonUtils.escape(a.getPersonalStatement() != null ? a.getPersonalStatement() : ""),
                         JsonUtils.escape(a.getOtherScholarships() != null ? a.getOtherScholarships() : ""),
                         docsJson.toString(),
-                        reviewerInfo));
+                        reviewerInfo,
+                        evalInfo));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -418,19 +471,47 @@ public class ApplicationHandler implements HttpHandler {
         }
         criteriaJson.append("]");
 
+        // Add evaluation details if available
+        String evalInfo = "";
+        Evaluation eval = evaluationDAO.findByAppId(a.getAppID());
+        if (eval != null) {
+            StringBuilder scoresJsonStr = new StringBuilder("[");
+            List<com.scholarship.model.EvaluationScore> scores = evaluationDAO.findScoresByEvalId(eval.getEvalID());
+            for (int i = 0; i < scores.size(); i++) {
+                com.scholarship.model.EvaluationScore sc = scores.get(i);
+                scoresJsonStr.append(String.format("{\"criteriaID\": %d, \"criteriaName\": \"%s\", \"score\": %.2f}",
+                        sc.getCriteriaID(), JsonUtils.escape(sc.getCriteriaName()), sc.getScore()));
+                if (i < scores.size() - 1)
+                    scoresJsonStr.append(",");
+            }
+            scoresJsonStr.append("]");
+
+            evalInfo = String.format(
+                    ", \"evaluation\": {\"comments\": \"%s\", \"recommendation\": \"%s\", \"scores\": %s}",
+                    JsonUtils.escape(eval.getScholarshipComments()),
+                    JsonUtils.escape(eval.getStatus()),
+                    scoresJsonStr.toString());
+        }
+
         return String.format(
-                "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"scholarshipID\": %d, \"fullname\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s, \"criteria\": %s%s}",
+                "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"scholarshipID\": %d, \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s, \"criteria\": %s%s%s}",
                 a.getAppID(),
                 a.getAppID(),
                 JsonUtils.escape(a.getScholarshipTitle()),
                 a.getScholarshipID(),
                 JsonUtils.escape(a.getApplicantName()),
+                JsonUtils.escape(a.getApplicantEmail() != null ? a.getApplicantEmail() : ""),
+                a.getCgpa(),
+                JsonUtils.escape(a.getMajor() != null ? a.getMajor() : ""),
+                JsonUtils.escape(a.getYearOfStudy() != null ? a.getYearOfStudy() : ""),
+                JsonUtils.escape(a.getStudentID()),
                 a.getSubmissionDate(),
                 JsonUtils.escape(a.getStatus()),
                 JsonUtils.escape(a.getPersonalStatement() != null ? a.getPersonalStatement() : ""),
                 JsonUtils.escape(a.getOtherScholarships() != null ? a.getOtherScholarships() : ""),
                 docsJson.toString(),
                 criteriaJson.toString(),
-                reviewerInfo);
+                reviewerInfo,
+                evalInfo);
     }
 }

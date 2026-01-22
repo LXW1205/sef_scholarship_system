@@ -130,7 +130,7 @@
           <label for="qualification" class="block text-sm font-medium mb-2">Target Qualification *</label>
           <select id="qualification" required
             class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-            <option value="Any">Any Qualification</option>
+            <option value="All">All Qualifications</option>
             <option value="Foundation">Foundation</option>
             <option value="Diploma">Diploma</option>
             <option value="Degree">Degree</option>
@@ -209,10 +209,9 @@
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
-    // TESTING MODE: Auth check disabled
-    // if (!token || user.role !== 'Admin') {
-    //   window.location.href = '/login.html';
-    // }
+    if (!token || user.role !== 'Admin') {
+      window.location.href = '/login.html';
+    }
 
 
     let allScholarships = [];

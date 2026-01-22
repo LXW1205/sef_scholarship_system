@@ -196,15 +196,21 @@
                     body: JSON.stringify({
                         id: user.id,
                         fullName: fullName,
-                        password: password
+                        password: password,
+                        role: user.role,
+                        isActive: user.isActive
                     })
                 });
 
                 const result = await response.json();
                 if (result.success) {
                     alert('Profile updated successfully!');
-                    // Update local storage name if changed
+                    // Update local storage
                     user.fullName = fullName;
+                    // Preserve admin specific fields if they were fetched/stored
+                    if (document.getElementById('adminLevel')) {
+                        user.adminLevel = document.getElementById('adminLevel').value;
+                    }
                     localStorage.setItem('user', JSON.stringify(user));
                     window.location.reload();
                 } else {

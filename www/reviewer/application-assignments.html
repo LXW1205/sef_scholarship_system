@@ -63,9 +63,9 @@
           <select id="statusFilter"
             class="px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
             <option value="">All Assignments</option>
-            <option value="Pending">Pending</option>
+            <option value="Under Review">Under Review</option>
             <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
+            <option value="Reviewed">Reviewed</option>
           </select>
         </div>
       </div>
@@ -101,11 +101,12 @@
         const data = await response.json();
         allAssignments = (data.applications || []).map(app => ({
           id: app.id,
-          studentName: app.studentid || 'Student',
+          studentName: app.fullname || 'Anonymous Applicant',
+          studentId: app.studentid || 'N/A',
           scholarship: app.scholarship_title || 'Scholarship',
           assignedDate: app.submissiondate,
-          dueDate: app.submissiondate,
-          status: app.status === 'Reviewed' ? 'Completed' : app.status,
+          history: [], // For future use
+          status: app.status,
           priority: 'Medium'
         }));
         displayAssignments(allAssignments);
@@ -143,7 +144,7 @@
               </div>
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
-                  <h3 class="text-xl font-bold">${assignment.studentName}</h3>
+                  <h3 class="text-xl font-bold">${assignment.studentName} <span class="text-sm font-normal text-muted-foreground">(${assignment.studentId})</span></h3>
                   <span class="px-2 py-0.5 text-xs font-medium rounded ${assignment.priority === 'High' ? 'bg-destructive/10 text-destructive' :
           assignment.priority === 'Medium' ? 'bg-yellow-500/10 text-yellow-600' :
             'bg-muted text-muted-foreground'
@@ -160,7 +161,7 @@
                     <span>Due: ${new Date(assignment.dueDate).toLocaleDateString()}</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="px-3 py-1 text-xs font-medium rounded-full ${assignment.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
+                    <span class="px-3 py-1 text-xs font-medium rounded-full ${assignment.status === 'Under Review' ? 'bg-yellow-500/10 text-yellow-600' :
           assignment.status === 'In Progress' ? 'bg-blue-500/10 text-blue-600' :
             'bg-success/10 text-success'
         }">${assignment.status}</span>
@@ -169,7 +170,7 @@
               </div>
             </div>
             <div class="flex gap-2">
-              ${assignment.status !== 'Completed' ? `
+              ${assignment.status !== 'Reviewed' ? `
                 <a href="/reviewer/application-review.html?id=${assignment.id}" 
                   class="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium inline-flex items-center gap-2">
                   <i data-lucide="eye" class="w-4 h-4"></i>

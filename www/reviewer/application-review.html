@@ -71,15 +71,18 @@
               Applicant Information
             </h3>
             <div class="grid grid-cols-2 gap-4 text-sm">
-              <div><span class="text-muted-foreground">Name:</span> <span class="font-medium">John Smith</span></div>
-              <div><span class="text-muted-foreground">Email:</span> <span
-                  class="font-medium">john.smith@email.com</span></div>
-              <div><span class="text-muted-foreground">Student ID:</span> <span class="font-medium">STU12345</span>
+              <div><span class="text-muted-foreground">Name:</span> <span id="studentName"
+                  class="font-medium">Loading...</span></div>
+              <div><span class="text-muted-foreground">Email:</span> <span id="studentEmail"
+                  class="font-medium">Loading...</span></div>
+              <div><span class="text-muted-foreground">Student ID:</span> <span id="studentID"
+                  class="font-medium">Loading...</span></div>
+              <div><span class="text-muted-foreground">GPA:</span> <span id="studentGPA" class="font-medium">-</span>
               </div>
-              <div><span class="text-muted-foreground">GPA:</span> <span class="font-medium">3.85</span></div>
-              <div><span class="text-muted-foreground">Major:</span> <span class="font-medium">Computer Science</span>
+              <div><span class="text-muted-foreground">Major:</span> <span id="studentMajor"
+                  class="font-medium">Loading...</span></div>
+              <div><span class="text-muted-foreground">Year:</span> <span id="studentYear" class="font-medium">-</span>
               </div>
-              <div><span class="text-muted-foreground">Year:</span> <span class="font-medium">Year 3</span></div>
             </div>
           </div>
 
@@ -89,10 +92,8 @@
               <i data-lucide="file-text" class="w-5 h-5"></i>
               Personal Statement
             </h3>
-            <p class="text-sm text-muted-foreground leading-relaxed">
-              I am writing to express my strong interest in the Merit Award 2024 scholarship. Throughout my academic
-              journey, I have demonstrated exceptional dedication to my studies while maintaining a GPA of 3.85. Beyond
-              academics, I have actively participated in community service projects...
+            <p class="text-sm text-muted-foreground leading-relaxed" id="personalStatementText">
+              Loading personal statement...
             </p>
           </div>
 
@@ -140,12 +141,11 @@
                 <p class="text-muted-foreground text-sm">Loading criteria...</p>
               </div>
 
-              <!-- Total Score -->
+              <!-- Average Score -->
               <div class="bg-primary/5 rounded-lg p-4">
                 <div class="flex justify-between items-center">
-                  <span class="font-medium">Total Score:</span>
+                  <span class="font-medium">Average Score:</span>
                   <span id="totalScore" class="text-2xl font-bold text-primary">0</span>
-                  <!-- Optional: show max total if needed -->
                 </div>
               </div>
 
@@ -198,10 +198,9 @@
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
-    // TESTING MODE: Auth check disabled
-    // if (!token || user.role !== 'Reviewer') {
-    //   window.location.href = '/login.html';
-    // }
+    if (!token || user.role !== 'Reviewer') {
+      window.location.href = '/login.html';
+    }
 
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -230,32 +229,48 @@
     }
 
     function updateUI(app) {
-      if (app.applicantName) {
-        document.querySelector('h3.text-xl')?.nextElementSibling.querySelectorAll('span.font-medium')[0].textContent = app.applicantName;
+      console.log("[DEBUG] Updating UI with app data:", app);
+
+      try {
+        if (document.getElementById('studentName')) document.getElementById('studentName').textContent = app.fullname || 'N/A';
+        if (document.getElementById('studentEmail')) document.getElementById('studentEmail').textContent = app.email || 'N/A';
+        if (document.getElementById('studentID')) document.getElementById('studentID').textContent = app.studentid || 'N/A';
+        if (document.getElementById('studentGPA')) document.getElementById('studentGPA').textContent = app.cgpa ? app.cgpa.toFixed(2) : 'N/A';
+        if (document.getElementById('studentMajor')) document.getElementById('studentMajor').textContent = app.major || 'N/A';
+        if (document.getElementById('studentYear')) document.getElementById('studentYear').textContent = app.yearOfStudy || 'N/A';
+
+        if (app.personalStatement) {
+          const psContainer = document.getElementById('personalStatementText');
+          if (psContainer) psContainer.textContent = app.personalStatement;
+        }
+      } catch (e) {
+        console.error("[ERROR] UI update failed:", e);
       }
-      if (app.studentID) {
-        const spans = document.querySelectorAll('div.grid span.font-medium');
-        if (spans.length > 2) spans[2].textContent = app.studentID;
-      }
+
       if (app.personalStatement) {
-        document.querySelector('div.bg-card:has(i[data-lucide="file-text"]) p').textContent = app.personalStatement;
+        const psContainer = document.getElementById('personalStatementText');
+        if (psContainer) psContainer.textContent = app.personalStatement;
       }
 
       // Update Documents Section
       const docHeading = Array.from(document.querySelectorAll('h3')).find(h => h.textContent.includes('Supporting Documents'));
       const docContainer = docHeading ? docHeading.nextElementSibling : null;
-      if (docContainer && app.documents) {
-        docContainer.innerHTML = app.documents.map(doc => `
-          <div class="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-            <div class="flex items-center gap-3">
-              <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
-              <span class="text-sm font-medium">${doc.fileName}</span>
-            </div>
-            <button onclick="previewFile('${doc.fileContent}')" class="px-3 py-1 bg-secondary text-secondary-foreground rounded text-sm hover:bg-secondary/80">
-              View
-            </button>
-          </div>
-        `).join('');
+      if (docContainer) {
+        if (app.documents && app.documents.length > 0) {
+          docContainer.innerHTML = app.documents.map(doc => `
+              <div class="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+                  <span class="text-sm font-medium">${doc.fileName}</span>
+                </div>
+                <button onclick="previewFile('${doc.fileContent}')" class="px-3 py-1 bg-secondary text-secondary-foreground rounded text-sm hover:bg-secondary/80">
+                  View
+                </button>
+              </div>
+            `).join('');
+        } else {
+          docContainer.innerHTML = '<p class="text-sm text-muted-foreground italic p-3">No documents uploaded.</p>';
+        }
       }
 
       // Update Criteria Section
@@ -270,7 +285,7 @@
           </div>
         `).join('');
       } else {
-        criteriaContainer.innerHTML = '<p class="text-sm text-muted-foreground">No specific criteria defined. Please provide general comments.</p>';
+        criteriaContainer.innerHTML = '<p class="text-sm text-muted-foreground p-3">No specific criteria defined for this scholarship.</p>';
       }
 
       lucide.createIcons();
@@ -279,10 +294,13 @@
     function calculateTotal() {
       const inputs = document.querySelectorAll('.criteria-input');
       let total = 0;
+      let count = 0;
       inputs.forEach(input => {
         total += parseFloat(input.value) || 0;
+        count++;
       });
-      document.getElementById('totalScore').textContent = total.toFixed(1);
+      const average = count > 0 ? total / count : 0;
+      document.getElementById('totalScore').textContent = average.toFixed(1);
     }
 
     // Preview logic and fetch calls...

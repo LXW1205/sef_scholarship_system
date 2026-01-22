@@ -116,12 +116,12 @@
         </div>
 
         <!-- Deadlines Alert -->
-        <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6">
+        <div id="deadlinesAlert" class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 hidden">
           <div class="flex items-start gap-4">
             <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-600 flex-shrink-0"></i>
             <div>
               <h3 class="font-bold text-lg mb-2">Upcoming Deadlines</h3>
-              <p class="text-sm text-muted-foreground mb-4">You have 3 reviews due in the next 7 days. Please complete
+              <p class="text-sm text-muted-foreground mb-4" id="deadlineText">You have reviews due soon. Please complete
                 them on time.</p>
               <a href="/reviewer/application-assignments.html"
                 class="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1">
@@ -139,10 +139,9 @@
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
-    // TESTING MODE: Auth check disabled
-    // if (!token || user.role !== 'Reviewer') {
-    //   window.location.href = '/login.html';
-    // }
+    if (!token || user.role !== 'Reviewer') {
+      window.location.href = '/login.html';
+    }
 
     document.getElementById('welcomeMessage').textContent = `Welcome, ${user.fullName || 'Reviewer'}!`;
 
@@ -159,9 +158,19 @@
         const applications = data.applications || [];
 
         // Calculate stats
-        document.getElementById('pendingCount').textContent = applications.filter(a => a.status === 'Pending').length;
+        const pendingReviews = applications.filter(a => a.status === 'Under Review');
+        document.getElementById('pendingCount').textContent = pendingReviews.length;
         document.getElementById('inProgressCount').textContent = applications.filter(a => a.status === 'In Progress').length;
         document.getElementById('completedCount').textContent = applications.filter(a => a.status === 'Reviewed').length;
+
+        // Update deadlines alert
+        const alertDiv = document.getElementById('deadlinesAlert');
+        if (pendingReviews.length > 0) {
+          alertDiv.classList.remove('hidden');
+          document.getElementById('deadlineText').textContent = `You have ${pendingReviews.length} review${pendingReviews.length > 1 ? 's' : ''} in your queue. Please complete them promptly.`;
+        } else {
+          alertDiv.classList.add('hidden');
+        }
 
         const assignedDiv = document.getElementById('assignedApplications');
         if (applications.length > 0) {
@@ -174,17 +183,17 @@
                       <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
                     </div>
                     <div>
-                      <h4 class="font-semibold">${app.scholarship_title || 'Application'}</h4>
-                      <p class="text-sm text-muted-foreground">ID: ${app.id}</p>
-                      <p class="text-xs text-muted-foreground mt-1">Submitted: ${app.submissiondate ? new Date(app.submissiondate).toLocaleDateString() : 'N/A'}</p>
+                      <h4 class="font-semibold">${app.fullname || 'Anonymous Applicant'} <span class="text-xs font-normal text-muted-foreground">(${app.studentid || 'N/A'})</span></h4>
+                      <p class="text-xs text-muted-foreground">${app.scholarship_title || 'Application'} | ${app.major || 'No Major'}</p>
+                      <p class="text-xs text-muted-foreground mt-1">ID: ${app.applicationid || app.id} | Submitted: ${app.submissiondate ? new Date(app.submissiondate).toLocaleDateString() : 'N/A'}</p>
                     </div>
                   </div>
                   <div class="flex items-center gap-3">
-                    <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
+                    <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Under Review' ? 'bg-yellow-500/10 text-yellow-600' :
               app.status === 'In Progress' ? 'bg-blue-500/10 text-blue-600' :
                 'bg-success/10 text-success'
             }">${app.status}</span>
-                    <a href="/reviewer/application-review.html?id=${app.id}" 
+                    <a href="/reviewer/application-review.html?id=${app.applicationid || app.id}" 
                       class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
                       Review
                     </a>

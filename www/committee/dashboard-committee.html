@@ -128,16 +128,16 @@
             </div>
           </a>
 
-          <a href="/committee/application-decisions.html"
+          <a href="/committee/application-management-committee.html"
             class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg group">
             <div class="flex items-center gap-4">
               <div
                 class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <i data-lucide="gavel" class="w-6 h-6"></i>
+                <i data-lucide="award" class="w-6 h-6"></i>
               </div>
               <div>
-                <h3 class="font-semibold text-lg mb-1">Make Decisions</h3>
-                <p class="text-sm text-muted-foreground">Approve or reject applications</p>
+                <h3 class="font-semibold text-lg mb-1">Manage Scholarships</h3>
+                <p class="text-sm text-muted-foreground">Make, edit and delete scholarships</p>
               </div>
             </div>
           </a>
@@ -253,7 +253,7 @@
 
         // Update Stats
         document.getElementById('reviewedCount').textContent = applications.filter(a => a.status === 'Reviewed').length;
-        document.getElementById('pendingCount').textContent = applications.filter(a => a.status === 'Pending').length;
+        document.getElementById('pendingCount').textContent = applications.filter(a => a.status === 'Under Review' || a.status === 'Pending').length;
         document.getElementById('approvedCount').textContent = applications.filter(a => a.status === 'Approved').length;
         document.getElementById('rejectedCount').textContent = applications.filter(a => a.status === 'Rejected').length;
 
@@ -261,7 +261,7 @@
         updateAwardChart(applications);
 
         const awaitingDiv = document.getElementById('awaitingDecisions');
-        const pendingApps = applications.filter(a => a.status === 'Reviewed' || a.status === 'Pending');
+        const pendingApps = applications.filter(a => a.status === 'Reviewed' || a.status === 'Shortlisted');
 
         if (pendingApps.length > 0) {
           awaitingDiv.innerHTML = `
@@ -273,8 +273,8 @@
                       <i data-lucide="user" class="w-5 h-5 text-primary"></i>
                     </div>
                     <div>
-                      <h4 class="font-semibold">${app.scholarship_title || 'Application'}</h4>
-                      <p class="text-sm text-muted-foreground">Application ID: ${app.id}</p>
+                      <h4 class="font-semibold">${app.fullname || 'Anonymous'}</h4>
+                      <p class="text-sm text-muted-foreground">ID: ${app.applicationid}</p>
                     </div>
                   </div>
                   <div class="flex items-center gap-4">
@@ -282,7 +282,7 @@
                       <p class="text-sm text-muted-foreground">Status</p>
                       <p class="text-lg font-semibold">${app.status}</p>
                     </div>
-                    <a href="/committee/make-decision.html?id=${app.id}" 
+                    <a href="/committee/make-decision.html?id=${app.applicationid}" 
                       class="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
                       Decide
                     </a>

@@ -3,6 +3,8 @@ package com.scholarship.utils;
 public class JsonUtils {
 
     public static String extractValue(String json, String key) {
+        if (json == null || key == null)
+            return null;
         String search = "\"" + key + "\"";
         int keyIndex = json.indexOf(search);
         if (keyIndex == -1)
@@ -13,57 +15,67 @@ public class JsonUtils {
             return null;
 
         int start = colonIndex + 1;
-        while (start < json.length() && (Character.isWhitespace(json.charAt(start)))) {
+        while (start < json.length() && Character.isWhitespace(json.charAt(start))) {
             start++;
         }
 
         if (start >= json.length())
             return null;
 
-        int end = start;
         char firstChar = json.charAt(start);
+        int end;
 
         if (firstChar == '"') {
             start++;
-            end = json.indexOf("\"", start);
+            end = start;
+            while (end < json.length()) {
+                if (json.charAt(end) == '"' && json.charAt(end - 1) != '\\') {
+                    break;
+                }
+                end++;
+            }
         } else if (firstChar == '[') {
             int bracketCount = 0;
-            for (int i = start; i < json.length(); i++) {
-                if (json.charAt(i) == '[')
+            end = start;
+            while (end < json.length()) {
+                if (json.charAt(end) == '[')
                     bracketCount++;
-                else if (json.charAt(i) == ']') {
+                else if (json.charAt(end) == ']')
                     bracketCount--;
-                    if (bracketCount == 0) {
-                        end = i + 1;
-                        break;
-                    }
-                }
+
+                end++;
+                if (bracketCount == 0)
+                    break;
             }
         } else if (firstChar == '{') {
             int braceCount = 0;
-            for (int i = start; i < json.length(); i++) {
-                if (json.charAt(i) == '{')
+            end = start;
+            while (end < json.length()) {
+                if (json.charAt(end) == '{')
                     braceCount++;
-                else if (json.charAt(i) == '}') {
+                else if (json.charAt(end) == '}')
                     braceCount--;
-                    if (braceCount == 0) {
-                        end = i + 1;
-                        break;
-                    }
-                }
+
+                end++;
+                if (braceCount == 0)
+                    break;
             }
         } else {
-            // Find end of number or boolean
+            end = start;
             while (end < json.length() && json.charAt(end) != ',' && json.charAt(end) != '}' && json.charAt(end) != ']'
                     && !Character.isWhitespace(json.charAt(end))) {
                 end++;
             }
         }
 
-        if (end == -1 || end <= start)
-            return null;
-
-        return json.substring(start, end).trim();
+        if (end > json.length())
+            end = json.length();
+        String val = json.substring(start, end).trim();
+        // Remove escaping from quotes if it's a string
+        if (firstChar == '"') {
+            val = val.replace("\\\"", "\"");
+        }
+        return val;
     }
 
     public static String escape(String s) {

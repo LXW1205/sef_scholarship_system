@@ -78,6 +78,72 @@
 
     <div id="footer-container"></div>
     <script src="/common.js"></script>
+    <script>
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+        if (!token || user.role !== 'Committee') {
+            window.location.href = '/login.html';
+        }
+
+        async function loadInterviews() {
+            try {
+                const response = await fetch('/api/applications', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                const shortlisted = (data.applications || []).filter(a => a.status === 'Shortlisted');
+
+                const container = document.querySelector('main .max-w-7xl');
+                const mainContent = container.querySelector('.bg-card');
+
+                if (shortlisted.length > 0) {
+                    mainContent.innerHTML = `
+                        <table class="w-full text-left">
+                            <thead class="bg-muted border-b border-border">
+                                <tr>
+                                    <th class="px-6 py-4 text-sm font-semibold">Applicant</th>
+                                    <th class="px-6 py-4 text-sm font-semibold">Scholarship</th>
+                                    <th class="px-6 py-4 text-sm font-semibold">Scores</th>
+                                    <th class="px-6 py-4 text-sm font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                ${shortlisted.map(app => {
+                        const score = app.evaluation ? app.evaluation.scores.reduce((acc, s) => acc + s.score, 0) : 'N/A';
+                        return `
+                                    <tr>
+                                        <td class="px-6 py-4">
+                                            <div class="font-medium">${app.fullname || 'Anonymous'}</div>
+                                            <div class="text-xs text-muted-foreground">ID: ${app.applicationid}</div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm">
+                                            ${app.scholarship_title}
+                                        </td>
+                                        <td class="px-6 py-4 font-semibold text-primary">
+                                            ${score}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <a href="/committee/make-decision.html?id=${app.applicationid}" 
+                                               class="text-primary hover:underline text-sm font-medium">Make Final Decision</a>
+                                        </td>
+                                    </tr>
+                                    `;
+                    }).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    // Keep original placeholder
+                }
+                lucide.createIcons();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        loadInterviews();
+    </script>
 </body>
 
 </html>

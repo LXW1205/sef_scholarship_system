@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarship Management - ScholarNet Committee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(222.2 84% 4.9%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(0 84.2% 60.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                        success: {
+                            DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+                            foreground: 'hsl(355.7 100% 97.3%)',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+    <div id="header-container"></div>
+
+    <main class="min-h-screen py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Scholarship Management</h2>
+                    <p class="text-muted-foreground">Make, edit and manage scholarship opportunities</p>
+                </div>
+                <button id="createScholarshipBtn"
+                    class="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-medium">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    Create Scholarship
+                </button>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="bg-card rounded-xl border border-border p-4 mb-6">
+                <div class="flex items-center gap-4">
+                    <label class="text-sm font-medium">Filter by Status:</label>
+                    <select id="statusFilter"
+                        class="px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                        <option value="">All Scholarships</option>
+                        <option value="Open">Open</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Draft">Draft</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Scholarships Grid -->
+            <div id="scholarshipsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="col-span-full flex items-center justify-center py-12">
+                    <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-muted-foreground"></i>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create/Edit Scholarship Modal -->
+    <div id="scholarshipModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4"
+        style="display: none;">
+        <div class="bg-card rounded-xl border border-border p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold">Create New Scholarship</h3>
+                <button id="closeModalBtn" class="text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="scholarshipForm" class="space-y-6">
+                <div>
+                    <label for="title" class="block text-sm font-medium mb-2">Scholarship Title *</label>
+                    <input type="text" id="title" required
+                        class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium mb-2">Description *</label>
+                    <textarea id="description" rows="4" required
+                        class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="amount" class="block text-sm font-medium mb-2">Amount ($) *</label>
+                        <input type="number" id="amount" required min="0" step="100"
+                            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                    </div>
+                    <div>
+                        <label for="deadline" class="block text-sm font-medium mb-2">Deadline *</label>
+                        <input type="date" id="deadline" required
+                            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="qualification" class="block text-sm font-medium mb-2">Target Qualification *</label>
+                    <select id="qualification" required
+                        class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                        <option value="All">All Qualifications</option>
+                        <option value="Foundation">Foundation</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="Degree">Degree</option>
+                        <option value="Master">Master</option>
+                        <option value="PhD">PhD</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="minCGPA" class="block text-sm font-medium mb-2">Minimum CGPA</label>
+                        <input type="number" id="minCGPA" min="0" max="4.0" step="0.01" value="0.00"
+                            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                    </div>
+                    <div>
+                        <label for="maxFamilyIncome" class="block text-sm font-medium mb-2">Max Family Income (0 = No
+                            limit)</label>
+                        <input type="number" id="maxFamilyIncome" min="0" step="100" value="0"
+                            class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                    </div>
+                </div>
+
+                <div class="border rounded-lg p-4 bg-muted/20">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-bold">Evaluation Criteria</h4>
+                        <button type="button" onclick="addCriterionRow()"
+                            class="text-xs px-2 py-1 bg-primary text-primary-foreground rounded hover:bg-primary/90">
+                            + Add Criterion
+                        </button>
+                    </div>
+                    <div id="criteriaList" class="space-y-3">
+                        <!-- Criteria rows will be added here -->
+                    </div>
+                    <p class="text-xs text-muted-foreground mt-3">Criteria will be used for both evaluation and student
+                        eligibility checking.</p>
+                </div>
+
+                <div>
+                    <label for="status" class="block text-sm font-medium mb-2">Status *</label>
+                    <select id="status" required
+                        class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                        <option value="Open">Active (Open for Applications)</option>
+                        <option value="Closed">Inactive (Closed)</option>
+                        <option value="Draft">Draft (Hidden)</option>
+                    </select>
+                </div>
+
+                <div id="formError"
+                    class="text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm flex items-center gap-2"
+                    style="display: none;">
+                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span id="formErrorText"></span>
+                </div>
+
+                <div id="formSuccess"
+                    class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2"
+                    style="display: none;">
+                    <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span>Scholarship created successfully!</span>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" id="cancelBtn"
+                        class="flex-1 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submitBtn"
+                        class="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                        Create Scholarship
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+        if (!token || user.role !== 'Committee') {
+            window.location.href = '/login.html';
+        }
+
+
+        let allScholarships = [];
+        let currentScholarshipId = null;
+
+        async function loadScholarships() {
+            try {
+                const response = await fetch('/api/scholarships?all=true');
+                const data = await response.json();
+
+                allScholarships = data.scholarships || [];
+                displayScholarships(allScholarships);
+            } catch (error) {
+                console.error('[v0] Load scholarships error:', error);
+            }
+        }
+
+        function displayScholarships(scholarships) {
+            const grid = document.getElementById('scholarshipsGrid');
+
+            if (scholarships.length === 0) {
+                grid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50"></i>
+            <p class="text-muted-foreground">No scholarships found</p>
+          </div>
+        `;
+                lucide.createIcons();
+                return;
+            }
+
+            grid.innerHTML = scholarships.map(s => `
+        <div class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-lg flex flex-col h-full">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+              <i data-lucide="award" class="w-6 h-6 text-primary"></i>
+            </div>
+            <span class="px-3 py-1 text-xs font-medium rounded-full ${s.status === 'Open' || s.status === 'Active' ? 'bg-success/10 text-success' :
+                    s.status === 'Closed' ? 'bg-muted text-muted-foreground' :
+                        'bg-yellow-500/10 text-yellow-600'
+                }">${s.status === 'Active' ? 'Open' : s.status}</span>
+          </div>
+          <h3 class="text-xl font-bold mb-2">${s.title}</h3>
+          <p class="text-muted-foreground text-sm mb-4 line-clamp-2">${s.description || 'No description'}</p>
+          
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Criteria</h4>
+            <div class="flex flex-wrap gap-2 text-xs">
+              ${s.criteria && s.criteria.length > 0 ?
+                    s.criteria.map(c => `
+                  <span class="px-2 py-1 bg-secondary text-secondary-foreground font-medium rounded border border-border flex flex-col">
+                    <span>${c.name}</span>
+                    <span class="opacity-70 text-[10px]">${c.weightage}% (Max: ${c.maxScore}) ${c.mappedField !== 'none' ? `[Linked: ${c.mappedField}]` : ''}</span>
+                  </span>
+                `).join('') :
+                    '<span class="text-xs text-muted-foreground italic">No criteria defined</span>'
+                }
+            </div>
+          </div>
+
+          <div class="space-y-2 mb-6 mt-auto">
+            <div class="flex items-center gap-2 text-sm text-primary font-bold">
+              <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+              <span>$${s.amount ? s.amount.toLocaleString() : 'N/A'}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>Deadline: ${s.deadline ? new Date(s.deadline).toLocaleDateString() : 'N/A'}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+              <i data-lucide="users" class="w-4 h-4"></i>
+              <span>${s.applicant_count || 0} Applications</span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editScholarship(${s.id})" class="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center justify-center gap-1">
+              <i data-lucide="edit" class="w-4 h-4"></i>
+              Edit
+            </button>
+            <button onclick="deleteScholarship(${s.id})" class="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors flex items-center justify-center gap-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Modal handling
+        const modal = document.getElementById('scholarshipModal');
+        const scholarshipForm = document.getElementById('scholarshipForm');
+
+        document.getElementById('createScholarshipBtn').addEventListener('click', () => {
+            currentScholarshipId = null;
+            scholarshipForm.reset();
+            document.querySelector('#scholarshipModal h3').textContent = 'Create New Scholarship';
+            document.getElementById('submitBtn').textContent = 'Create Scholarship';
+            document.getElementById('formSuccess').style.display = 'none';
+            document.getElementById('formError').style.display = 'none';
+
+            modal.style.display = 'flex';
+            lucide.createIcons();
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Form submission
+        document.getElementById('scholarshipForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const criteria = [];
+            document.querySelectorAll('.criterion-row').forEach(row => {
+                const name = row.querySelector('.crit-name').value;
+                const weight = row.querySelector('.crit-weight').value;
+                const max = row.querySelector('.crit-max').value;
+                const mapped = row.querySelector('.crit-map').value;
+                if (name) {
+                    criteria.push({
+                        name: name,
+                        weightage: parseInt(weight) || 0,
+                        maxScore: parseFloat(max) || 0,
+                        mappedField: mapped
+                    });
+                }
+            });
+
+            const formData = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                amount: document.getElementById('amount').value,
+                deadline: document.getElementById('deadline').value,
+                forQualification: document.getElementById('qualification').value,
+                minCGPA: parseFloat(document.getElementById('minCGPA').value) || 0,
+                maxFamilyIncome: parseFloat(document.getElementById('maxFamilyIncome').value) || 0,
+                status: document.getElementById('status').value,
+                criteria: criteria
+            };
+
+            if (currentScholarshipId) {
+                formData.id = currentScholarshipId;
+            }
+
+            try {
+                const response = await fetch('/api/scholarships', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('formSuccess').querySelector('span').textContent = currentScholarshipId ? 'Scholarship updated!' : 'Scholarship created!';
+                    document.getElementById('formSuccess').style.display = 'flex';
+                    document.getElementById('formError').style.display = 'none';
+                    lucide.createIcons();
+
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        loadScholarships();
+                    }, 1500);
+                } else {
+                    document.getElementById('formErrorText').textContent = data.error || 'Operation failed';
+                    document.getElementById('formError').style.display = 'flex';
+                    lucide.createIcons();
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('formErrorText').textContent = 'An error occurred';
+                document.getElementById('formError').style.display = 'flex';
+                lucide.createIcons();
+            }
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', (e) => {
+            const filter = e.target.value;
+            const filtered = filter ? allScholarships.filter(s => s.status === filter || (filter === 'Open' && s.status === 'Active')) : allScholarships;
+            displayScholarships(filtered);
+        });
+
+        window.editScholarship = function (id) {
+            const s = allScholarships.find(item => item.id === id);
+            if (!s) return;
+
+            currentScholarshipId = id;
+            document.querySelector('#scholarshipModal h3').textContent = 'Edit Scholarship';
+            document.getElementById('submitBtn').textContent = 'Update Scholarship';
+
+            document.getElementById('title').value = s.title;
+            document.getElementById('description').value = s.description;
+            document.getElementById('amount').value = s.amount ? s.amount.replace(/[^0-9.]/g, '') : '';
+            document.getElementById('deadline').value = s.deadline ? s.deadline.split('T')[0] : '';
+            document.getElementById('qualification').value = s.forQualification || 'Any';
+            document.getElementById('minCGPA').value = s.minCGPA || 0;
+            document.getElementById('maxFamilyIncome').value = s.maxFamilyIncome || 0;
+            document.getElementById('status').value = s.status === 'Active' ? 'Open' : s.status;
+
+            // Populate Criteria
+            const container = document.getElementById('criteriaList');
+            container.innerHTML = '';
+            if (s.criteria && s.criteria.length > 0) {
+                s.criteria.forEach(c => addCriterionRow(c));
+            } else {
+                addCriterionRow(); // Add one empty row by default
+            }
+
+            document.getElementById('formSuccess').style.display = 'none';
+            document.getElementById('formError').style.display = 'none';
+
+            modal.style.display = 'flex';
+            lucide.createIcons();
+        };
+
+        window.addCriterionRow = function (data = null) {
+            const container = document.getElementById('criteriaList');
+            const div = document.createElement('div');
+            div.className = 'criterion-row grid grid-cols-12 gap-2 items-end border-b pb-2 mb-2';
+            div.innerHTML = `
+        <div class="col-span-6">
+          <label class="block text-[10px] uppercase text-muted-foreground mb-1">Name</label>
+          <input type="text" class="crit-name w-full px-2 py-1 text-sm bg-background border border-input rounded" 
+                 placeholder="e.g. Academic Performance" value="${data ? data.name : ''}">
+        </div>
+        <div class="col-span-3">
+          <label class="block text-[10px] uppercase text-muted-foreground mb-1">Weight (%)</label>
+          <input type="number" class="crit-weight w-full px-2 py-1 text-sm bg-background border border-input rounded" 
+                 value="${data ? data.weightage : '0'}">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-[10px] uppercase text-muted-foreground mb-1">Max</label>
+          <input type="number" class="crit-max w-full px-2 py-1 text-sm bg-background border border-input rounded" 
+                 value="${data ? data.maxScore : '100'}">
+        </div>
+        <div class="col-span-1 flex justify-end">
+          <button type="button" onclick="this.closest('.criterion-row').remove()" class="text-destructive hover:text-destructive/80 p-1">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="col-span-12 mt-1">
+          <label class="block text-[10px] uppercase text-muted-foreground mb-1">Link to profile field (Automated Check)</label>
+          <select class="crit-map w-full px-2 py-1 text-xs bg-background border border-input rounded">
+            <option value="none" ${data && data.mappedField === 'none' ? 'selected' : ''}>None (Manual Input)</option>
+            <option value="cgpa" ${data && (data.mappedField === 'cgpa' || data.mappedField === 'CGPA') ? 'selected' : ''}>CGPA</option>
+            <option value="familyIncome" ${data && (data.mappedField === 'familyIncome' || data.mappedField === 'family_income') ? 'selected' : ''}>Family Income</option>
+          </select>
+        </div>
+      `;
+            container.appendChild(div);
+            lucide.createIcons();
+        };
+
+        window.toggleScholarshipStatus = function (id, currentStatus) {
+            // Placeholder for simplified toggling, could be improved to use API
+            editScholarship(id);
+        };
+
+        window.deleteScholarship = async function (id) {
+            if (!confirm('Are you sure you want to PERMANENTLY delete this scholarship? This action cannot be undone.')) return;
+
+            try {
+                const response = await fetch(`/api/scholarships?id=${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    loadScholarships();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || "Failed to delete scholarship");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("An error occurred");
+            }
+        };
+
+        loadScholarships();
+        lucide.createIcons();
+    </script>
+    <div id="footer-container"></div>
+    <script src="/common.js"></script>
+</body>
+
+</html>

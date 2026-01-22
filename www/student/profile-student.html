@@ -274,7 +274,8 @@
                         id: user.id,
                         fullName: fullName,
                         password: password,
-                        role: user.role, // Added role for backend logic
+                        role: user.role,
+                        isActive: user.isActive, // Preserve current status
                         cgpa: document.getElementById('cgpa').value || 0,
                         major: document.getElementById('major').value || "",
                         qualification: document.getElementById('qualification').value || "",
@@ -287,8 +288,15 @@
                 const result = await response.json();
                 if (result.success) {
                     alert('Profile updated successfully!');
-                    // Update local storage name if changed
+                    // Update local storage with all fields
                     user.fullName = fullName;
+                    user.cgpa = parseFloat(document.getElementById('cgpa').value) || 0;
+                    user.major = document.getElementById('major').value;
+                    user.qualification = document.getElementById('qualification').value;
+                    user.yearOfStudy = document.getElementById('yearOfStudy').value;
+                    user.expectedGraduation = document.getElementById('expectedGraduation').value;
+                    user.familyIncome = parseFloat(document.getElementById('familyIncome').value) || 0;
+
                     localStorage.setItem('user', JSON.stringify(user));
                     window.location.reload();
                 } else {

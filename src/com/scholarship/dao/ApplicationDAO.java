@@ -115,7 +115,8 @@ public class ApplicationDAO {
 
     public List<Application> findByStudentID(String studentId) {
         List<Application> apps = new ArrayList<>();
-        String sql = "SELECT a.*, s.title, st.fullName as applicantName, e.reviewerID, r.fullName as reviewerName " +
+        String sql = "SELECT a.*, s.title, st.fullName as applicantName, st.email as applicantEmail, st.cgpa, st.major, st.yearOfStudy, e.reviewerID, r.fullName as reviewerName "
+                +
                 "FROM Application a " +
                 "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
                 "JOIN Student st ON a.studentID = st.studentID " +
@@ -140,7 +141,8 @@ public class ApplicationDAO {
 
     public List<Application> findByReviewerID(String reviewerId) {
         List<Application> apps = new ArrayList<>();
-        String sql = "SELECT a.*, s.title, st.fullName as applicantName, e.reviewerID, r.fullName as reviewerName " +
+        String sql = "SELECT a.*, s.title, st.fullName as applicantName, st.email as applicantEmail, st.cgpa, st.major, st.yearOfStudy, e.reviewerID, r.fullName as reviewerName "
+                +
                 "FROM Application a " +
                 "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
                 "JOIN Student st ON a.studentID = st.studentID " +
@@ -165,7 +167,8 @@ public class ApplicationDAO {
 
     public List<Application> findAll() {
         List<Application> apps = new ArrayList<>();
-        String sql = "SELECT a.*, s.title, st.fullName as applicantName, e.reviewerID, r.fullName as reviewerName " +
+        String sql = "SELECT a.*, s.title, st.fullName as applicantName, st.email as applicantEmail, st.cgpa, st.major, st.yearOfStudy, e.reviewerID, r.fullName as reviewerName "
+                +
                 "FROM Application a " +
                 "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
                 "JOIN Student st ON a.studentID = st.studentID " +
@@ -201,7 +204,8 @@ public class ApplicationDAO {
     }
 
     public Application findById(int appId) {
-        String sql = "SELECT a.*, s.title, st.fullName as applicantName, e.reviewerID, r.fullName as reviewerName " +
+        String sql = "SELECT a.*, s.title, st.fullName as applicantName, st.email as applicantEmail, st.cgpa, st.major, st.yearOfStudy, e.reviewerID, r.fullName as reviewerName "
+                +
                 "FROM Application a " +
                 "JOIN Scholarship s ON a.scholarshipID = s.scholarshipID " +
                 "JOIN Student st ON a.studentID = st.studentID " +
@@ -234,6 +238,10 @@ public class ApplicationDAO {
                 rs.getString("reviewerID"),
                 rs.getString("reviewerName"),
                 rs.getString("applicantName"));
+        app.setApplicantEmail(rs.getString("applicantEmail"));
+        app.setCgpa(rs.getDouble("cgpa"));
+        app.setMajor(rs.getString("major"));
+        app.setYearOfStudy(rs.getString("yearOfStudy"));
         app.setPersonalStatement(rs.getString("personalStatement"));
         app.setOtherScholarships(rs.getString("otherScholarships"));
         app.getDocuments().addAll(findDocumentsByAppId(app.getAppID(), conn));

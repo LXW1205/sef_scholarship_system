@@ -13,6 +13,10 @@ public class Application {
     private String reviewerID; // Staff ID of assigned reviewer
     private String reviewerName; // Full name of assigned reviewer
     private String applicantName; // Full name of the applicant
+    private String applicantEmail;
+    private double cgpa;
+    private String major;
+    private String yearOfStudy;
     private java.util.List<Document> documents = new java.util.ArrayList<>();
 
     private String personalStatement;
@@ -66,6 +70,38 @@ public class Application {
 
     public String getReviewerName() {
         return reviewerName;
+    }
+
+    public String getApplicantEmail() {
+        return applicantEmail;
+    }
+
+    public void setApplicantEmail(String email) {
+        this.applicantEmail = email;
+    }
+
+    public double getCgpa() {
+        return cgpa;
+    }
+
+    public void setCgpa(double cgpa) {
+        this.cgpa = cgpa;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public String getYearOfStudy() {
+        return yearOfStudy;
+    }
+
+    public void setYearOfStudy(String yearOfStudy) {
+        this.yearOfStudy = yearOfStudy;
     }
 
     public String getApplicantName() {
