@@ -99,6 +99,8 @@ public class ScholarshipHandler implements HttpHandler {
             String deadlineStr = JsonUtils.extractValue(requestBody, "deadline");
             String status = JsonUtils.extractValue(requestBody, "status");
             String eligibility = JsonUtils.extractValue(requestBody, "forQualification");
+            String minCGPAStr = JsonUtils.extractValue(requestBody, "minCGPA");
+            String maxIncomeStr = JsonUtils.extractValue(requestBody, "maxFamilyIncome");
 
             // Basic validation
             if (title == null || title.isEmpty()) {
@@ -111,8 +113,10 @@ public class ScholarshipHandler implements HttpHandler {
             s.setTitle(title);
             s.setDescription(description);
             s.setAmount(amount);
-            s.setForQualification(eligibility); // Using forQualification field for eligibility text
+            s.setForQualification(eligibility);
             s.setDeadline(java.sql.Date.valueOf(deadlineStr));
+            s.setMinCGPA(minCGPAStr != null ? Double.parseDouble(minCGPAStr) : 0.0);
+            s.setMaxFamilyIncome(maxIncomeStr != null ? Double.parseDouble(maxIncomeStr) : 0.0);
             s.setActive("Open".equalsIgnoreCase(status) || "Active".equalsIgnoreCase(status));
 
             // Parse Criteria from JSON array manually
@@ -209,13 +213,15 @@ public class ScholarshipHandler implements HttpHandler {
             criteriaJson.append("]");
 
             return String.format(
-                    "{\"scholarship\": {\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": \"%s\", \"forQualification\": \"%s\", \"deadline\": \"%s\", \"isactive\": %b, \"applicant_count\": 0}, \"criteria\": %s}",
+                    "{\"scholarship\": {\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": \"%s\", \"forQualification\": \"%s\", \"deadline\": \"%s\", \"minCGPA\": %.2f, \"maxFamilyIncome\": %.2f, \"isactive\": %b, \"applicant_count\": 0}, \"criteria\": %s}",
                     s.getScholarshipID(),
                     JsonUtils.escape(s.getTitle()),
                     JsonUtils.escape(s.getDescription() != null ? s.getDescription() : ""),
                     JsonUtils.escape(s.getAmount()),
                     JsonUtils.escape(s.getForQualification() != null ? s.getForQualification() : ""),
                     s.getDeadline(),
+                    s.getMinCGPA(),
+                    s.getMaxFamilyIncome(),
                     s.isActive(),
                     criteriaJson.toString());
         } catch (Exception e) {
@@ -233,7 +239,7 @@ public class ScholarshipHandler implements HttpHandler {
             // Filter by eligibility if studentId is provided
             if (studentId != null) {
                 com.scholarship.dao.UserDAO userDAO = new com.scholarship.dao.UserDAO();
-                com.scholarship.model.User user = userDAO.verifyUserForReset(studentId, "", "Student");
+                com.scholarship.model.User user = userDAO.findUserByRoleID(studentId, "Student");
                 if (user instanceof com.scholarship.model.Student) {
                     com.scholarship.model.Student student = (com.scholarship.model.Student) user;
                     scholarships.removeIf(s -> !isEligible(student, s));
@@ -264,13 +270,15 @@ public class ScholarshipHandler implements HttpHandler {
                 criteriaJson.append("]");
 
                 json.append(String.format(
-                        "{\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": \"%s\", \"forQualification\": \"%s\", \"deadline\": \"%s\", \"status\": \"%s\", \"criteria\": %s}",
+                        "{\"id\": %d, \"title\": \"%s\", \"description\": \"%s\", \"amount\": \"%s\", \"forQualification\": \"%s\", \"deadline\": \"%s\", \"minCGPA\": %.2f, \"maxFamilyIncome\": %.2f, \"status\": \"%s\", \"criteria\": %s}",
                         s.getScholarshipID(),
                         JsonUtils.escape(s.getTitle()),
                         JsonUtils.escape(s.getDescription() != null ? s.getDescription() : ""),
                         JsonUtils.escape(s.getAmount()),
                         JsonUtils.escape(s.getForQualification() != null ? s.getForQualification() : ""),
                         s.getDeadline(),
+                        s.getMinCGPA(),
+                        s.getMaxFamilyIncome(),
                         s.isActive() ? "Active" : "Closed",
                         criteriaJson.toString()));
             }
@@ -294,10 +302,16 @@ public class ScholarshipHandler implements HttpHandler {
             }
         }
 
-        // 2. Check specific criteria if mapped (e.g., minimum CGPA)
-        // Note: Currently we don't store a "Min Value" in Criterion, so we assume
-        // strict qualification matching is the main eligibility check for now.
-        // Future: If Criterion name contains "CGPA" and we parsed a min value...
+        // 2. Check CGPA
+        if (student.getCgpa() < scholarship.getMinCGPA()) {
+            return false;
+        }
+
+        // 3. Check Family Income
+        // If scholarship.maxFamilyIncome is 0, we assume no income limit
+        if (scholarship.getMaxFamilyIncome() > 0 && student.getFamilyIncome() > scholarship.getMaxFamilyIncome()) {
+            return false;
+        }
 
         return true;
     }

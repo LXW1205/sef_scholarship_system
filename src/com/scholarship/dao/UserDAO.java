@@ -374,4 +374,47 @@ public class UserDAO {
         }
         return null;
     }
+
+    public User findUserByRoleID(String id, String role) {
+        String table = "";
+        String idColumn = "";
+
+        switch (role) {
+            case "Student":
+                table = "Student";
+                idColumn = "studentID";
+                break;
+            case "Reviewer":
+                table = "Reviewer";
+                idColumn = "reviewerID";
+                break;
+            case "Committee":
+            case "CommitteeMember":
+                table = "CommitteeMember";
+                idColumn = "committeeID";
+                break;
+            case "Admin":
+                table = "Admin";
+                idColumn = "adminID";
+                break;
+            default:
+                return null;
+        }
+
+        String sql = "SELECT userID, fullName, email, role, isActive FROM " + table + " WHERE " + idColumn + " = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return fetchDetailedUser(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"),
+                            rs.getString("role"), rs.getBoolean("isActive"), conn);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -11,6 +11,8 @@ public class Scholarship {
     private String amount;
     private String forQualification;
     private Date deadline;
+    private double minCGPA;
+    private double maxFamilyIncome;
     private boolean isActive;
     private List<Criterion> criteria;
 
@@ -19,13 +21,15 @@ public class Scholarship {
     }
 
     public Scholarship(int scholarshipID, String title, String description, String amount, String forQualification,
-            Date deadline, boolean isActive) {
+            Date deadline, double minCGPA, double maxFamilyIncome, boolean isActive) {
         this.scholarshipID = scholarshipID;
         this.title = title;
         this.description = description;
         this.amount = amount;
         this.forQualification = forQualification;
         this.deadline = deadline;
+        this.minCGPA = minCGPA;
+        this.maxFamilyIncome = maxFamilyIncome;
         this.isActive = isActive;
         this.criteria = new ArrayList<>();
     }
@@ -76,6 +80,22 @@ public class Scholarship {
 
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
+    }
+
+    public double getMinCGPA() {
+        return minCGPA;
+    }
+
+    public void setMinCGPA(double minCGPA) {
+        this.minCGPA = minCGPA;
+    }
+
+    public double getMaxFamilyIncome() {
+        return maxFamilyIncome;
+    }
+
+    public void setMaxFamilyIncome(double maxFamilyIncome) {
+        this.maxFamilyIncome = maxFamilyIncome;
     }
 
     public boolean isActive() {

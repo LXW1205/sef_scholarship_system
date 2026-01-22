@@ -31,35 +31,52 @@ VALUES ('Nurul Aina', 'Student@123', 'nurul.aina@student.mmu.edu.my', 'Student',
 
 -- Committee
 INSERT INTO CommitteeMember (fullName, password, email, role, isActive, committeeID, position) 
-VALUES ('Committee Chair', 'Committee@123', 'committee1@mmu.edu.my', 'Committee', TRUE, 'C1001', 'Chairperson');
+VALUES ('Zulkifli bin Hussain', 'Committee@123', 'committee1@mmu.edu.my', 'Committee', TRUE, 'C1001', 'Chairperson');
 INSERT INTO CommitteeMember (fullName, password, email, role, isActive, committeeID, position) 
-VALUES ('Committee Sec', 'Committee@123', 'committee2@mmu.edu.my', 'Committee', TRUE, 'C1002', 'Secretary');
+VALUES ('Azlan Chu', 'Committee@123', 'committee2@mmu.edu.my', 'Committee', TRUE, 'C1002', 'Secretary');
 INSERT INTO CommitteeMember (fullName, password, email, role, isActive, committeeID, position) 
-VALUES ('Committee Member', 'Committee@123', 'committee3@mmu.edu.my', 'Committee', TRUE, 'C1003', 'Member');
+VALUES ('Lim Chong Wei', 'Committee@123', 'committee3@mmu.edu.my', 'Committee', TRUE, 'C1003', 'Member');
 
 -- Insert Scholarships (New Fields: description, amount, forQualification)
-INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
-VALUES ('MMU Chancellor Scholarship', 'Full scholarship for high achievers.', 'RM 50,000', 'Bachelor', '2025-08-31', TRUE);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
+VALUES ('MMU Chancellor Scholarship', 'Full scholarship for high achievers.', 'RM 50,000', 'Bachelor', '2025-08-31', 3.75, 0.00, TRUE);
 
-INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
-VALUES ('MMU President Scholarship', 'Partial scholarship for Foundation students.', 'RM 15,000', 'Foundation', '2025-08-31', TRUE);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
+VALUES ('MMU President Scholarship', 'Partial scholarship for Foundation students.', 'RM 15,000', 'Foundation', '2025-08-31', 3.50, 5000.00, TRUE);
 
-INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
-VALUES ('MMU Merit Scholarship', 'Merit-based award for outstanding academic results.', 'RM 20,000', 'All', '2025-08-31', TRUE);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
+VALUES ('MMU Merit Scholarship', 'Merit-based award for outstanding academic results.', 'RM 20,000', 'All', '2025-08-31', 3.00, 0.00, TRUE);
 
-INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
-VALUES ('MMU Sports Talent', 'For state/national players.', 'RM 10,000', 'All', '2025-08-31', TRUE);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
+VALUES ('MMU Sports Talent', 'For state/national players.', 'RM 10,000', 'All', '2025-08-31', 2.50, 0.00, TRUE);
 
-INSERT INTO Scholarship (title, description, amount, forQualification, deadline, isActive)
-VALUES ('Star Education Fund', 'External scholarship for Engineering.', 'RM 40,000', 'Bachelor', '2025-07-31', TRUE);
+INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
+VALUES ('Star Education Fund', 'External scholarship for Engineering.', 'RM 40,000', 'Bachelor', '2025-07-31', 3.80, 0.00, TRUE);
 
--- Insert Criteria (Linked to IDs 1-5 which are Serial, so we assume order)
--- Scholarship 1
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Academic Excellence', 60, 100);
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Interview', 40, 100);
+-- Insert Criteria (Linked to IDs 1-5)
+-- Scholarship 1: MMU Chancellor Scholarship
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Academic Excellence', 50, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Leadership Roles', 20, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Community Service', 10, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Personal Statement', 20, 100);
 
--- Scholarship 2
-INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (2, 'SPM Results', 100, 100);
+-- Scholarship 2: MMU President Scholarship
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (2, 'SPM/Foundation Results', 70, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (2, 'Extracurricular Involvement', 30, 100);
+
+-- Scholarship 3: MMU Merit Scholarship
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (3, 'CGPA Performance', 80, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (3, 'Technical Portfolio', 20, 100);
+
+-- Scholarship 4: MMU Sports Talent
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (4, 'State/National Achievement', 60, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (4, 'Physical Fitness Test', 20, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (4, 'Sportsmanship Track Record', 20, 100);
+
+-- Scholarship 5: Star Education Fund
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (5, 'Financial Need Analysis', 50, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (5, 'Future Aspirations Statement', 30, 100);
+INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (5, 'English Proficiency (MUET/IELTS)', 20, 100);
 
 -- Insert Applications (Minimal sample)
 -- Student 1 (S2024001) applying for Scholarship 1

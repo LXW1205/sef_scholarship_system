@@ -108,6 +108,8 @@ public class Student extends User {
                         rs.getString("amount"), // Changed to String
                         rs.getString("forQualification"), // Added field
                         rs.getDate("deadline"),
+                        rs.getDouble("minCGPA"),
+                        rs.getDouble("maxFamilyIncome"),
                         rs.getBoolean("isActive"));
 
                 // Fetch criteria for this scholarship
@@ -149,6 +151,8 @@ public class Student extends User {
                         rs.getString("amount"), // Changed to String
                         rs.getString("forQualification"), // Added field
                         rs.getDate("deadline"),
+                        rs.getDouble("minCGPA"),
+                        rs.getDouble("maxFamilyIncome"),
                         rs.getBoolean("isActive"));
 
                 // Fetch criteria

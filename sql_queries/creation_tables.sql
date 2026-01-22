@@ -68,6 +68,8 @@ CREATE TABLE Scholarship (
     amount VARCHAR(50), -- Changed to 50 to accommodate "RM 10,000" etc comfortably
     forQualification VARCHAR(20),
     deadline DATE,
+    minCGPA DECIMAL(3,2) DEFAULT 0.0,
+    maxFamilyIncome DECIMAL(12,2) DEFAULT 0.0,
     isActive BOOLEAN DEFAULT TRUE
 );
 
