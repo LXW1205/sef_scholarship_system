@@ -385,7 +385,8 @@ public class ApplicationHandler implements HttpHandler {
                     scoresJson.append("]");
 
                     evalInfo = String.format(
-                            ", \"evaluation\": {\"comments\": \"%s\", \"recommendation\": \"%s\", \"scores\": %s}",
+                            ", \"evaluation\": {\"evalID\": %d, \"comments\": \"%s\", \"recommendation\": \"%s\", \"scores\": %s}",
+                            eval.getEvalID(),
                             JsonUtils.escape(eval.getScholarshipComments()),
                             JsonUtils.escape(eval.getStatus()),
                             scoresJson.toString());

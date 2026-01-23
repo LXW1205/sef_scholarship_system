@@ -103,7 +103,10 @@ CREATE TABLE Inquiry (
     inquiryID SERIAL PRIMARY KEY,
     studentID VARCHAR(20) NOT NULL, -- Matched Student.studentID type
     message TEXT,
+    answer TEXT,
+    status VARCHAR(20) DEFAULT 'Pending',
     submittedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    answeredAt TIMESTAMP,
     CONSTRAINT FK_Inquiry_Student FOREIGN KEY (studentID) REFERENCES Student(studentID) ON DELETE CASCADE
 );
 

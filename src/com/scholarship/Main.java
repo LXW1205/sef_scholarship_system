@@ -37,6 +37,10 @@ public class Main {
         server.createContext("/api/notifications", new com.scholarship.server.NotificationHandler());
         server.createContext("/api/system", new com.scholarship.server.SystemHandler());
 
+        // New Handlers
+        server.createContext("/api/inquiries", new com.scholarship.server.InquiryHandler());
+        server.createContext("/api/clarifications", new com.scholarship.server.ClarificationHandler());
+
         server.setExecutor(null); // creates a default executor
         server.start();
 

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.stream.Collectors;
 
 public class AuthHandler implements HttpHandler {
@@ -58,9 +59,12 @@ public class AuthHandler implements HttpHandler {
                     } else if (user instanceof Admin) {
                         extra = String.format(", \"adminID\": \"%s\"", ((Admin) user).getAdminID());
                     }
+                    String tokenData = user.getId() + ":" + user.getRole();
+                    String token = Base64.getEncoder().encodeToString(tokenData.getBytes(StandardCharsets.UTF_8));
+
                     response = String.format(
-                            "{\"token\": \"fake-jwt-token\", \"user\": {\"fullName\": \"%s\", \"role\": \"%s\", \"id\": %d%s}}",
-                            user.getFullName(), user.getRole(), user.getId(), extra);
+                            "{\"token\": \"%s\", \"user\": {\"fullName\": \"%s\", \"role\": \"%s\", \"id\": %d%s}}",
+                            token, user.getFullName(), user.getRole(), user.getId(), extra);
                     statusCode = 200;
                 } else {
                     // Log failed login attempt
@@ -83,5 +87,25 @@ public class AuthHandler implements HttpHandler {
         } else {
             exchange.sendResponseHeaders(405, -1); // Method Not Allowed
         }
+    }
+
+    public static String[] verifyToken(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        String token = authHeader.substring(7).trim();
+        if (token.equals("fake-jwt-token"))
+            return null; // Legacy check
+
+        try {
+            String decoded = new String(Base64.getDecoder().decode(token), StandardCharsets.UTF_8);
+            String[] parts = decoded.split(":");
+            if (parts.length == 2) {
+                return parts; // [userId, role]
+            }
+        } catch (Exception e) {
+            // Invalid token
+        }
+        return null;
     }
 }

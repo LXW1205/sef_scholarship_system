@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Inquiries - Student Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(222.2 84% 4.9%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(0 84.2% 60.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 font-sans antialiased">
+    <div id="header-container"></div>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">My Inquiries</h1>
+            <p class="text-gray-600 mt-1">Ask questions and view responses from administrators.</p>
+        </header>
+
+        <div class="mb-8">
+            <button onclick="document.getElementById('newInquiryForm').classList.toggle('hidden')"
+                class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> New Inquiry
+            </button>
+
+            <form id="newInquiryForm" class="hidden mt-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-bold mb-4">Submit a Question</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Your Question</label>
+                    <textarea id="questionInput" rows="3"
+                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                        required></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit"
+                        class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90">Submit</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div id="inquiriesList" class="divide-y divide-gray-100">
+                <div class="p-8 text-center text-gray-500">Loading inquiries...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Template for Inquiry Item -->
+    <template id="inquiryTemplate">
+        <div class="p-6 hover:bg-gray-50">
+            <div class="flex justify-between items-start mb-2">
+                <span
+                    class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+                <span class="date-text text-xs text-gray-500"></span>
+            </div>
+            <p class="question-text font-medium text-gray-900 mb-2"></p>
+            <div class="answer-section mt-3 pl-4 border-l-2 border-gray-200 hidden">
+                <p class="text-xs text-gray-500 font-semibold uppercase mb-1">Response</p>
+                <p class="answer-text text-gray-700"></p>
+            </div>
+        </div>
+    </template>
+
+    <div id="footer-container"></div>
+    <script src="/common.js?v=3"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            loadInquiries();
+
+            document.getElementById('newInquiryForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const question = document.getElementById('questionInput').value;
+                const btn = e.target.querySelector('button[type="submit"]');
+
+                btn.disabled = true;
+                btn.textContent = 'Submitting...';
+
+                try {
+                    const res = await fetch('/api/inquiries', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ question })
+                    });
+
+                    if (res.ok) {
+                        document.getElementById('questionInput').value = '';
+                        document.getElementById('newInquiryForm').classList.add('hidden');
+                        loadInquiries();
+                    } else {
+                        alert('Failed to submit inquiry');
+                    }
+                } catch (err) {
+                    alert('Error submitting inquiry');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Submit';
+                }
+            });
+        });
+
+        async function loadInquiries() {
+            const container = document.getElementById('inquiriesList');
+            const template = document.getElementById('inquiryTemplate');
+
+            try {
+                const res = await fetch('/api/inquiries', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                const data = await res.json();
+
+                container.innerHTML = '';
+                if (data.length === 0) {
+                    container.innerHTML = '<div class="p-8 text-center text-gray-500">You haven\'t submitted any inquiries yet.</div>';
+                    return;
+                }
+
+                data.forEach(i => {
+                    const clone = template.content.cloneNode(true);
+
+                    const badge = clone.querySelector('.status-badge');
+                    badge.textContent = i.status;
+                    badge.className += i.status === 'Answered'
+                        ? ' bg-green-100 text-green-800'
+                        : ' bg-yellow-100 text-yellow-800';
+
+                    clone.querySelector('.date-text').textContent = new Date(i.datePosted).toLocaleDateString();
+                    clone.querySelector('.question-text').textContent = i.question;
+
+                    if (i.answer) {
+                        const ansSec = clone.querySelector('.answer-section');
+                        ansSec.classList.remove('hidden');
+                        ansSec.querySelector('.answer-text').textContent = i.answer;
+                    }
+
+                    container.appendChild(clone);
+                });
+
+                if (window.lucide) lucide.createIcons();
+
+            } catch (err) {
+                container.innerHTML = '<div class="p-8 text-center text-red-500">Error loading inquiries.</div>';
+            }
+        }
+    </script>
+</body>
+
+</html>

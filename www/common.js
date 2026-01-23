@@ -114,27 +114,7 @@ function checkAuth() {
     }
 
     if (path.includes('/student/') && user.role === 'Student') {
-        // Protected student pages that require full profile
-        const protectedPages = [
-            'scholarships-student.html',
-            'applications-student.html',
-            'notifications-student.html',
-            'application-form.html',
-            'scholarship-details.html'
-        ];
-
-        const isProtectedPage = protectedPages.some(page => path.includes(page));
-
-        if (isProtectedPage && !isProfileComplete(user)) {
-            // We rely on the async server check to handle redirection if needed.
-            // This avoids race conditions where localStorage is temporarily stale.
-            checkProfileOnServer(user.id).then(complete => {
-                if (!complete) {
-                    sessionStorage.setItem('profileRedirect', 'true');
-                    window.location.href = "/student/profile-student.html";
-                }
-            });
-        }
+        // Profile check disabled to prevent loops
     }
 
     return true;
@@ -266,6 +246,9 @@ function injectAdminHeader(container) {
                     <a href="/admin/notifications-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
                         <i data-lucide="bell" class="w-4 h-4"></i> Notifications
                     </a>
+                    <a href="/admin/inquiry-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('inquiry') ? 'font-semibold' : ''}">
+                        <i data-lucide="message-square" class="w-4 h-4"></i> Inquiries
+                    </a>
                     <a href="/admin/profile-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
                         <i data-lucide="user" class="w-4 h-4"></i> Profile
                     </a>
@@ -302,6 +285,9 @@ function injectStudentHeader(container) {
                     <a href="/student/notifications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
                         <i data-lucide="bell" class="w-4 h-4"></i> Notifications
                     </a>
+                    <a href="/student/inquiry-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('inquiry') ? 'font-semibold' : ''}">
+                        <i data-lucide="help-circle" class="w-4 h-4"></i> My Inquiries
+                    </a>
                     <a href="/student/profile-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
                         <i data-lucide="user" class="w-4 h-4"></i> Profile
                     </a>
@@ -334,6 +320,9 @@ function injectReviewerHeader(container) {
                     </a>
                     <a href="/reviewer/notifications-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
                         <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                    </a>
+                    <a href="/reviewer/clarification-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('clarification') ? 'font-semibold' : ''}">
+                        <i data-lucide="message-circle-question" class="w-4 h-4"></i> Clarifications
                     </a>
                     <a href="/reviewer/profile-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
                         <i data-lucide="user" class="w-4 h-4"></i> Profile
@@ -373,6 +362,9 @@ function injectCommitteeHeader(container) {
                     </a>
                     <a href="/committee/schedule-interviews.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('interviews') ? 'font-semibold' : ''}">
                         <i data-lucide="calendar" class="w-4 h-4"></i> Interviews
+                    </a>
+                    <a href="/committee/clarification-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('clarification') ? 'font-semibold' : ''}">
+                        <i data-lucide="message-circle-question" class="w-4 h-4"></i> Clarifications
                     </a>
                     <a href="/committee/notifications-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
                         <i data-lucide="bell" class="w-4 h-4"></i> Notifications

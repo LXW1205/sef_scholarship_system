@@ -7,6 +7,9 @@ public class Inquiry {
     private String studentID;
     private String message;
     private Timestamp submittedAt;
+    private String status;
+    private String answer;
+    private Timestamp answeredAt;
 
     public Inquiry(int inquiryID, String studentID, String message, Timestamp submittedAt) {
         this.inquiryID = inquiryID;
@@ -29,5 +32,29 @@ public class Inquiry {
 
     public Timestamp getSubmittedAt() {
         return submittedAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
+    public Timestamp getAnsweredAt() {
+        return answeredAt;
+    }
+
+    public void setAnsweredAt(Timestamp answeredAt) {
+        this.answeredAt = answeredAt;
     }
 }

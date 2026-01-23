@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarifications - Committee Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(222.2 84% 4.9%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(0 84.2% 60.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 font-sans antialiased">
+    <div id="header-container"></div>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Manage Clarifications</h1>
+            <p class="text-gray-600 mt-1">Request and view clarifications from reviewers.</p>
+        </header>
+
+        <div class="mb-8">
+            <button onclick="document.getElementById('newRequestForm').classList.toggle('hidden')"
+                class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> New Request
+            </button>
+
+            <form id="newRequestForm" class="hidden mt-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-bold mb-4">Request Clarification</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Select Application</label>
+                        <select id="appSelect"
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                            required>
+                            <option value="">Loading applications...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Question for Reviewer</label>
+                    <textarea id="questionInput" rows="3"
+                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                        required></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90">Send
+                        Request</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Application</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Question</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Reviewer Status</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Response</th>
+                    </tr>
+                </thead>
+                <tbody id="requestsTableBody" class="divide-y divide-gray-100">
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">Loading requests...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+    <script src="/common.js?v=2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadRequests();
+            loadReviewedApps();
+
+            document.getElementById('newRequestForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const appId = document.getElementById('appSelect').value;
+                const question = document.getElementById('questionInput').value;
+                const btn = e.target.querySelector('button[type="submit"]');
+
+                if (!appId) { alert('Please select an application'); return; }
+
+                btn.disabled = true;
+                btn.textContent = 'Sending...';
+
+                try {
+                    const res = await fetch('/api/clarifications', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ applicationID: appId, question })
+                    });
+
+                    if (res.ok) {
+                        document.getElementById('questionInput').value = '';
+                        document.getElementById('newRequestForm').classList.add('hidden');
+                        loadRequests();
+                    } else {
+                        alert('Failed to send request');
+                    }
+                } catch (err) {
+                    alert('Error sending request');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Send Request';
+                }
+            });
+        });
+
+        async function loadReviewedApps() {
+            const select = document.getElementById('appSelect');
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            try {
+                // Fetch ALL applications and filter for 'Reviewed' status client-side or server-side
+                // Using existing endpoint
+                const res = await fetch('/api/applications', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                // Ideally this endpoint returns all or Committee specific. 
+                // Filter for 'Reviewed' only as clarifications usually happen then.
+                const reviewed = data.filter(a => a.status === 'Reviewed');
+
+                if (reviewed.length === 0) {
+                    select.innerHTML = '<option value="">No reviewed applications found</option>';
+                    return;
+                }
+
+                select.innerHTML = '<option value="">Select an Application</option>' +
+                    reviewed.map(a => `<option value="${a.applicationID}">${a.studentName} - ${a.scholarshipTitle}</option>`).join('');
+
+            } catch (err) {
+                select.innerHTML = '<option value="">Error loading applications</option>';
+            }
+        }
+
+        async function loadRequests() {
+            const tbody = document.getElementById('requestsTableBody');
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            try {
+                const res = await fetch('/api/clarifications', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No clarification requests found.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(r => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-900">${r.scholarshipTitle}</div>
+                            <div class="text-sm text-gray-500">${r.studentName}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-gray-800">${r.question}</p>
+                            <div class="text-xs text-gray-400 mt-1">${new Date(r.requestedDate).toLocaleDateString()}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${r.status === 'Answered' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                    }">
+                                ${r.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            ${r.answer || '<span class="italic text-gray-400">Waiting for response...</span>'}
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Error loading data.</td></tr>';
+            }
+        }
+    </script>
+</body>
+
+</html>

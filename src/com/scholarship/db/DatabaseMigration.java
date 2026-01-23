@@ -43,6 +43,11 @@ public class DatabaseMigration {
             addColumnIfNotExists(stmt, "Scholarship", "minCGPA", "DECIMAL(3,2) DEFAULT 0.0");
             addColumnIfNotExists(stmt, "Scholarship", "maxFamilyIncome", "DECIMAL(12,2) DEFAULT 0.0");
 
+            // Add fields to Inquiry if they don't exist
+            addColumnIfNotExists(stmt, "Inquiry", "answer", "TEXT");
+            addColumnIfNotExists(stmt, "Inquiry", "status", "VARCHAR(20) DEFAULT 'Pending'");
+            addColumnIfNotExists(stmt, "Inquiry", "answeredAt", "TIMESTAMP");
+
             // Alter expectedGraduation to DATE if it's still VARCHAR
             try {
                 stmt.execute(
