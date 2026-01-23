@@ -47,7 +47,7 @@
 <body class="bg-gray-50 font-sans antialiased">
     <div id="header-container"></div>
 
-    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+    <main class="max-w-[1600px] mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen">
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">My Inquiries</h1>
             <p class="text-gray-600 mt-1">Ask questions and view responses from administrators.</p>
@@ -124,7 +124,7 @@
                             'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ question })
+                        body: JSON.stringify({ message: question })
                     });
 
                     if (res.ok) {
@@ -132,7 +132,9 @@
                         document.getElementById('newInquiryForm').classList.add('hidden');
                         loadInquiries();
                     } else {
-                        alert('Failed to submit inquiry');
+                        const errorData = await res.json();
+                        console.error('Submission failed:', errorData);
+                        alert(errorData.message || 'Failed to submit inquiry');
                     }
                 } catch (err) {
                     alert('Error submitting inquiry');
@@ -148,9 +150,17 @@
             const template = document.getElementById('inquiryTemplate');
 
             try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
                 const res = await fetch('/api/inquiries', {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    console.error('Fetch failed:', errorData);
+                    throw new Error(errorData.message || 'Error loading inquiries');
+                }
+
                 const data = await res.json();
 
                 container.innerHTML = '';
@@ -168,8 +178,8 @@
                         ? ' bg-green-100 text-green-800'
                         : ' bg-yellow-100 text-yellow-800';
 
-                    clone.querySelector('.date-text').textContent = new Date(i.datePosted).toLocaleDateString();
-                    clone.querySelector('.question-text').textContent = i.question;
+                    clone.querySelector('.date-text').textContent = new Date(i.submittedAt).toLocaleDateString();
+                    clone.querySelector('.question-text').textContent = i.message;
 
                     if (i.answer) {
                         const ansSec = clone.querySelector('.answer-section');
@@ -183,7 +193,8 @@
                 if (window.lucide) lucide.createIcons();
 
             } catch (err) {
-                container.innerHTML = '<div class="p-8 text-center text-red-500">Error loading inquiries.</div>';
+                console.error('Error in loadInquiries:', err);
+                container.innerHTML = `<div class="p-8 text-center text-red-500">Error loading inquiries: ${err.message}</div>`;
             }
         }
     </script>

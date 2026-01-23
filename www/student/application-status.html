@@ -76,7 +76,14 @@
               </div>
             </div>
           </div>
-          <span id="statusBadge" class="px-4 py-2 text-sm font-medium rounded-full"></span>
+          <div class="flex flex-col items-end gap-2">
+            <span id="statusBadge" class="px-4 py-2 text-sm font-medium rounded-full"></span>
+            <button id="withdrawBtn" onclick="withdrawApplication()"
+              class="hidden px-4 py-2 text-sm font-medium text-destructive border border-destructive/20 rounded-lg hover:bg-destructive/10 transition-colors flex items-center gap-2">
+              <i data-lucide="x-circle" class="w-4 h-4"></i>
+              Withdraw Application
+            </button>
+          </div>
         </div>
 
         <!-- Status Timeline -->
@@ -153,6 +160,15 @@
                 'bg-muted text-muted-foreground'
           }`;
 
+        // Show/hide withdraw button based on status
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const cancellableStatuses = ['Pending', 'Reviewing', 'Reviewed', 'Under Review'];
+        if (cancellableStatuses.includes(application.status)) {
+          withdrawBtn.classList.remove('hidden');
+        } else {
+          withdrawBtn.classList.add('hidden');
+        }
+
         // Build timeline based on status
         const timeline = [];
         timeline.push({
@@ -213,7 +229,47 @@
         lucide.createIcons();
       } catch (error) {
         console.error('Failed to load application:', error);
-        document.getElementById('scholarshipTitle').textContent = 'Error Loading Application';
+      }
+    }
+
+    async function withdrawApplication() {
+      if (!confirm('Are you sure you want to withdraw this application? This action cannot be undone.')) {
+        return;
+      }
+
+      const btn = document.getElementById('withdrawBtn');
+      const originalContent = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Withdrawing...';
+      lucide.createIcons();
+
+      try {
+        const response = await fetch('/api/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'withdraw',
+            appId: applicationId,
+            studentId: user.studentID
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('Application withdrawn successfully.');
+          window.location.reload();
+        } else {
+          alert('Failed to withdraw application: ' + (result.error || 'Unknown error'));
+          btn.disabled = false;
+          btn.innerHTML = originalContent;
+          lucide.createIcons();
+        }
+      } catch (error) {
+        console.error('Withdrawal error:', error);
+        alert('An error occurred while withdrawing the application.');
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+        lucide.createIcons();
       }
     }
 

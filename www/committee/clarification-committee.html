@@ -47,7 +47,7 @@
 <body class="bg-gray-50 font-sans antialiased">
     <div id="header-container"></div>
 
-    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+    <main class="max-w-[1600px] mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen">
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Manage Clarifications</h1>
             <p class="text-gray-600 mt-1">Request and view clarifications from reviewers.</p>
@@ -104,9 +104,17 @@
     </main>
 
     <div id="footer-container"></div>
-    <script src="/common.js?v=2"></script>
+    <script src="/common.js?v=3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || "{}");
+
+            if (!token || (user.role !== 'Committee' && user.role !== 'CommitteeMember')) {
+                window.location.href = '/login.html';
+                return;
+            }
+
             loadRequests();
             loadReviewedApps();
 
@@ -128,7 +136,7 @@
                             'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ applicationID: appId, question })
+                        body: JSON.stringify({ evalID: appId, question })
                     });
 
                     if (res.ok) {
@@ -156,19 +164,27 @@
                 const res = await fetch('/api/applications', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const data = await res.json();
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    console.error('Fetch failed:', errorData);
+                    throw new Error(errorData.message || 'Error loading applications');
+                }
+
+                const dataRaw = await res.json();
+                const data = dataRaw.applications || [];
 
                 // Ideally this endpoint returns all or Committee specific. 
                 // Filter for 'Reviewed' only as clarifications usually happen then.
-                const reviewed = data.filter(a => a.status === 'Reviewed');
+                // ALSO Filter for those that HAVE an evaluation record.
+                const reviewed = data.filter(a => a.status === 'Reviewed' && a.evaluation && a.evaluation.evalID);
 
                 if (reviewed.length === 0) {
-                    select.innerHTML = '<option value="">No reviewed applications found</option>';
+                    select.innerHTML = '<option value="">No reviewed applications with evaluations found</option>';
                     return;
                 }
 
                 select.innerHTML = '<option value="">Select an Application</option>' +
-                    reviewed.map(a => `<option value="${a.applicationID}">${a.studentName} - ${a.scholarshipTitle}</option>`).join('');
+                    reviewed.map(a => `<option value="${a.evaluation.evalID}">${a.fullname} - ${a.scholarship_title}</option>`).join('');
 
             } catch (err) {
                 select.innerHTML = '<option value="">Error loading applications</option>';
@@ -182,6 +198,11 @@
                 const res = await fetch('/api/clarifications', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    console.error('Fetch failed:', errorData);
+                    throw new Error(errorData.message || 'Error loading requests');
+                }
                 const data = await res.json();
 
                 if (data.length === 0) {
@@ -211,8 +232,10 @@
                     </tr>
                 `).join('');
 
+                if (window.lucide) lucide.createIcons();
             } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Error loading data.</td></tr>';
+                console.error('Error in loadRequests:', err);
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Error loading data: ${err.message}</td></tr>`;
             }
         }
     </script>

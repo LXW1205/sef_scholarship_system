@@ -31,19 +31,24 @@ public class SystemHandler implements HttpHandler {
 
                     List<com.scholarship.model.Scholarship> all = sDAO.findAll();
                     long now = System.currentTimeMillis();
-                    long days3 = 3L * 24 * 60 * 60 * 1000L;
+                    long days7 = 7L * 24 * 60 * 60 * 1000L;
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
 
                     for (com.scholarship.model.Scholarship s : all) {
-                        if (s.getDeadline() != null) {
+                        if (s.isActive() && s.getDeadline() != null) {
                             long deadline = s.getDeadline().getTime();
                             long diff = deadline - now;
-                            // If deadline is within 3 days and in future
-                            if (diff > 0 && diff <= days3) {
-                                // Create notification for ADMIN (simplified)
-                                // We could check if notification already exists to avoid spam, but for now
-                                // simple logic
+                            // If deadline is within 7 days and in future
+                            if (diff > 0 && diff <= days7) {
+                                String dateStr = sdf.format(s.getDeadline());
+                                // Notify Admin
                                 nDAO.createForRole("Admin",
-                                        "Scholarship '" + s.getTitle() + "' is closing in less than 3 days.");
+                                        "Scholarship '" + s.getTitle() + "' is closing on " + dateStr
+                                                + " (in less than 7 days).");
+                                // Notify Students
+                                nDAO.createForRole("Student",
+                                        "Reminder: Scholarship '" + s.getTitle() + "' is closing on " + dateStr
+                                                + ". Don't miss the deadline!");
                             }
                         }
                     }

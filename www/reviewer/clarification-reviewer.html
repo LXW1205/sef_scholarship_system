@@ -47,7 +47,7 @@
 <body class="bg-gray-50 font-sans antialiased">
     <div id="header-container"></div>
 
-    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+    <main class="max-w-[1600px] mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen">
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Clarification Requests</h1>
             <p class="text-gray-600 mt-1">Provide answers to the committee regarding your reviews.</p>
@@ -97,9 +97,17 @@
     </div>
 
     <div id="footer-container"></div>
-    <script src="/common.js?v=2"></script>
+    <script src="/common.js?v=3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || "{}");
+
+            if (!token || user.role !== 'Reviewer') {
+                window.location.href = '/login.html';
+                return;
+            }
+
             loadRequests();
 
             document.getElementById('responseForm').addEventListener('submit', async (e) => {
@@ -112,7 +120,7 @@
                 btn.textContent = 'Sending...';
 
                 try {
-                    const res = await fetch(`/api/clarifications/${id}/respond`, {
+                    const res = await fetch(`/api/clarifications/${id}/answer`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
@@ -143,6 +151,12 @@
                 const res = await fetch('/api/clarifications', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    console.error('Fetch failed:', errorData);
+                    throw new Error(errorData.message || 'Error loading requests');
+                }
+
                 const data = await res.json();
 
                 if (data.length === 0) {
@@ -153,8 +167,8 @@
                 tbody.innerHTML = data.map(r => `
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4">
-                            <div class="font-medium text-gray-900">${r.scholarshipTitle}</div>
-                            <div class="text-sm text-gray-500">${r.studentName}</div>
+                            <div class="font-medium text-gray-900">${r.scholarshipTitle || 'Unknown Scholarship'}</div>
+                            <div class="text-sm text-gray-500">${r.studentName || 'Unknown Student'}</div>
                         </td>
                         <td class="px-6 py-4">
                             <p class="text-gray-800">${r.question}</p>
@@ -168,16 +182,17 @@
                         </td>
                         <td class="px-6 py-4">
                             ${r.status === 'Pending' ? `
-                                <button onclick="openModal(${r.clarificationID}, '${r.question.replace(/'/g, "\\'")}')" class="text-primary hover:text-primary/80 font-medium text-sm">
+                                <button onclick="openModal(${r.clarificationID}, '${(r.question || '').replace(/'/g, "\\'")}')" class="text-primary hover:text-primary/80 font-medium text-sm">
                                     Respond
                                 </button>
-                            ` : `<span class="text-sm text-gray-600 line-clamp-1" title="${r.answer}">Ans: ${r.answer}</span>`}
+                            ` : `<span class="text-sm text-gray-600 line-clamp-1" title="${r.answer || ''}">Ans: ${r.answer || ''}</span>`}
                         </td>
                     </tr>
                 `).join('');
 
             } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Error loading data.</td></tr>';
+                console.error('Error in loadRequests:', err);
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Error loading data: ${err.message}</td></tr>`;
             }
         }
 

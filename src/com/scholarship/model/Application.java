@@ -17,6 +17,8 @@ public class Application {
     private double cgpa;
     private String major;
     private String yearOfStudy;
+    private String qualification;
+    private double familyIncome;
     private java.util.List<Document> documents = new java.util.ArrayList<>();
 
     private String personalStatement;
@@ -102,6 +104,22 @@ public class Application {
 
     public void setYearOfStudy(String yearOfStudy) {
         this.yearOfStudy = yearOfStudy;
+    }
+
+    public String getQualification() {
+        return qualification;
+    }
+
+    public void setQualification(String qualification) {
+        this.qualification = qualification;
+    }
+
+    public double getFamilyIncome() {
+        return familyIncome;
+    }
+
+    public void setFamilyIncome(double familyIncome) {
+        this.familyIncome = familyIncome;
     }
 
     public String getApplicantName() {

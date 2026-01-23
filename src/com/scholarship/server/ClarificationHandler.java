@@ -35,7 +35,7 @@ public class ClarificationHandler implements HttpHandler {
             String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
             String[] userAuth = AuthHandler.verifyToken(authHeader);
             if (userAuth == null) {
-                sendResponse(exchange, 401, "Unauthorized");
+                sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
@@ -47,12 +47,12 @@ public class ClarificationHandler implements HttpHandler {
             } else if (method.equalsIgnoreCase("POST")) {
                 handlePost(exchange, path, userId, role);
             } else {
-                sendResponse(exchange, 405, "Method not allowed");
+                sendError(exchange, 405, "Method not allowed");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+            sendError(exchange, 500, "Internal Server Error: " + e.getMessage());
         }
     }
 
@@ -62,7 +62,7 @@ public class ClarificationHandler implements HttpHandler {
         if (role.equalsIgnoreCase("Reviewer")) {
             String reviewerID = getReviewerID(userId);
             if (reviewerID == null) {
-                sendResponse(exchange, 403, "Reviewer profile not found.");
+                sendError(exchange, 403, "Reviewer profile not found.");
                 return;
             }
             requests = clarificationDAO.getRequestsForReviewer(reviewerID);
@@ -70,7 +70,7 @@ public class ClarificationHandler implements HttpHandler {
         } else if (role.equalsIgnoreCase("Committee") || role.equalsIgnoreCase("CommitteeMember")) {
             requests = clarificationDAO.getAllRequestsForCommittee();
         } else {
-            sendResponse(exchange, 403, "Access denied.");
+            sendError(exchange, 403, "Access denied.");
             return;
         }
 
@@ -87,20 +87,20 @@ public class ClarificationHandler implements HttpHandler {
         if (pathParts.length == 3) {
             // Create Request
             if (!role.equalsIgnoreCase("Committee") && !role.equalsIgnoreCase("CommitteeMember")) {
-                sendResponse(exchange, 403, "Only Committee can request clarification.");
+                sendError(exchange, 403, "Only Committee can request clarification.");
                 return;
             }
             createRequest(exchange);
         } else if (pathParts.length == 5 && pathParts[4].equals("answer")) {
             // Answer Request
             if (!role.equalsIgnoreCase("Reviewer")) {
-                sendResponse(exchange, 403, "Only Reviewers can answer clarification requests.");
+                sendError(exchange, 403, "Only Reviewers can answer clarification requests.");
                 return;
             }
             int reqId = Integer.parseInt(pathParts[3]);
             answerRequest(exchange, reqId, userId);
         } else {
-            sendResponse(exchange, 404, "Endpoint not found");
+            sendError(exchange, 404, "Endpoint not found");
         }
     }
 
@@ -110,7 +110,7 @@ public class ClarificationHandler implements HttpHandler {
         String question = body.get("question");
 
         if (evalIDStr == null || question == null || question.trim().isEmpty()) {
-            sendResponse(exchange, 400, "evalID and question are required");
+            sendError(exchange, 400, "evalID and question are required");
             return;
         }
 
@@ -121,7 +121,7 @@ public class ClarificationHandler implements HttpHandler {
         if (clarificationDAO.create(req)) {
             sendResponse(exchange, 201, "{\"message\": \"Clarification requested successfully\"}");
         } else {
-            sendResponse(exchange, 500, "{\"message\": \"Failed to request clarification\"}");
+            sendError(exchange, 500, "Failed to request clarification");
         }
     }
 
@@ -130,26 +130,26 @@ public class ClarificationHandler implements HttpHandler {
         String answer = body.get("answer");
 
         if (answer == null || answer.trim().isEmpty()) {
-            sendResponse(exchange, 400, "Answer is required");
+            sendError(exchange, 400, "Answer is required");
             return;
         }
 
         String reviewerID = getReviewerID(userId);
         if (reviewerID == null) {
-            sendResponse(exchange, 403, "Reviewer profile not found.");
+            sendError(exchange, 403, "Reviewer profile not found.");
             return;
         }
 
         // Check ownership
         if (!clarificationDAO.isReviewerOwner(reqId, reviewerID)) {
-            sendResponse(exchange, 403, "You can only answer requests on your own evaluations.");
+            sendError(exchange, 403, "You can only answer requests on your own evaluations.");
             return;
         }
 
         if (clarificationDAO.updateAnswer(reqId, answer)) {
             sendResponse(exchange, 200, "{\"message\": \"Clarification answered successfully\"}");
         } else {
-            sendResponse(exchange, 404, "Request not found");
+            sendError(exchange, 404, "Request not found");
         }
     }
 
@@ -171,5 +171,10 @@ public class ClarificationHandler implements HttpHandler {
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(response.getBytes());
         }
+    }
+
+    private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
+        String jsonResponse = "{\"message\": \"" + message.replace("\"", "\\\"") + "\"}";
+        sendResponse(exchange, statusCode, jsonResponse);
     }
 }

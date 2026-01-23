@@ -67,12 +67,12 @@ public class InquiryHandler implements HttpHandler {
         } else if (role.equalsIgnoreCase("Student")) {
             String studentID = getStudentID(userId);
             if (studentID == null) {
-                sendResponse(exchange, 400, "Student record not found for user ID: " + userId);
+                sendError(exchange, 400, "Student record not found for user ID: " + userId);
                 return;
             }
             responseList = inquiryDAO.findByStudentIdWithDetails(studentID);
         } else {
-            sendResponse(exchange, 403, "Access denied. Only Admins and Students can view inquiries.");
+            sendError(exchange, 403, "Access denied. Only Admins and Students can view inquiries.");
             return;
         }
 
@@ -136,9 +136,12 @@ public class InquiryHandler implements HttpHandler {
             return;
         }
 
+        System.out.println("[DEBUG] Answering Inquiry ID: " + inquiryId);
         if (inquiryDAO.updateAnswer(inquiryId, answer)) {
+            System.out.println("[DEBUG] Inquiry answered successfully");
             sendResponse(exchange, 200, "{\"message\": \"Inquiry answered successfully\"}");
         } else {
+            System.out.println("[ERROR] Inquiry not found or update failed: " + inquiryId);
             sendError(exchange, 404, "Inquiry not found");
         }
     }
@@ -158,14 +161,15 @@ public class InquiryHandler implements HttpHandler {
 
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(statusCode, response.length());
+        byte[] bytes = response.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
+            os.write(bytes);
         }
     }
 
     private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
-        String jsonResponse = "{\"message\": \"" + message.replace("\"", "\\\"") + "\"}";
+        String jsonResponse = "{\"error\": \"" + message.replace("\"", "\\\"") + "\"}";
         sendResponse(exchange, statusCode, jsonResponse);
     }
 }

@@ -86,6 +86,10 @@ public class ApplicationHandler implements HttpHandler {
             // Check if this is a "make decision" request (has decision/comments)
             else if (requestBody.contains("\"decision\"") && requestBody.contains("\"appId\"")) {
                 handleDecision(exchange, requestBody);
+            }
+            // Check if this is a "withdraw" request
+            else if (requestBody.contains("\"action\":") && requestBody.contains("\"withdraw\"")) {
+                handleWithdraw(exchange, requestBody);
             } else {
                 System.out.println("[ERROR] Unknown POST request format");
                 sendError(exchange, 400, "Unknown request format");
@@ -195,6 +199,7 @@ public class ApplicationHandler implements HttpHandler {
                 if (evaluationDAO.save(eval)) {
                     // UPDATE STATUS
                     applicationDAO.updateStatus(appId, "Reviewing");
+                    notifyStudentStatusChange(appId, "Reviewing", null);
 
                     // NOTIFY REVIEWER
                     com.scholarship.model.User reviewer = userDAO.verifyUserForReset(reviewerId, "", "Reviewer"); // Helper-ish
@@ -269,6 +274,7 @@ public class ApplicationHandler implements HttpHandler {
                     }
 
                     applicationDAO.updateStatus(appId, "Reviewed");
+                    notifyStudentStatusChange(appId, "Reviewed", null);
                     notificationDAO.createForRole("Committee", "New evaluation submitted for Application ID: " + appId);
                     sendResponse(exchange, 200, "{\"success\": true}");
                 } else {
@@ -292,25 +298,74 @@ public class ApplicationHandler implements HttpHandler {
 
             if (applicationDAO.updateStatus(appId, decision)) {
                 // NOTIFY STUDENT
-                Application app = applicationDAO.findById(appId); // Need findById
-                if (app != null) {
-                    // Find userID for studentID
-                    com.scholarship.model.User student = userDAO.verifyUserForReset(app.getStudentID(), "", "Student");
-                    if (student != null) {
-                        String msg = "A decision has been made on your application: " + decision;
-                        if (comments != null && !comments.isEmpty()) {
-                            msg += ". Comments: " + comments;
-                        }
-                        notificationDAO
-                                .create(new com.scholarship.model.Notification(0, student.getId(), msg, null, false));
-                    }
-                }
+                notifyStudentStatusChange(appId, decision, comments);
                 sendResponse(exchange, 200, "{\"success\": true}");
             } else {
                 sendError(exchange, 500, "Failed to update application status");
             }
         } catch (Exception e) {
             sendError(exchange, 500, "Error submitting decision: " + e.getMessage());
+        }
+    }
+
+    private void notifyStudentStatusChange(int appId, String newStatus, String details) {
+        try {
+            Application app = applicationDAO.findById(appId);
+            if (app != null) {
+                com.scholarship.model.User student = userDAO.verifyUserForReset(app.getStudentID(), "", "Student");
+                if (student != null) {
+                    String msg = String.format("The status of your application for '%s' has changed to: %s.",
+                            app.getScholarshipTitle(), newStatus);
+                    if (details != null && !details.isEmpty()) {
+                        msg += " Details: " + details;
+                    }
+                    notificationDAO
+                            .create(new com.scholarship.model.Notification(0, student.getId(), msg, null, false));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[ERROR] Failed to notify student: " + e.getMessage());
+        }
+    }
+
+    private void handleWithdraw(HttpExchange exchange, String requestBody) throws IOException {
+        System.out.println("[DEBUG] Handling Withdraw...");
+        try {
+            String appIdStr = JsonUtils.extractValue(requestBody, "appId");
+            String studentId = JsonUtils.extractValue(requestBody, "studentId");
+
+            if (appIdStr != null && studentId != null) {
+                int appId = Integer.parseInt(appIdStr.trim());
+                Application app = applicationDAO.findById(appId);
+
+                if (app != null && app.getStudentID().equals(studentId)) {
+                    // Only allow withdrawal if not already approved/rejected
+                    if (app.getStatus().equals("Approved") || app.getStatus().equals("Rejected")) {
+                        sendError(exchange, 400, "Cannot withdraw application after a final decision has been made");
+                        return;
+                    }
+
+                    if (applicationDAO.updateStatus(appId, "Withdrawn")) {
+                        // NOTIFY ADMIN
+                        notificationDAO.createForRole("Admin",
+                                "Application ID: " + appId + " has been withdrawn by the student (" + studentId + ")");
+
+                        // NOTIFY COMMITTEE (if needed)
+                        notificationDAO.createForRole("Committee", "Application ID: " + appId + " has been withdrawn.");
+
+                        sendResponse(exchange, 200,
+                                "{\"success\": true, \"message\": \"Application withdrawn successfully\"}");
+                    } else {
+                        sendError(exchange, 500, "Failed to update application status");
+                    }
+                } else {
+                    sendError(exchange, 403, "Forbidden: Application not found or does not belong to you");
+                }
+            } else {
+                sendError(exchange, 400, "Missing appId or studentId");
+            }
+        } catch (Exception e) {
+            sendError(exchange, 500, "Error withdrawing application: " + e.getMessage());
         }
     }
 
@@ -393,7 +448,7 @@ public class ApplicationHandler implements HttpHandler {
                 }
 
                 json.append(String.format(
-                        "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s%s%s}",
+                        "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"qualification\": \"%s\", \"familyIncome\": %.2f, \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s%s%s}",
                         a.getAppID(),
                         a.getAppID(),
                         JsonUtils.escape(a.getScholarshipTitle()),
@@ -402,6 +457,8 @@ public class ApplicationHandler implements HttpHandler {
                         a.getCgpa(),
                         JsonUtils.escape(a.getMajor() != null ? a.getMajor() : ""),
                         JsonUtils.escape(a.getYearOfStudy() != null ? a.getYearOfStudy() : ""),
+                        JsonUtils.escape(a.getQualification() != null ? a.getQualification() : ""),
+                        a.getFamilyIncome(),
                         JsonUtils.escape(a.getStudentID()),
                         a.getSubmissionDate(),
                         JsonUtils.escape(a.getStatus()),
@@ -495,7 +552,7 @@ public class ApplicationHandler implements HttpHandler {
         }
 
         return String.format(
-                "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"scholarshipID\": %d, \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s, \"criteria\": %s%s%s}",
+                "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"scholarshipID\": %d, \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"qualification\": \"%s\", \"familyIncome\": %.2f, \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s, \"criteria\": %s%s%s}",
                 a.getAppID(),
                 a.getAppID(),
                 JsonUtils.escape(a.getScholarshipTitle()),
@@ -505,6 +562,8 @@ public class ApplicationHandler implements HttpHandler {
                 a.getCgpa(),
                 JsonUtils.escape(a.getMajor() != null ? a.getMajor() : ""),
                 JsonUtils.escape(a.getYearOfStudy() != null ? a.getYearOfStudy() : ""),
+                JsonUtils.escape(a.getQualification() != null ? a.getQualification() : ""),
+                a.getFamilyIncome(),
                 JsonUtils.escape(a.getStudentID()),
                 a.getSubmissionDate(),
                 JsonUtils.escape(a.getStatus()),

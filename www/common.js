@@ -182,7 +182,7 @@ function injectHeader() {
 function injectPublicHeader(container) {
     container.innerHTML = `
     <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
@@ -224,7 +224,7 @@ function injectAdminHeader(container) {
     const currentPath = window.location.pathname;
     container.innerHTML = `
     <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
@@ -266,7 +266,7 @@ function injectStudentHeader(container) {
     const currentPath = window.location.pathname;
     container.innerHTML = `
     <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
@@ -305,7 +305,7 @@ function injectReviewerHeader(container) {
     const currentPath = window.location.pathname;
     container.innerHTML = `
     <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
@@ -341,7 +341,7 @@ function injectCommitteeHeader(container) {
     const currentPath = window.location.pathname;
     container.innerHTML = `
     <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
@@ -388,7 +388,7 @@ function injectFooter() {
 
     footerContainer.innerHTML = `
     <footer class="bg-muted/50 border-t border-border py-8 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-5 h-5 text-primary"></i>

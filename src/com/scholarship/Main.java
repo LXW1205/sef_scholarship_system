@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         // Run database migrations
-        com.scholarship.db.DatabaseMigration.run();
+        // com.scholarship.db.DatabaseMigration.run();
 
         // Test DB Connection
         DatabaseConnection.testConnection();
