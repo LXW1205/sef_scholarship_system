@@ -170,16 +170,16 @@
               </div>
             </div>
             <div class="flex gap-2">
-              ${assignment.status !== 'Reviewed' ? `
+              ${['Pending', 'Under Review', 'In Progress'].includes(assignment.status) ? `
                 <a href="/reviewer/application-review.html?id=${assignment.id}" 
                   class="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium inline-flex items-center gap-2">
                   <i data-lucide="eye" class="w-4 h-4"></i>
                   ${assignment.status === 'In Progress' ? 'Continue Review' : 'Start Review'}
                 </a>
               ` : `
-                <button class="px-6 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium inline-flex items-center gap-2">
+                <button disabled class="px-6 py-2 bg-secondary text-secondary-foreground rounded-lg opacity-60 cursor-not-allowed font-medium inline-flex items-center gap-2">
                   <i data-lucide="check" class="w-4 h-4"></i>
-                  Completed
+                  Review Closed
                 </button>
               `}
             </div>

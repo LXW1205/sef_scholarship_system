@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class ScholarshipHandler implements HttpHandler {
@@ -49,10 +50,11 @@ public class ScholarshipHandler implements HttpHandler {
                 }
             }
 
+            byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(statusCode, response.length());
+            exchange.sendResponseHeaders(statusCode, bytes.length);
             try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
+                os.write(bytes);
             }
         } else if ("POST".equals(exchange.getRequestMethod())) {
             handlePost(exchange);
@@ -75,12 +77,9 @@ public class ScholarshipHandler implements HttpHandler {
         }
 
         if (id != -1 && scholarshipDAO.delete(id)) {
-            String response = "{\"success\": true}";
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, response.length());
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
-            }
+            com.scholarship.dao.AuditLogDAO.log(null, "Admin", "Scholarship Deleted", "Scholarship",
+                    String.valueOf(id), "Scholarship ID: " + id + " deleted", null);
+            sendResponse(exchange, 200, "{\"success\": true}");
         } else {
             sendError(exchange, 400, "Invalid ID or failed to delete");
         }
@@ -156,18 +155,21 @@ public class ScholarshipHandler implements HttpHandler {
             boolean success;
             if (id > 0) {
                 success = scholarshipDAO.update(s);
+                if (success) {
+                    com.scholarship.dao.AuditLogDAO.log(null, "Admin", "Scholarship Updated", "Scholarship",
+                            String.valueOf(id), "Scholarship '" + title + "' (ID: " + id + ") updated", null);
+                }
             } else {
                 int newId = scholarshipDAO.create(s);
                 success = newId > 0;
+                if (success) {
+                    com.scholarship.dao.AuditLogDAO.log(null, "Admin", "Scholarship Created", "Scholarship",
+                            String.valueOf(newId), "New scholarship '" + title + "' created", null);
+                }
             }
 
             if (success) {
-                String response = "{\"success\": true}";
-                exchange.getResponseHeaders().set("Content-Type", "application/json");
-                exchange.sendResponseHeaders(200, response.length());
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
+                sendResponse(exchange, 200, "{\"success\": true}");
             } else {
                 sendError(exchange, 500, "Failed to save scholarship");
             }
@@ -178,13 +180,18 @@ public class ScholarshipHandler implements HttpHandler {
         }
     }
 
+    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        byte[] bytes = response.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+        }
+    }
+
     private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
         String response = String.format("{\"error\": \"%s\"}", JsonUtils.escape(message));
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(statusCode, response.length());
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
-        }
+        sendResponse(exchange, statusCode, response);
     }
 
     private String getSingleScholarshipJson(int id) {

@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Authentication UI
     handleAuthUI();
 
+    // Initialize Notification Badge
+    updateNotificationBadge();
+
     // Initialize Password Toggles
     initPasswordToggles();
 
@@ -146,6 +149,7 @@ async function checkProfileOnServer(userId) {
 
             // Update local storage with latest data
             const currentUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "{}");
+            currentUser.id = profile.userId; // Sync IDs
             Object.assign(currentUser, profile);
             localStorage.setItem("user", JSON.stringify(currentUser));
 
@@ -166,13 +170,13 @@ function injectHeader() {
     const path = window.location.pathname;
 
     // Determine which header to inject
-    if (user.role === 'Admin' && (path.includes('/admin/') || path.includes('profile.html') || path.includes('notifications.html'))) {
+    if (user.role === 'Admin' && (path.includes('/admin/') || path.includes('profile-') || path.includes('notifications-'))) {
         injectAdminHeader(headerContainer);
-    } else if (user.role === 'Student' && (path.includes('/student/') || path.includes('profile.html') || path.includes('notifications.html'))) {
+    } else if (user.role === 'Student' && (path.includes('/student/') || path.includes('profile-') || path.includes('notifications-'))) {
         injectStudentHeader(headerContainer);
-    } else if (user.role === 'Reviewer' && (path.includes('/reviewer/') || path.includes('profile.html') || path.includes('notifications.html'))) {
+    } else if (user.role === 'Reviewer' && (path.includes('/reviewer/') || path.includes('profile-') || path.includes('notifications-'))) {
         injectReviewerHeader(headerContainer);
-    } else if (user.role === 'Committee' && (path.includes('/committee/') || path.includes('profile.html') || path.includes('notifications.html'))) {
+    } else if (user.role === 'Committee' && (path.includes('/committee/') || path.includes('profile-') || path.includes('notifications-'))) {
         injectCommitteeHeader(headerContainer);
     } else {
         injectPublicHeader(headerContainer);
@@ -243,8 +247,9 @@ function injectAdminHeader(container) {
                     <a href="/admin/applications-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
                         <i data-lucide="clipboard-check" class="w-4 h-4"></i> Applications
                     </a>
-                    <a href="/admin/notifications-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
+                    <a href="/admin/notifications-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
                         <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                        <span id="notif-badge" class="flex items-center justify-center w-5 h-5 bg-muted text-muted-foreground opacity-30 text-[10px] font-bold rounded-full text-center">0</span>
                     </a>
                     <a href="/admin/inquiry-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('inquiry') ? 'font-semibold' : ''}">
                         <i data-lucide="message-square" class="w-4 h-4"></i> Inquiries
@@ -282,8 +287,12 @@ function injectStudentHeader(container) {
                     <a href="/student/applications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
                         <i data-lucide="file-text" class="w-4 h-4"></i> My Applications
                     </a>
-                    <a href="/student/notifications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
+                    <a href="/student/interviews-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('interviews') ? 'font-semibold' : ''}">
+                        <i data-lucide="video" class="w-4 h-4"></i> Interviews
+                    </a>
+                    <a href="/student/notifications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
                         <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                        <span id="notif-badge" class="flex items-center justify-center w-5 h-5 bg-muted text-muted-foreground opacity-30 text-[10px] font-bold rounded-full text-center">0</span>
                     </a>
                     <a href="/student/inquiry-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('inquiry') ? 'font-semibold' : ''}">
                         <i data-lucide="help-circle" class="w-4 h-4"></i> My Inquiries
@@ -318,8 +327,9 @@ function injectReviewerHeader(container) {
                     <a href="/reviewer/application-assignments.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('assignments') ? 'font-semibold' : ''}">
                         <i data-lucide="clipboard-list" class="w-4 h-4"></i> Assignments
                     </a>
-                    <a href="/reviewer/notifications-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
+                    <a href="/reviewer/notifications-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
                         <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                        <span id="notif-badge" class="flex items-center justify-center w-5 h-5 bg-muted text-muted-foreground opacity-30 text-[10px] font-bold rounded-full text-center">0</span>
                     </a>
                     <a href="/reviewer/clarification-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('clarification') ? 'font-semibold' : ''}">
                         <i data-lucide="message-circle-question" class="w-4 h-4"></i> Clarifications
@@ -366,8 +376,9 @@ function injectCommitteeHeader(container) {
                     <a href="/committee/clarification-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('clarification') ? 'font-semibold' : ''}">
                         <i data-lucide="message-circle-question" class="w-4 h-4"></i> Clarifications
                     </a>
-                    <a href="/committee/notifications-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
+                    <a href="/committee/notifications-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
                         <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+                        <span id="notif-badge" class="flex items-center justify-center w-5 h-5 bg-muted text-muted-foreground opacity-30 text-[10px] font-bold rounded-full text-center">0</span>
                     </a>
                     <a href="/committee/profile-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
                         <i data-lucide="user" class="w-4 h-4"></i> Profile
@@ -445,3 +456,35 @@ function handleAuthUI() {
     }
 }
 
+/**
+ * Fetches notifications count and updates the header badge
+ */
+async function updateNotificationBadge() {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "{}");
+    const badge = document.getElementById('notif-badge');
+
+    if (!token || !user.id || !badge) return;
+
+    try {
+        const response = await fetch(`/api/notifications?userId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            const notifications = data.notifications || [];
+            const unreadCount = notifications.filter(n => !n.isRead).length;
+
+            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            if (unreadCount > 0) {
+                badge.classList.add('bg-destructive', 'text-destructive-foreground');
+                badge.classList.remove('bg-muted', 'text-muted-foreground', 'opacity-30');
+            } else {
+                badge.classList.remove('bg-destructive', 'text-destructive-foreground');
+                badge.classList.add('bg-muted', 'text-muted-foreground', 'opacity-30');
+            }
+        }
+    } catch (e) {
+        console.error("Failed to update notification badge", e);
+    }
+}

@@ -23,6 +23,7 @@ public class Application {
 
     private String personalStatement;
     private String otherScholarships;
+    private String decisionComments;
 
     public Application(int appID, String studentID, int scholarshipID, String scholarshipTitle,
             Timestamp submissionDate, String status) {
@@ -152,5 +153,13 @@ public class Application {
 
     public void setOtherScholarships(String otherScholarships) {
         this.otherScholarships = otherScholarships;
+    }
+
+    public String getDecisionComments() {
+        return decisionComments;
+    }
+
+    public void setDecisionComments(String decisionComments) {
+        this.decisionComments = decisionComments;
     }
 }

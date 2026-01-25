@@ -40,6 +40,7 @@ public class Main {
         // New Handlers
         server.createContext("/api/inquiries", new com.scholarship.server.InquiryHandler());
         server.createContext("/api/clarifications", new com.scholarship.server.ClarificationHandler());
+        server.createContext("/api/interviews", new com.scholarship.server.InterviewHandler());
 
         server.setExecutor(null); // creates a default executor
         server.start();

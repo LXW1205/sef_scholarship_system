@@ -75,4 +75,28 @@ public class NotificationDAO {
         }
         return notifs;
     }
+
+    public boolean markAsRead(int notifID) {
+        String sql = "UPDATE Notification SET isRead = true WHERE notifID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, notifID);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean markAllAsRead(int userId) {
+        String sql = "UPDATE Notification SET isRead = true WHERE userID = ? AND isRead = false";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            return pstmt.executeUpdate() >= 0; // Returns true even if 0 rows affected
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -9,7 +9,9 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 
 public class ApplicationHandler implements HttpHandler {
 
@@ -53,10 +55,11 @@ public class ApplicationHandler implements HttpHandler {
                 response = getApplicationsJson();
             }
 
+            byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, response.length());
+            exchange.sendResponseHeaders(200, bytes.length);
             try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
+                os.write(bytes);
             }
         } else if ("POST".equals(exchange.getRequestMethod())) {
             handlePost(exchange);
@@ -173,6 +176,11 @@ public class ApplicationHandler implements HttpHandler {
                 // NOTIFY ADMIN
                 notificationDAO.createForRole("Admin", "New scholarship application submitted by " + studentID);
 
+                // AUDIT LOG
+                com.scholarship.dao.AuditLogDAO.log(null, studentID, "Application Submitted", "Application",
+                        String.valueOf(appId),
+                        "Student " + studentID + " submitted application for Scholarship #" + scholarshipID, null);
+
                 String response = String.format(
                         "{\"success\": true, \"message\": \"Application submitted successfully\", \"application\": {\"appid\": %d}}",
                         appId);
@@ -202,12 +210,16 @@ public class ApplicationHandler implements HttpHandler {
                     notifyStudentStatusChange(appId, "Reviewing", null);
 
                     // NOTIFY REVIEWER
-                    com.scholarship.model.User reviewer = userDAO.verifyUserForReset(reviewerId, "", "Reviewer"); // Helper-ish
-                                                                                                                  // lookup
+                    com.scholarship.model.User reviewer = userDAO.findUserByRoleID(reviewerId, "Reviewer");
                     if (reviewer != null) {
                         notificationDAO.create(new com.scholarship.model.Notification(0, reviewer.getId(),
                                 "You have been assigned a new application (ID: " + appId + ") for review.", null,
                                 false));
+
+                        // AUDIT LOG
+                        com.scholarship.dao.AuditLogDAO.log(null, "Admin", "Reviewer Assigned", "Application",
+                                String.valueOf(appId), "Reviewer " + reviewerId + " assigned to Application #" + appId,
+                                null);
                     }
 
                     sendResponse(exchange, 200, "{\"success\": true}");
@@ -276,6 +288,14 @@ public class ApplicationHandler implements HttpHandler {
                     applicationDAO.updateStatus(appId, "Reviewed");
                     notifyStudentStatusChange(appId, "Reviewed", null);
                     notificationDAO.createForRole("Committee", "New evaluation submitted for Application ID: " + appId);
+
+                    // AUDIT LOG
+                    com.scholarship.dao.AuditLogDAO.log(null, eval.getReviewerID(), "Evaluation Submitted",
+                            "Application",
+                            String.valueOf(appId), "Reviewer " + eval.getReviewerID()
+                                    + " submitted evaluation for Application #" + appId,
+                            null);
+
                     sendResponse(exchange, 200, "{\"success\": true}");
                 } else {
                     sendError(exchange, 500, "Failed to update evaluation");
@@ -296,9 +316,14 @@ public class ApplicationHandler implements HttpHandler {
             String decision = JsonUtils.extractValue(requestBody, "decision");
             String comments = JsonUtils.extractValue(requestBody, "comments");
 
-            if (applicationDAO.updateStatus(appId, decision)) {
+            if (applicationDAO.updateStatus(appId, decision, comments)) {
                 // NOTIFY STUDENT
-                notifyStudentStatusChange(appId, decision, comments);
+                notifyStudentStatusChange(appId, decision, null); // Details moved to persistent comments
+
+                // AUDIT LOG
+                com.scholarship.dao.AuditLogDAO.log(null, "Admin", "Application " + decision, "Application",
+                        String.valueOf(appId), "Admin " + decision + " Application #" + appId, null);
+
                 sendResponse(exchange, 200, "{\"success\": true}");
             } else {
                 sendError(exchange, 500, "Failed to update application status");
@@ -312,13 +337,11 @@ public class ApplicationHandler implements HttpHandler {
         try {
             Application app = applicationDAO.findById(appId);
             if (app != null) {
-                com.scholarship.model.User student = userDAO.verifyUserForReset(app.getStudentID(), "", "Student");
+                com.scholarship.model.User student = userDAO.findUserByRoleID(app.getStudentID(), "Student");
                 if (student != null) {
-                    String msg = String.format("The status of your application for '%s' has changed to: %s.",
+                    String msg = String.format(
+                            "The status of your application for '%s' has changed to: %s. View details in your applications dashboard.",
                             app.getScholarshipTitle(), newStatus);
-                    if (details != null && !details.isEmpty()) {
-                        msg += " Details: " + details;
-                    }
                     notificationDAO
                             .create(new com.scholarship.model.Notification(0, student.getId(), msg, null, false));
                 }
@@ -352,6 +375,11 @@ public class ApplicationHandler implements HttpHandler {
 
                         // NOTIFY COMMITTEE (if needed)
                         notificationDAO.createForRole("Committee", "Application ID: " + appId + " has been withdrawn.");
+
+                        // AUDIT LOG
+                        com.scholarship.dao.AuditLogDAO.log(null, studentId, "Application Withdrawn", "Application",
+                                String.valueOf(appId), "Student " + studentId + " withdrawn Application #" + appId,
+                                null);
 
                         sendResponse(exchange, 200,
                                 "{\"success\": true, \"message\": \"Application withdrawn successfully\"}");
@@ -432,7 +460,7 @@ public class ApplicationHandler implements HttpHandler {
                             .findScoresByEvalId(eval.getEvalID());
                     for (int i = 0; i < scores.size(); i++) {
                         com.scholarship.model.EvaluationScore s = scores.get(i);
-                        scoresJson.append(String.format("{\"criteriaName\": \"%s\", \"score\": %.2f}",
+                        scoresJson.append(String.format(Locale.US, "{\"criteriaName\": \"%s\", \"score\": %.2f}",
                                 JsonUtils.escape(s.getCriteriaName()), s.getScore()));
                         if (i < scores.size() - 1)
                             scoresJson.append(",");
@@ -448,7 +476,7 @@ public class ApplicationHandler implements HttpHandler {
                 }
 
                 json.append(String.format(
-                        "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"qualification\": \"%s\", \"familyIncome\": %.2f, \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s%s%s}",
+                        "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"qualification\": \"%s\", \"familyIncome\": %.2f, \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"decisionComments\": \"%s\", \"documents\": %s%s%s}",
                         a.getAppID(),
                         a.getAppID(),
                         JsonUtils.escape(a.getScholarshipTitle()),
@@ -464,6 +492,7 @@ public class ApplicationHandler implements HttpHandler {
                         JsonUtils.escape(a.getStatus()),
                         JsonUtils.escape(a.getPersonalStatement() != null ? a.getPersonalStatement() : ""),
                         JsonUtils.escape(a.getOtherScholarships() != null ? a.getOtherScholarships() : ""),
+                        JsonUtils.escape(a.getDecisionComments() != null ? a.getDecisionComments() : ""),
                         docsJson.toString(),
                         reviewerInfo,
                         evalInfo));
@@ -537,8 +566,9 @@ public class ApplicationHandler implements HttpHandler {
             List<com.scholarship.model.EvaluationScore> scores = evaluationDAO.findScoresByEvalId(eval.getEvalID());
             for (int i = 0; i < scores.size(); i++) {
                 com.scholarship.model.EvaluationScore sc = scores.get(i);
-                scoresJsonStr.append(String.format("{\"criteriaID\": %d, \"criteriaName\": \"%s\", \"score\": %.2f}",
-                        sc.getCriteriaID(), JsonUtils.escape(sc.getCriteriaName()), sc.getScore()));
+                scoresJsonStr.append(
+                        String.format(Locale.US, "{\"criteriaID\": %d, \"criteriaName\": \"%s\", \"score\": %.2f}",
+                                sc.getCriteriaID(), JsonUtils.escape(sc.getCriteriaName()), sc.getScore()));
                 if (i < scores.size() - 1)
                     scoresJsonStr.append(",");
             }
@@ -552,7 +582,7 @@ public class ApplicationHandler implements HttpHandler {
         }
 
         return String.format(
-                "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"scholarshipID\": %d, \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"qualification\": \"%s\", \"familyIncome\": %.2f, \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"documents\": %s, \"criteria\": %s%s%s}",
+                "{\"applicationid\": %d, \"id\": %d, \"scholarship_title\": \"%s\", \"scholarshipID\": %d, \"fullname\": \"%s\", \"email\": \"%s\", \"cgpa\": %.2f, \"major\": \"%s\", \"yearOfStudy\": \"%s\", \"qualification\": \"%s\", \"familyIncome\": %.2f, \"studentid\": \"%s\", \"submissiondate\": \"%s\", \"status\": \"%s\", \"personalStatement\": \"%s\", \"otherScholarships\": \"%s\", \"decisionComments\": \"%s\", \"documents\": %s, \"criteria\": %s%s%s}",
                 a.getAppID(),
                 a.getAppID(),
                 JsonUtils.escape(a.getScholarshipTitle()),
@@ -569,6 +599,7 @@ public class ApplicationHandler implements HttpHandler {
                 JsonUtils.escape(a.getStatus()),
                 JsonUtils.escape(a.getPersonalStatement() != null ? a.getPersonalStatement() : ""),
                 JsonUtils.escape(a.getOtherScholarships() != null ? a.getOtherScholarships() : ""),
+                JsonUtils.escape(a.getDecisionComments() != null ? a.getDecisionComments() : ""),
                 docsJson.toString(),
                 criteriaJson.toString(),
                 reviewerInfo,

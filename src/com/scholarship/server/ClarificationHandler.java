@@ -119,6 +119,8 @@ public class ClarificationHandler implements HttpHandler {
         ClarificationRequest req = new ClarificationRequest(0, evalID, question, null, "Pending", null, null);
 
         if (clarificationDAO.create(req)) {
+            com.scholarship.dao.AuditLogDAO.log(null, "Committee", "Clarification Requested", "Clarification",
+                    String.valueOf(evalID), "Committee requested clarification for Evaluation #" + evalID, null);
             sendResponse(exchange, 201, "{\"message\": \"Clarification requested successfully\"}");
         } else {
             sendError(exchange, 500, "Failed to request clarification");
@@ -147,6 +149,9 @@ public class ClarificationHandler implements HttpHandler {
         }
 
         if (clarificationDAO.updateAnswer(reqId, answer)) {
+            com.scholarship.dao.AuditLogDAO.log(userId, reviewerID, "Clarification Answered", "Clarification",
+                    String.valueOf(reqId), "Reviewer " + reviewerID + " answered clarification request #" + reqId,
+                    null);
             sendResponse(exchange, 200, "{\"message\": \"Clarification answered successfully\"}");
         } else {
             sendError(exchange, 404, "Request not found");
@@ -167,14 +172,15 @@ public class ClarificationHandler implements HttpHandler {
 
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(statusCode, response.length());
+        byte[] bytes = response.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
+            os.write(bytes);
         }
     }
 
     private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
-        String jsonResponse = "{\"message\": \"" + message.replace("\"", "\\\"") + "\"}";
+        String jsonResponse = "{\"error\": \"" + message.replace("\"", "\\\"") + "\"}";
         sendResponse(exchange, statusCode, jsonResponse);
     }
 }

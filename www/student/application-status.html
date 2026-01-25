@@ -86,30 +86,49 @@
           </div>
         </div>
 
-        <!-- Status Timeline -->
-        <div class="relative">
-          <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-border"></div>
-          <div id="timeline" class="space-y-8 relative">
-            <!-- Timeline items will be inserted here -->
+      </div>
+    </div>
+
+    <!-- Feedback Section -->
+    <div id="feedbackSection" class="hidden bg-card rounded-xl border border-border p-8 mb-6">
+      <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+        <i data-lucide="message-square" class="w-6 h-6 text-primary"></i>
+        Application Feedback
+      </h3>
+      <div class="space-y-6">
+        <!-- Reviewer Feedback -->
+        <div id="reviewerFeedback" class="hidden">
+          <h4 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Reviewer Feedback</h4>
+          <div class="bg-muted/30 rounded-lg p-4 border border-border/50">
+            <p id="reviewerComments" class="text-sm italic leading-relaxed text-foreground/80 font-serif"></p>
+          </div>
+        </div>
+        <!-- Committee Feedback -->
+        <div id="committeeFeedback" class="hidden">
+          <h4 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Committee Decision
+            Statement</h4>
+          <div class="bg-primary/5 rounded-lg p-4 border border-primary/10">
+            <p id="committeeComments" class="text-sm font-medium leading-relaxed text-primary"></p>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Additional Information -->
-      <div class="bg-muted/50 rounded-xl border border-border p-6">
-        <h3 class="font-bold mb-3 flex items-center gap-2">
-          <i data-lucide="info" class="w-5 h-5"></i>
-          Need Help?
-        </h3>
-        <p class="text-sm text-muted-foreground mb-4">
-          If you have questions about your application status, please contact our support team.
-        </p>
-        <a href="student/support.html"
-          class="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1">
-          Contact Support
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </a>
-      </div>
+    <!-- Additional Information -->
+    <div class="bg-muted/50 rounded-xl border border-border p-6">
+      <h3 class="font-bold mb-3 flex items-center gap-2">
+        <i data-lucide="info" class="w-5 h-5"></i>
+        Need Help?
+      </h3>
+      <p class="text-sm text-muted-foreground mb-4">
+        If you have questions about your application status, please contact our support team.
+      </p>
+      <a href="student/support.html"
+        class="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1">
+        Contact Support
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
     </div>
   </main>
 
@@ -159,6 +178,28 @@
               application.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
                 'bg-muted text-muted-foreground'
           }`;
+
+        // Handle Feedback Display
+        const feedbackSection = document.getElementById('feedbackSection');
+        const reviewerFeedback = document.getElementById('reviewerFeedback');
+        const committeeFeedback = document.getElementById('committeeFeedback');
+        let showFeedback = false;
+
+        if (application.evaluation && application.evaluation.comments) {
+          document.getElementById('reviewerComments').textContent = application.evaluation.comments;
+          reviewerFeedback.classList.remove('hidden');
+          showFeedback = true;
+        }
+
+        if (application.decisionComments) {
+          document.getElementById('committeeComments').textContent = application.decisionComments;
+          committeeFeedback.classList.remove('hidden');
+          showFeedback = true;
+        }
+
+        if (showFeedback) {
+          feedbackSection.classList.remove('hidden');
+        }
 
         // Show/hide withdraw button based on status
         const withdrawBtn = document.getElementById('withdrawBtn');

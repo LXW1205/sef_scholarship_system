@@ -9,8 +9,27 @@ import java.util.List;
 
 public class ApplicationDAO {
 
+    public ApplicationDAO() {
+        migrateTable();
+    }
+
+    private void migrateTable() {
+        try (Connection conn = DatabaseConnection.getConnection();
+                Statement stmt = conn.createStatement()) {
+            // Check if column exists
+            ResultSet rs = conn.getMetaData().getColumns(null, null, "application", "decisioncomments");
+            if (!rs.next()) {
+                System.out.println("[INFO] Adding decisionComments column to Application table...");
+                stmt.execute("ALTER TABLE Application ADD COLUMN decisionComments TEXT");
+            }
+        } catch (SQLException e) {
+            // Might fail if already exists or table doesn't exist yet (handled by creation
+            // script)
+        }
+    }
+
     public int save(Application app) {
-        String sql = "INSERT INTO Application (studentID, scholarshipID, status, personalStatement, otherScholarships) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Application (studentID, scholarshipID, status, personalStatement, otherScholarships, decisionComments) VALUES (?, ?, ?, ?, ?, ?)";
         System.out.println("[DEBUG] ApplicationDAO saving: SQL=" + sql);
 
         Connection conn = null;
@@ -24,6 +43,7 @@ public class ApplicationDAO {
                 pstmt.setString(3, app.getStatus());
                 pstmt.setString(4, app.getPersonalStatement());
                 pstmt.setString(5, app.getOtherScholarships());
+                pstmt.setString(6, app.getDecisionComments());
 
                 int affectedRows = pstmt.executeUpdate();
                 System.out.println("[DEBUG] Rows affected: " + affectedRows);
@@ -190,17 +210,22 @@ public class ApplicationDAO {
         return apps;
     }
 
-    public boolean updateStatus(int appId, String status) {
-        String sql = "UPDATE Application SET status = ? WHERE appID = ?";
+    public boolean updateStatus(int appId, String status, String comments) {
+        String sql = "UPDATE Application SET status = ?, decisionComments = ? WHERE appID = ?";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, status);
-            pstmt.setInt(2, appId);
+            pstmt.setString(2, comments);
+            pstmt.setInt(3, appId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean updateStatus(int appId, String status) {
+        return updateStatus(appId, status, null);
     }
 
     public Application findById(int appId) {
@@ -246,6 +271,7 @@ public class ApplicationDAO {
         app.setFamilyIncome(rs.getDouble("familyIncome"));
         app.setPersonalStatement(rs.getString("personalStatement"));
         app.setOtherScholarships(rs.getString("otherScholarships"));
+        app.setDecisionComments(rs.getString("decisionComments"));
         app.getDocuments().addAll(findDocumentsByAppId(app.getAppID(), conn));
         return app;
     }

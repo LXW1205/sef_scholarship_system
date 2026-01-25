@@ -79,11 +79,7 @@ public class AuthHandler implements HttpHandler {
                 statusCode = 400;
             }
 
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(statusCode, response.length());
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
-            }
+            sendResponse(exchange, statusCode, response);
         } else {
             exchange.sendResponseHeaders(405, -1); // Method Not Allowed
         }
@@ -107,5 +103,19 @@ public class AuthHandler implements HttpHandler {
             // Invalid token
         }
         return null;
+    }
+
+    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+        }
+    }
+
+    private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
+        String response = String.format("{\"error\": \"%s\"}", JsonUtils.escape(message));
+        sendResponse(exchange, statusCode, response);
     }
 }

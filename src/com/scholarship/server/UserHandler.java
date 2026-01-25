@@ -35,37 +35,22 @@ public class UserHandler implements HttpHandler {
                 }
             }
 
-            String response;
             if (idFilter != null) {
                 try {
                     int id = Integer.parseInt(idFilter);
                     User user = userDAO.findById(id);
                     if (user != null) {
-                        response = getUserJson(user);
+                        sendResponse(exchange, 200, getUserJson(user));
                     } else {
-                        response = "{\"error\": \"User not found\"}";
-                        exchange.sendResponseHeaders(404, response.length());
-                        try (OutputStream os = exchange.getResponseBody()) {
-                            os.write(response.getBytes());
-                        }
+                        sendError(exchange, 404, "User not found");
                         return;
                     }
                 } catch (NumberFormatException e) {
-                    response = "{\"error\": \"Invalid ID format\"}";
-                    exchange.sendResponseHeaders(400, response.length());
-                    try (OutputStream os = exchange.getResponseBody()) {
-                        os.write(response.getBytes());
-                    }
+                    sendError(exchange, 400, "Invalid ID format");
                     return;
                 }
             } else {
-                response = getUsersJson(roleFilter);
-            }
-
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, response.length());
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
+                sendResponse(exchange, 200, getUsersJson(roleFilter));
             }
         } else if ("POST".equals(exchange.getRequestMethod())) {
             handlePost(exchange);
@@ -96,12 +81,7 @@ public class UserHandler implements HttpHandler {
                 AuditLogDAO.log(null, "Admin", "User Deleted", "User", String.valueOf(id),
                         "Deleted user: " + userToDelete.getFullName() + " (" + userToDelete.getEmail() + ")", clientIP);
 
-                String response = "{\"success\": true}";
-                exchange.getResponseHeaders().set("Content-Type", "application/json");
-                exchange.sendResponseHeaders(200, response.length());
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
+                sendResponse(exchange, 200, "{\"success\": true}");
             } else {
                 sendError(exchange, 400, "User not found or failed to delete");
             }
@@ -191,12 +171,7 @@ public class UserHandler implements HttpHandler {
                 AuditLogDAO.log(null, "Admin", "User Updated", "User", String.valueOf(id),
                         "Updated user: " + fullName + " (isActive: " + isActive + ")", clientIP);
 
-                String response = "{\"success\": true}";
-                exchange.getResponseHeaders().set("Content-Type", "application/json");
-                exchange.sendResponseHeaders(200, response.length());
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
+                sendResponse(exchange, 200, "{\"success\": true}");
             } else {
                 sendError(exchange, 500, "Failed to update user");
             }
@@ -210,11 +185,7 @@ public class UserHandler implements HttpHandler {
 
     private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
         String response = String.format("{\"error\": \"%s\"}", JsonUtils.escape(message));
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(statusCode, response.length());
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
-        }
+        sendResponse(exchange, statusCode, response);
     }
 
     private String getUserJson(User user) {
@@ -302,5 +273,14 @@ public class UserHandler implements HttpHandler {
 
         json.append("]}");
         return json.toString();
+    }
+
+    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        byte[] bytes = response.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+        }
     }
 }

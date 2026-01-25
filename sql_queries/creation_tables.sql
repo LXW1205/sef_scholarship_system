@@ -83,6 +83,7 @@ CREATE TABLE Application (
     status VARCHAR(20) DEFAULT 'Pending',
     personalStatement TEXT,
     otherScholarships TEXT,
+    decisionComments TEXT,
     CONSTRAINT FK_Application_Student FOREIGN KEY (studentID) REFERENCES Student(studentID) ON DELETE CASCADE,
     CONSTRAINT FK_Application_Scholarship FOREIGN KEY (scholarshipID) REFERENCES Scholarship(scholarshipID) ON DELETE CASCADE
 );
@@ -94,7 +95,7 @@ CREATE TABLE Criteria (
     scholarshipID INTEGER NOT NULL,
     name VARCHAR(100) NOT NULL,
     weightage INTEGER,
-    maxScore DECIMAL(5,2),
+    maxScore DECIMAL(10,2),
     mappedField VARCHAR(50) DEFAULT 'none',
     CONSTRAINT FK_Criteria_Scholarship FOREIGN KEY (scholarshipID) REFERENCES Scholarship(scholarshipID) ON DELETE CASCADE
 );
@@ -125,7 +126,7 @@ CREATE TABLE Evaluation (
     appID INTEGER NOT NULL,
     reviewerID VARCHAR(20) NOT NULL, -- Renamed from reviewerStaffID and matched type
     scholarshipComments TEXT,
-    interviewScore DECIMAL(5,2),
+    interviewScore DECIMAL(10,2),
     interviewComments TEXT,
     status VARCHAR(20) DEFAULT 'Pending',
     evaluatedDate TIMESTAMP,
@@ -157,7 +158,7 @@ CREATE TABLE EvaluationScore (
     scoreID SERIAL PRIMARY KEY,
     evalID INTEGER NOT NULL,
     criteriaID INTEGER NOT NULL,
-    score DECIMAL(5,2),
+    score DECIMAL(10,2),
     CONSTRAINT FK_EvaluationScore_Evaluation FOREIGN KEY (evalID) REFERENCES Evaluation(evalID) ON DELETE CASCADE,
     CONSTRAINT FK_EvaluationScore_Criteria FOREIGN KEY (criteriaID) REFERENCES Criteria(criteriaID) ON DELETE CASCADE
 );
@@ -179,13 +180,6 @@ CREATE TABLE Notification (
     isRead BOOLEAN DEFAULT FALSE
 );
 
--- Lookups (Optional, kept/added for completeness if needed later)
-CREATE TABLE UserRoleLookup ( roleValue VARCHAR(20) PRIMARY KEY );
-CREATE TABLE ApplicationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
-CREATE TABLE EvaluationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
-CREATE TABLE InterviewStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
-CREATE TABLE ClarificationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
-
 -- Audit Log Table for tracking all system changes
 CREATE TABLE AuditLog (
     logID SERIAL PRIMARY KEY,
@@ -198,3 +192,10 @@ CREATE TABLE AuditLog (
     ipAddress VARCHAR(45),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Lookups (Optional, kept/added for completeness if needed later)
+CREATE TABLE UserRoleLookup ( roleValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE ApplicationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE EvaluationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE InterviewStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE ClarificationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );

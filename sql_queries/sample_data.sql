@@ -103,16 +103,3 @@ INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (4, 'Spor
 INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (5, 'Financial Need Analysis', 50, 100);
 INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (5, 'Future Aspirations Statement', 30, 100);
 INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (5, 'English Proficiency (MUET/IELTS)', 20, 100);
-
--- Insert Applications (Minimal sample)
--- Student 1 (S2024001) applying for Scholarship 1
-INSERT INTO Application (studentID, scholarshipID, submissionDate, status, personalStatement, otherScholarships)
-VALUES ('S2024001', 1, CURRENT_TIMESTAMP, 'Pending', 'I am a very good student...', 'None');
-
--- Student 2 (S2024002) applying for Scholarship 1
-INSERT INTO Application (studentID, scholarshipID, submissionDate, status, personalStatement, otherScholarships)
-VALUES ('S2024002', 1, CURRENT_TIMESTAMP, 'Pending', 'Passionate about Data Science.', 'JPA Scholarship');
-
--- Student 5 (S2024005) joining Foundation, applying for Scholarship 2
-INSERT INTO Application (studentID, scholarshipID, submissionDate, status, personalStatement, otherScholarships)
-VALUES ('S2024005', 2, CURRENT_TIMESTAMP, 'Approved', 'Top SPM scorer.', 'None');

@@ -174,6 +174,13 @@
                 </select>
               </div>
 
+              <div id="reviewClosedNotice"
+                class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 text-sm flex items-center gap-2 text-yellow-700"
+                style="display: none;">
+                <i data-lucide="lock" class="w-4 h-4 flex-shrink-0"></i>
+                <span>This review is closed because a decision has been finalized.</span>
+              </div>
+
               <div id="formSuccess"
                 class="text-success bg-success/10 border border-success/20 rounded-lg p-3 text-sm flex items-center gap-2"
                 style="display: none;">
@@ -249,6 +256,12 @@
           const psContainer = document.getElementById('personalStatementText');
           if (psContainer) psContainer.textContent = app.personalStatement;
         }
+
+        // Check if review should be closed
+        const finalizedStatuses = ['Reviewed', 'Shortlisted', 'Approved', 'Rejected', 'Withdrawn'];
+        if (finalizedStatuses.includes(app.status)) {
+          disableForm(app);
+        }
       } catch (e) {
         console.error("[ERROR] UI update failed:", e);
       }
@@ -298,6 +311,7 @@
     }
 
     function validateScore(input) {
+      if (input.disabled) return;
       const max = parseFloat(input.getAttribute('max')) || 100;
       if (parseFloat(input.value) > max) {
         input.value = max;
@@ -317,6 +331,42 @@
       });
       const average = count > 0 ? total / count : 0;
       document.getElementById('totalScore').textContent = average.toFixed(1);
+    }
+
+    function disableForm(app) {
+      const form = document.getElementById('evaluationForm');
+      const inputs = form.querySelectorAll('input, textarea, select');
+      inputs.forEach(input => {
+        input.disabled = true;
+        input.classList.add('bg-muted/50', 'cursor-not-allowed');
+      });
+
+      // Hide submission buttons
+      document.getElementById('saveDraftBtn').style.display = 'none';
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.style.display = 'none';
+
+      // Show closed notice
+      const notice = document.getElementById('reviewClosedNotice');
+      if (notice) {
+        notice.style.display = 'flex';
+        notice.querySelector('span').textContent = `This application is in status "${app.status}". The review is now closed.`;
+      }
+
+      // Populate existing values if available
+      if (app.evaluation) {
+        if (document.getElementById('comments')) document.getElementById('comments').value = app.evaluation.comments || '';
+        if (document.getElementById('recommendation')) document.getElementById('recommendation').value = app.evaluation.recommendation || '';
+
+        // Populate criteria scores
+        if (app.evaluation.scores && Array.isArray(app.evaluation.scores)) {
+          app.evaluation.scores.forEach(s => {
+            const input = document.querySelector(`.criteria-item[data-id="${s.criteriaID}"] input`);
+            if (input) input.value = s.score;
+          });
+          calculateTotal();
+        }
+      }
     }
 
     // Preview logic and fetch calls...

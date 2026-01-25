@@ -121,6 +121,8 @@ public class InquiryHandler implements HttpHandler {
 
         Inquiry inquiry = new Inquiry(0, studentID, message, null); // ID auto-gen
         if (inquiryDAO.create(inquiry)) {
+            com.scholarship.dao.AuditLogDAO.log(userId, studentID, "Inquiry Submitted", "Inquiry",
+                    "N/A", "Student " + studentID + " submitted a new inquiry", null);
             sendResponse(exchange, 201, "{\"message\": \"Inquiry submitted successfully\"}");
         } else {
             sendError(exchange, 500, "Failed to submit inquiry");
@@ -139,6 +141,8 @@ public class InquiryHandler implements HttpHandler {
         System.out.println("[DEBUG] Answering Inquiry ID: " + inquiryId);
         if (inquiryDAO.updateAnswer(inquiryId, answer)) {
             System.out.println("[DEBUG] Inquiry answered successfully");
+            com.scholarship.dao.AuditLogDAO.log(null, "Admin", "Inquiry Answered", "Inquiry",
+                    String.valueOf(inquiryId), "Admin answered Inquiry ID: " + inquiryId, null);
             sendResponse(exchange, 200, "{\"message\": \"Inquiry answered successfully\"}");
         } else {
             System.out.println("[ERROR] Inquiry not found or update failed: " + inquiryId);

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Interviews - ScholarNet Student</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                        success: {
+                            DEFAULT: 'hsl(142.1 76.2% 36.3%)',
+                            foreground: 'hsl(355.7 100% 97.3%)',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(0 84.2% 60.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans antialiased bg-muted/30">
+    <div id="header-container"></div>
+
+    <main class="min-h-screen py-12">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-2">My Interviews</h2>
+                <p class="text-muted-foreground">View your scheduled scholarship interviews</p>
+            </div>
+
+            <div id="interviewsContainer" class="space-y-4">
+                <div class="flex items-center justify-center py-12">
+                    <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-muted-foreground"></i>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+    <script src="/common.js"></script>
+    <script>
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+        if (!token || user.role !== 'Student') {
+            window.location.href = '/login.html';
+        }
+
+        async function loadInterviews() {
+            try {
+                // First get student's applications to find evaluations
+                const appResponse = await fetch(`/api/applications?studentId=${user.studentID}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const appData = await appResponse.json();
+                const applications = appData.applications || [];
+
+                // Collect all evalIDs
+                const evalIds = applications
+                    .filter(app => app.evaluation && app.evaluation.evalID)
+                    .map(app => app.evaluation.evalID);
+
+                if (evalIds.length === 0) {
+                    displayNoInterviews();
+                    return;
+                }
+
+                // Fetch interviews for each evaluation
+                let allInterviews = [];
+                for (const evalId of evalIds) {
+                    try {
+                        const response = await fetch(`/api/interviews?evalId=${evalId}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await response.json();
+                        if (data.interviews && data.interviews.length > 0) {
+                            // Add application info to each interview
+                            const app = applications.find(a => a.evaluation && a.evaluation.evalID === evalId);
+                            data.interviews.forEach(i => {
+                                i.scholarshipTitle = app ? app.scholarship_title : 'Unknown';
+                                i.applicationId = app ? app.applicationid : 0;
+                            });
+                            allInterviews = allInterviews.concat(data.interviews);
+                        }
+                    } catch (e) {
+                        console.error(`Failed to load interviews for evalId ${evalId}:`, e);
+                    }
+                }
+
+                displayInterviews(allInterviews);
+            } catch (e) {
+                console.error('Failed to load interviews:', e);
+                displayError();
+            }
+        }
+
+        function displayInterviews(interviews) {
+            const container = document.getElementById('interviewsContainer');
+
+            if (interviews.length === 0) {
+                displayNoInterviews();
+                return;
+            }
+
+            // Sort by date (upcoming first)
+            interviews.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+
+            const now = new Date();
+            const upcoming = interviews.filter(i => new Date(i.dateTime) > now && i.status === 'Scheduled');
+            const past = interviews.filter(i => new Date(i.dateTime) <= now || i.status !== 'Scheduled');
+
+            let html = '';
+
+            if (upcoming.length > 0) {
+                html += '<h3 class="text-xl font-bold mb-4">Upcoming Interviews</h3><div class="space-y-4 mb-8">';
+                upcoming.forEach(interview => {
+                    html += renderInterviewCard(interview, true);
+                });
+                html += '</div>';
+            }
+
+            if (past.length > 0) {
+                html += '<h3 class="text-xl font-bold mb-4">Past Interviews</h3><div class="space-y-4">';
+                past.forEach(interview => {
+                    html += renderInterviewCard(interview, false);
+                });
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function renderInterviewCard(interview, isUpcoming) {
+            const date = new Date(interview.dateTime);
+            const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            const isLink = interview.venueOrLink && (interview.venueOrLink.startsWith('http://') || interview.venueOrLink.startsWith('https://'));
+
+            return `
+                <div class="bg-card rounded-xl border border-border p-6 ${isUpcoming ? 'shadow-md' : 'opacity-75'}">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold mb-1">${interview.scholarshipTitle}</h4>
+                            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                <span>${dateStr}</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                                <i data-lucide="clock" class="w-4 h-4"></i>
+                                <span>${timeStr}</span>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-medium rounded-full ${interview.status === 'Scheduled' ? 'bg-blue-500/10 text-blue-600' :
+                    interview.status === 'Completed' ? 'bg-success/10 text-success' :
+                        'bg-muted text-muted-foreground'
+                }">${interview.status}</span>
+                    </div>
+                    
+                    <div class="bg-muted/30 rounded-lg p-4 mt-4">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="${isLink ? 'link' : 'map-pin'}" class="w-5 h-5 text-primary mt-0.5"></i>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium mb-1">${isLink ? 'Join Link' : 'Venue'}</div>
+                                ${isLink ?
+                    `<a href="${interview.venueOrLink}" target="_blank" class="text-primary hover:underline break-all">${interview.venueOrLink}</a>` :
+                    `<p class="text-foreground">${interview.venueOrLink}</p>`
+                }
+                            </div>
+                        </div>
+                    </div>
+
+                    ${isUpcoming ? `
+                        <div class="mt-4 flex gap-2">
+                            ${isLink ? `
+                                <a href="${interview.venueOrLink}" target="_blank" class="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-center font-medium">
+                                    <i data-lucide="video" class="w-4 h-4 inline mr-2"></i>
+                                    Join Interview
+                                </a>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function displayNoInterviews() {
+            const container = document.getElementById('interviewsContainer');
+            container.innerHTML = `
+                <div class="bg-card rounded-xl border border-border p-12 text-center">
+                    <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="calendar" class="w-8 h-8 text-muted-foreground"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">No Interviews Scheduled</h3>
+                    <p class="text-muted-foreground">You don't have any scheduled interviews at the moment.</p>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function displayError() {
+            const container = document.getElementById('interviewsContainer');
+            container.innerHTML = `
+                <div class="bg-card rounded-xl border border-border p-12 text-center">
+                    <p class="text-destructive">Failed to load interviews. Please try again later.</p>
+                </div>
+            `;
+        }
+
+        loadInterviews();
+    </script>
+</body>
+
+</html>

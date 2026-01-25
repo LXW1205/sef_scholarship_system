@@ -15,13 +15,21 @@ public class EvaluationDAO {
                 "scoreID SERIAL PRIMARY KEY, " +
                 "evalID INTEGER NOT NULL, " +
                 "criteriaID INTEGER NOT NULL, " +
-                "score DECIMAL(5,2), " +
+                "score DECIMAL(10,2), " +
                 "CONSTRAINT FK_EvaluationScore_Evaluation FOREIGN KEY (evalID) REFERENCES Evaluation(evalID) ON DELETE CASCADE, "
                 +
                 "CONSTRAINT FK_EvaluationScore_Criteria FOREIGN KEY (criteriaID) REFERENCES Criteria(criteriaID) ON DELETE CASCADE)";
         try (Connection conn = DatabaseConnection.getConnection();
                 Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
+            // Also try to alter existing tables for higher precision
+            try {
+                stmt.execute("ALTER TABLE EvaluationScore ALTER COLUMN score TYPE DECIMAL(10,2)");
+                stmt.execute("ALTER TABLE Evaluation ALTER COLUMN interviewScore TYPE DECIMAL(10,2)");
+                stmt.execute("ALTER TABLE Criteria ALTER COLUMN maxScore TYPE DECIMAL(10,2)");
+            } catch (SQLException e) {
+                // Ignore if migration fails (e.g. columns don't exist yet or already altered)
+            }
         } catch (SQLException e) {
             System.err.println("[WARN] Failed to check/create EvaluationScore table: " + e.getMessage());
         }

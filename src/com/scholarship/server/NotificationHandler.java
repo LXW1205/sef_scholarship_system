@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class NotificationHandler implements HttpHandler {
@@ -38,10 +39,11 @@ public class NotificationHandler implements HttpHandler {
             }
 
             String response = getNotificationsJson(userId);
+            byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, response.length());
+            exchange.sendResponseHeaders(200, bytes.length);
             try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
+                os.write(bytes);
             }
         } else if ("POST".equals(exchange.getRequestMethod())) {
             handlePost(exchange);
@@ -52,14 +54,45 @@ public class NotificationHandler implements HttpHandler {
 
     private void handlePost(HttpExchange exchange) throws IOException {
         String requestBody = new String(exchange.getRequestBody().readAllBytes());
-        String recipients = JsonUtils.extractValue(requestBody, "recipients");
-        String message = JsonUtils.extractValue(requestBody, "message");
+        String action = JsonUtils.extractValue(requestBody, "action");
 
-        if (recipients != null && message != null && !message.isEmpty()) {
-            notificationDAO.createForRole(recipients, message);
-            sendResponse(exchange, 200, "{\"success\": true}");
+        if ("markAllAsRead".equals(action)) {
+            String userIdStr = JsonUtils.extractValue(requestBody, "userId");
+            if (userIdStr != null) {
+                try {
+                    int userId = Integer.parseInt(userIdStr);
+                    notificationDAO.markAllAsRead(userId);
+                    sendResponse(exchange, 200, "{\"success\": true}");
+                    return;
+                } catch (NumberFormatException e) {
+                    sendError(exchange, 400, "Invalid userId");
+                    return;
+                }
+            }
+        } else if ("markAsRead".equals(action)) {
+            String notifIdStr = JsonUtils.extractValue(requestBody, "notifId");
+            if (notifIdStr != null) {
+                try {
+                    int notifId = Integer.parseInt(notifIdStr);
+                    notificationDAO.markAsRead(notifId);
+                    sendResponse(exchange, 200, "{\"success\": true}");
+                    return;
+                } catch (NumberFormatException e) {
+                    sendError(exchange, 400, "Invalid notifId");
+                    return;
+                }
+            }
         } else {
-            sendError(exchange, 400, "Missing recipients or message");
+            // Original broadcast functionality
+            String recipients = JsonUtils.extractValue(requestBody, "recipients");
+            String message = JsonUtils.extractValue(requestBody, "message");
+
+            if (recipients != null && message != null && !message.isEmpty()) {
+                notificationDAO.createForRole(recipients, message);
+                sendResponse(exchange, 200, "{\"success\": true}");
+            } else {
+                sendError(exchange, 400, "Missing recipients or message");
+            }
         }
     }
 
@@ -85,7 +118,7 @@ public class NotificationHandler implements HttpHandler {
                         "{\"notifID\": %d, \"message\": \"%s\", \"sentAt\": \"%s\", \"isRead\": %b}",
                         n.getNotifID(),
                         JsonUtils.escape(n.getMessage()),
-                        n.getSentAt().toString(),
+                        n.getSentAt() != null ? n.getSentAt().toInstant().toString() : "",
                         n.isRead()));
             }
         } catch (Exception e) {
@@ -98,10 +131,11 @@ public class NotificationHandler implements HttpHandler {
 
     private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
         String response = String.format("{\"error\": \"%s\"}", JsonUtils.escape(message));
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(statusCode, response.length());
+        exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
+            os.write(bytes);
         }
     }
 }

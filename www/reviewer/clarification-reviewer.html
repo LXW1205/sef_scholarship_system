@@ -99,6 +99,7 @@
     <div id="footer-container"></div>
     <script src="/common.js?v=3"></script>
     <script>
+        let currentClarifications = [];
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || "{}");
@@ -158,19 +159,20 @@
                 }
 
                 const data = await res.json();
+                currentClarifications = data;
 
                 if (data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No requests found.</td></tr>';
                     return;
                 }
 
-                tbody.innerHTML = data.map(r => `
+                tbody.innerHTML = data.map((r, index) => `
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4">
                             <div class="font-medium text-gray-900">${r.scholarshipTitle || 'Unknown Scholarship'}</div>
                             <div class="text-sm text-gray-500">${r.studentName || 'Unknown Student'}</div>
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 break-words max-w-md">
                             <p class="text-gray-800">${r.question}</p>
                             <div class="text-xs text-gray-400 mt-1">${new Date(r.requestedDate).toLocaleDateString()}</div>
                         </td>
@@ -182,7 +184,7 @@
                         </td>
                         <td class="px-6 py-4">
                             ${r.status === 'Pending' ? `
-                                <button onclick="openModal(${r.clarificationID}, '${(r.question || '').replace(/'/g, "\\'")}')" class="text-primary hover:text-primary/80 font-medium text-sm">
+                                <button onclick="openModal(${index})" class="text-primary hover:text-primary/80 font-medium text-sm">
                                     Respond
                                 </button>
                             ` : `<span class="text-sm text-gray-600 line-clamp-1" title="${r.answer || ''}">Ans: ${r.answer || ''}</span>`}
@@ -196,9 +198,10 @@
             }
         }
 
-        function openModal(id, question) {
-            document.getElementById('modalClarificationId').value = id;
-            document.getElementById('modalQuestion').textContent = question;
+        function openModal(index) {
+            const r = currentClarifications[index];
+            document.getElementById('modalClarificationId').value = r.reqID;
+            document.getElementById('modalQuestion').textContent = r.question;
             document.getElementById('modalAnswer').value = '';
             document.getElementById('responseModal').classList.remove('hidden');
         }

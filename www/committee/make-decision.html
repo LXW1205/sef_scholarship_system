@@ -78,8 +78,25 @@
               </div>
               <div><span class="text-muted-foreground">GPA:</span> <span id="studentGPA" class="font-medium">-</span>
               </div>
+              <div><span class="text-muted-foreground">Year:</span> <span id="studentYear" class="font-medium">-</span>
+              </div>
+              <div><span class="text-muted-foreground">Qualification:</span> <span id="studentQualification"
+                  class="font-medium">Loading...</span></div>
+              <div class="col-span-2"><span class="text-muted-foreground">Household Income:</span> <span
+                  id="studentIncome" class="font-medium">Loading...</span></div>
             </div>
             <p class="text-muted-foreground text-sm" id="scholarshipTitle">Loading...</p>
+          </div>
+
+          <!-- Personal Statement -->
+          <div class="bg-card rounded-xl border border-border p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="file-text" class="w-5 h-5"></i>
+              Personal Statement
+            </h3>
+            <p class="text-sm text-muted-foreground leading-relaxed whitespace-pre-line" id="personalStatementText">
+              Loading personal statement...
+            </p>
           </div>
 
           <!-- Documents -->
@@ -101,12 +118,6 @@
             </h3>
             <div class="space-y-4" id="reviewerScoresList">
               <p class="text-sm text-muted-foreground">Loading reviewer evaluation...</p>
-            </div>
-            <div class="mt-6 p-4 bg-primary/5 rounded-lg">
-              <div class="flex justify-between items-center">
-                <span class="text-lg font-semibold">Total Review Score:</span>
-                <span class="text-3xl font-bold text-primary" id="combinedScore">-</span>
-              </div>
             </div>
           </div>
         </div>
@@ -215,7 +226,11 @@
         if (document.getElementById('studentEmail')) document.getElementById('studentEmail').textContent = app.email || 'N/A';
         if (document.getElementById('studentMajor')) document.getElementById('studentMajor').textContent = app.major || 'N/A';
         if (document.getElementById('studentGPA')) document.getElementById('studentGPA').textContent = app.cgpa ? app.cgpa.toFixed(2) : '-';
+        if (document.getElementById('studentYear')) document.getElementById('studentYear').textContent = app.yearOfStudy || 'N/A';
+        if (document.getElementById('studentQualification')) document.getElementById('studentQualification').textContent = app.qualification || 'N/A';
+        if (document.getElementById('studentIncome')) document.getElementById('studentIncome').textContent = app.familyIncome ? 'RM ' + app.familyIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A';
 
+        if (document.getElementById('personalStatementText')) document.getElementById('personalStatementText').textContent = app.personalStatement || 'No personal statement provided.';
         if (app.scholarship_title) document.getElementById('scholarshipTitle').textContent = app.scholarship_title;
       } catch (e) {
         console.error("[ERROR] Committee UI update failed:", e);
@@ -264,7 +279,6 @@
                 <div class="text-2xl font-bold text-primary">${average.toFixed(1)}</div>
               </div>
           `;
-        document.getElementById('combinedScore').textContent = average.toFixed(1);
       }
 
       // Dynamic Decision Options
