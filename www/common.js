@@ -232,7 +232,7 @@ function injectAdminHeader(container) {
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold"><a href="/admin/dashboard-admin.html">ScholarNet Admin</a></h1>
+                    <h1 class="text-xl font-bold"><a href="/admin/dashboard-admin.html">Admin Portal</a></h1>
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="/admin/dashboard-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
@@ -318,7 +318,7 @@ function injectReviewerHeader(container) {
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2">
                     <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold"><a href="/reviewer/dashboard-reviewer.html">Reviewer Dashboard</a></h1>
+                    <h1 class="text-xl font-bold"><a href="/reviewer/dashboard-reviewer.html">Reviewer Portal</a></h1>
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="/reviewer/dashboard-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
