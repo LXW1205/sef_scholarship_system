@@ -2,7 +2,7 @@
 if not exist "lib" mkdir lib
 
 echo Compiling...
-dir /s /b src\*.java > sources.txt
+dir /s /b src\*.java test\*.java > sources.txt
 javac -d bin -cp "lib/*" @sources.txt
 del sources.txt
 
