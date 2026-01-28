@@ -2,3 +2,5 @@
 db.properties
 
 .agent
+bin/
+*.class
