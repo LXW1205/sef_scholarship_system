@@ -12,6 +12,6 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
-echo Running...
-java -cp "bin;lib/*" com.scholarship.Main
+echo Running Tests...
+java -jar lib/junit-platform-console-standalone-1.10.1.jar -cp "bin" --scan-class-path
 pause

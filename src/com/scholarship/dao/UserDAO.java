@@ -34,11 +34,11 @@ public class UserDAO {
                 e.printStackTrace();
             }
         } else {
-            // Login by ID
             String table = "";
             String idCol = "";
 
-            char prefix = identifier.toUpperCase().charAt(0);
+            identifier = identifier.trim();
+            char prefix = identifier.isEmpty() ? ' ' : identifier.toUpperCase().charAt(0);
             switch (prefix) {
                 case 'S':
                     table = "Student";
@@ -62,11 +62,12 @@ public class UserDAO {
                     return null;
             }
 
-            String sql = "SELECT userID, fullName, email, password, role, isActive FROM " + table + " WHERE " + idCol
-                    + " = ? AND password = ? AND isActive = true";
+            String sql = "SELECT userID, fullName, email, password, role, isActive FROM " + table + " WHERE UPPER("
+                    + idCol
+                    + ") = UPPER(?) AND password = ? AND isActive = true";
             try (Connection conn = DatabaseConnection.getConnection();
                     PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, identifier); // Case sensitive ID? Usually yes.
+                pstmt.setString(1, identifier);
                 pstmt.setString(2, password);
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
