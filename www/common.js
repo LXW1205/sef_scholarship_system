@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check Authentication and Role
     if (!checkAuth()) return;
 
+    // Inject Global Styles
+    injectGlobalStyles();
+
     // Inject Header
     injectHeader();
 
@@ -26,6 +29,189 @@ document.addEventListener('DOMContentLoaded', () => {
         window.lucide.createIcons();
     }
 });
+
+/**
+ * Injects global CSS for UI/UX enhancements.
+ */
+function injectGlobalStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-soft: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+            background-color: #f8fafc !important; /* Subtle slate-50 background tint */
+            scroll-behavior: smooth;
+        }
+
+        /* Glassmorphism for Header */
+        nav {
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            background-color: rgba(15, 23, 42, 0.85) !important; /* Primary color with transparency */
+            position: sticky !important;
+            top: 0;
+            z-index: 50;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* 3D Visuals for major action elements */
+        button.bg-primary, 
+        button.bg-secondary,
+        a.bg-primary, 
+        a.bg-secondary,
+        .btn-3d {
+            position: relative !important;
+            border-bottom: 4px solid rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.1s ease !important;
+        }
+
+        button.bg-primary:active, 
+        button.bg-secondary:active,
+        a.bg-primary:active, 
+        a.bg-secondary:active,
+        .btn-3d:active {
+            transform: translateY(2px) !important;
+            border-bottom-width: 0 !important;
+            margin-bottom: 2px !important;
+        }
+
+        /* Adjust specific border colors to match button backgrounds */
+        .bg-primary { border-bottom-color: rgba(0, 0, 0, 0.4) !important; }
+        .bg-secondary { border-bottom-color: rgba(0, 0, 0, 0.1) !important; }
+        
+        /* 3D Inputs - being careful not to cover icons */
+        input.bg-background, 
+        select.bg-background, 
+        textarea.bg-background { 
+            border-bottom: 4px solid rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.1s ease !important;
+        }
+
+        /* Ensure icons stay visible when inputs are transformed on focus */
+        .relative div.absolute, 
+        .relative i[data-lucide], 
+        .password-toggle {
+            z-index: 10 !important;
+        }
+
+        input.bg-background:focus {
+            transform: translateY(1px);
+            border-bottom-width: 2px !important;
+        }
+
+        /* 3D Cards */
+        .bg-card, .bg-white, .rounded-xl:not(.rounded-full) {
+            background-color: #ffffff !important;
+            border: 2px solid rgba(0, 0, 0, 0.05) !important;
+            border-bottom-width: 6px !important;
+            box-shadow: var(--shadow-soft) !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+
+        .bg-card:hover {
+            transform: translateY(-2px);
+            border-bottom-width: 8px !important;
+            box-shadow: var(--shadow-xl) !important;
+        }
+
+        .bg-card:active {
+            transform: translateY(4px);
+            border-bottom-width: 2px !important;
+        }
+
+        /* Hero Section Animation */
+        section.bg-gradient-to-br {
+            position: relative;
+            overflow: hidden;
+        }
+
+        section.bg-gradient-to-br::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            animation: pulse 15s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.1) translate(-5%, -5%); }
+            100% { transform: scale(1) translate(0, 0); }
+        }
+
+        /* Entry Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        main > section {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .grid > div {
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .grid > div:nth-child(1) { animation-delay: 0.1s; }
+        .grid > div:nth-child(2) { animation-delay: 0.2s; }
+        .grid > div:nth-child(3) { animation-delay: 0.3s; }
+        .grid > div:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Button & Link Hover Effects */
+        a, button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        button:active, a:active {
+            transform: scale(0.96);
+        }
+
+        /* Subtle Background Highlights */
+        .bg-muted\\/30 {
+            background-color: rgba(241, 245, 249, 0.5) !important; /* Subtle highlight */
+        }
+
+        /* Custom Scrollbar for modern look */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 5px;
+            border: 2px solid #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    `;
+    document.head.appendChild(style);
+}
 
 /**
  * Initializes peek/visibility toggles for all password fields.
