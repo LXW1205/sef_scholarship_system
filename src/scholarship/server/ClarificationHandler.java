@@ -6,6 +6,7 @@ import scholarship.dao.ClarificationDAO;
 import scholarship.db.DatabaseConnection;
 import scholarship.model.ClarificationRequest;
 import scholarship.utils.JsonUtils;
+import scholarship.utils.StatusValidator;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -148,6 +149,13 @@ public class ClarificationHandler implements HttpHandler {
             return;
         }
 
+        // Check current status
+        String currentStatus = getClarificationStatus(reqId);
+        if (!StatusValidator.isValidTransition(currentStatus, StatusValidator.CLAR_ANSWERED, "clarification")) {
+            sendError(exchange, 400, "Invalid status transition from " + currentStatus + " to Answered");
+            return;
+        }
+
         if (clarificationDAO.updateAnswer(reqId, answer)) {
             scholarship.dao.AuditLogDAO.log(userId, reviewerID, "Clarification Answered", "Clarification",
                     String.valueOf(reqId), "Reviewer " + reviewerID + " answered clarification request #" + reqId,
@@ -165,6 +173,19 @@ public class ClarificationHandler implements HttpHandler {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next())
                     return rs.getString("reviewerID");
+            }
+        }
+        return null;
+    }
+
+    private String getClarificationStatus(int reqId) throws SQLException {
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn
+                        .prepareStatement("SELECT status FROM ClarificationRequest WHERE reqID = ?")) {
+            stmt.setInt(1, reqId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next())
+                    return rs.getString("status");
             }
         }
         return null;

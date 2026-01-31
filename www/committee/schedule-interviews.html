@@ -369,6 +369,17 @@
         }
 
         function openScheduleModal() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            const dateTimeInput = document.getElementById('dateTimeInput');
+            dateTimeInput.min = minDateTime;
+
             document.getElementById('scheduleModal').classList.remove('hidden');
             lucide.createIcons();
         }
@@ -384,6 +395,11 @@
             const evalId = document.getElementById('evalIdInput').value;
             const dateTime = document.getElementById('dateTimeInput').value;
             const venue = document.getElementById('venueInput').value;
+
+            if (new Date(dateTime) < new Date()) {
+                alert('Interview date cannot be in the past.');
+                return;
+            }
 
             try {
                 const response = await fetch('/api/interviews', {
@@ -413,6 +429,17 @@
             const interview = interviews.find(i => i.id === id);
             if (!interview) return;
 
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            const editDateTimeInput = document.getElementById('editDateTimeInput');
+            editDateTimeInput.min = minDateTime;
+
             document.getElementById('editIdInput').value = interview.id;
             document.getElementById('editDateTimeInput').value = interview.dateTime.substring(0, 16);
             document.getElementById('editVenueInput').value = interview.venueOrLink;
@@ -433,6 +460,11 @@
             const dateTime = document.getElementById('editDateTimeInput').value;
             const venue = document.getElementById('editVenueInput').value;
             const status = document.getElementById('editStatusInput').value;
+
+            if (status === 'Scheduled' && new Date(dateTime) < new Date()) {
+                alert('Interview date cannot be in the past.');
+                return;
+            }
 
             try {
                 const response = await fetch('/api/interviews', {

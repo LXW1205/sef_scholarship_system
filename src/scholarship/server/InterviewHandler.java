@@ -9,6 +9,7 @@ import scholarship.model.Interview;
 import scholarship.model.Application;
 import scholarship.model.Evaluation;
 import scholarship.utils.JsonUtils;
+import scholarship.utils.StatusValidator;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -119,6 +120,11 @@ public class InterviewHandler implements HttpHandler {
             int evalId = Integer.parseInt(evalIdStr);
             Timestamp dateTime = Timestamp.valueOf(dateTimeStr.replace("T", " ") + ":00");
 
+            if (dateTime.before(new Timestamp(System.currentTimeMillis()))) {
+                sendError(exchange, 400, "Interview date cannot be in the past");
+                return;
+            }
+
             Interview interview = new Interview(0, evalId, dateTime, venueOrLink, "Scheduled");
             int interviewId = interviewDAO.schedule(interview);
 
@@ -177,12 +183,23 @@ public class InterviewHandler implements HttpHandler {
             }
 
             if (dateTimeStr != null) {
-                interview.setDateTime(Timestamp.valueOf(dateTimeStr.replace("T", " ") + ":00"));
+                Timestamp newDateTime = Timestamp.valueOf(dateTimeStr.replace("T", " ") + ":00");
+                if ("Scheduled".equals(status != null ? status : interview.getStatus())
+                        && newDateTime.before(new Timestamp(System.currentTimeMillis()))) {
+                    sendError(exchange, 400, "Interview date cannot be in the past");
+                    return;
+                }
+                interview.setDateTime(newDateTime);
             }
             if (venueOrLink != null) {
                 interview.setVenueOrLink(venueOrLink);
             }
             if (status != null) {
+                if (!StatusValidator.isValidTransition(interview.getStatus(), status, "interview")) {
+                    sendError(exchange, 400,
+                            "Invalid status transition from " + interview.getStatus() + " to " + status);
+                    return;
+                }
                 interview.setStatus(status);
             }
 

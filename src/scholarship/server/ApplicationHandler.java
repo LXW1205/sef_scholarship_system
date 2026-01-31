@@ -5,6 +5,7 @@ import scholarship.dao.EvaluationDAO;
 import scholarship.model.Application;
 import scholarship.model.Evaluation;
 import scholarship.utils.JsonUtils;
+import scholarship.utils.StatusValidator;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
@@ -203,6 +204,17 @@ public class ApplicationHandler implements HttpHandler {
 
             if (appIdStr != null && reviewerId != null) {
                 int appId = Integer.parseInt(appIdStr.trim());
+                Application app = applicationDAO.findById(appId);
+                if (app == null) {
+                    sendError(exchange, 404, "Application not found");
+                    return;
+                }
+
+                if (!StatusValidator.isValidTransition(app.getStatus(), StatusValidator.APP_REVIEWING, "application")) {
+                    sendError(exchange, 400, "Invalid status transition from " + app.getStatus() + " to Reviewing");
+                    return;
+                }
+
                 Evaluation eval = new Evaluation(0, appId, reviewerId, "", 0, "", "Pending", null);
                 if (evaluationDAO.save(eval)) {
                     // UPDATE STATUS
@@ -249,9 +261,21 @@ public class ApplicationHandler implements HttpHandler {
 
             Evaluation eval = evaluationDAO.findByAppId(appId);
             if (eval != null) {
+                if (!StatusValidator.isValidTransition(eval.getStatus(), "Completed", "evaluation")) {
+                    sendError(exchange, 400, "Invalid status transition for evaluation: " + eval.getStatus());
+                    return;
+                }
+
                 eval.setScholarshipComments(comments);
                 eval.setStatus(recommendation); // Using recommendation as status for simplicity
                 if (evaluationDAO.update(eval)) {
+
+                    Application app = applicationDAO.findById(appId);
+                    if (app != null && !StatusValidator.isValidTransition(app.getStatus(), StatusValidator.APP_REVIEWED,
+                            "application")) {
+                        // We log it but maybe allow it if it's already Reviewed?
+                        // Actually the validator allows same status.
+                    }
 
                     // Parse and save scores
                     if (scoresJson != null && scoresJson.startsWith("[")) {
@@ -285,8 +309,8 @@ public class ApplicationHandler implements HttpHandler {
                         evaluationDAO.saveScores(eval.getEvalID(), scoresList);
                     }
 
-                    applicationDAO.updateStatus(appId, "Reviewed");
-                    notifyStudentStatusChange(appId, "Reviewed", null);
+                    applicationDAO.updateStatus(appId, StatusValidator.APP_REVIEWED);
+                    notifyStudentStatusChange(appId, StatusValidator.APP_REVIEWED, null);
                     notificationDAO.createForRole("Committee", "New evaluation submitted for Application ID: " + appId);
 
                     // AUDIT LOG
@@ -315,6 +339,17 @@ public class ApplicationHandler implements HttpHandler {
             int appId = Integer.parseInt(JsonUtils.extractValue(requestBody, "appId"));
             String decision = JsonUtils.extractValue(requestBody, "decision");
             String comments = JsonUtils.extractValue(requestBody, "comments");
+
+            Application app = applicationDAO.findById(appId);
+            if (app == null) {
+                sendError(exchange, 404, "Application not found");
+                return;
+            }
+
+            if (!StatusValidator.isValidTransition(app.getStatus(), decision, "application")) {
+                sendError(exchange, 400, "Invalid status transition from " + app.getStatus() + " to " + decision);
+                return;
+            }
 
             if (applicationDAO.updateStatus(appId, decision, comments)) {
                 // NOTIFY STUDENT
@@ -368,7 +403,13 @@ public class ApplicationHandler implements HttpHandler {
                         return;
                     }
 
-                    if (applicationDAO.updateStatus(appId, "Withdrawn")) {
+                    if (!StatusValidator.isValidTransition(app.getStatus(), StatusValidator.APP_WITHDRAWN,
+                            "application")) {
+                        sendError(exchange, 400, "Invalid status transition from " + app.getStatus() + " to Withdrawn");
+                        return;
+                    }
+
+                    if (applicationDAO.updateStatus(appId, StatusValidator.APP_WITHDRAWN)) {
                         // NOTIFY ADMIN
                         notificationDAO.createForRole("Admin",
                                 "Application ID: " + appId + " has been withdrawn by the student (" + studentId + ")");
