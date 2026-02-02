@@ -54,71 +54,80 @@
   <div id="header-container"></div>
 
   <main class="min-h-screen">
-    <!-- Welcome Header -->
-    <section class="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
-      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 bg-primary-foreground/10 rounded-full flex items-center justify-center">
-            <i data-lucide="shield-check" class="w-10 h-10"></i>
+    <!-- Hero Section with Embedded Stats -->
+    <div class="hero-image-bg min-h-[350px] flex flex-col justify-center relative pt-24 pb-8">
+      <div class="hero-overlay"></div>
+      <div class="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-6 mb-6">
+          <div
+            class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 shadow-xl">
+            <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
           </div>
           <div>
-            <h2 class="text-3xl font-bold" id="welcomeMessage">Welcome, Admin!</h2>
-            <p class="text-primary-foreground/80 mt-1">Manage your scholarship system and monitor activities</p>
+            <h2 class="text-4xl font-black text-white tracking-tight drop-shadow-md" id="welcomeMessage">Welcome, Admin!
+            </h2>
+            <p class="text-white/80 mt-2 text-lg font-medium drop-shadow-sm">Manage your scholarship system and monitor
+              activities</p>
           </div>
         </div>
+
+        <!-- Quick Stats Grid moved inside Hero -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <a href="/admin/users-management.html"
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
+            <div class="flex items-center gap-3 mb-2">
+              <div
+                class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                <i data-lucide="users" class="w-5 h-5 text-blue-600 group-hover:text-white"></i>
+              </div>
+              <h3 class="font-semibold text-slate-600 text-sm">Total Users</h3>
+            </div>
+            <p class="text-3xl font-bold text-slate-800" id="totalUsers">-</p>
+          </a>
+
+          <a href="/admin/application-management-admin.html"
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
+            <div class="flex items-center gap-3 mb-2">
+              <div
+                class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center group-hover:bg-success group-hover:text-white transition-colors">
+                <i data-lucide="award" class="w-5 h-5 text-success group-hover:text-white"></i>
+              </div>
+              <h3 class="font-semibold text-slate-600 text-sm">Active Scholarships</h3>
+            </div>
+            <p class="text-3xl font-bold text-slate-800" id="activeScholarships">-</p>
+          </a>
+
+          <a href="/admin/applications-management.html"
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
+            <div class="flex items-center gap-3 mb-2">
+              <div
+                class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                <i data-lucide="file-text" class="w-5 h-5 text-yellow-600 group-hover:text-white"></i>
+              </div>
+              <h3 class="font-semibold text-slate-600 text-sm">Pending Applications</h3>
+            </div>
+            <p class="text-3xl font-bold text-slate-800" id="pendingApps">-</p>
+          </a>
+
+          <a href="/admin/system-analytics.html"
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
+            <div class="flex items-center gap-3 mb-2">
+              <div
+                class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                <i data-lucide="check-circle" class="w-5 h-5 text-purple-600 group-hover:text-white"></i>
+              </div>
+              <h3 class="font-semibold text-slate-600 text-sm">Awarded This Month</h3>
+            </div>
+            <p class="text-3xl font-bold text-slate-800" id="awardedMonth">-</p>
+          </a>
+        </div>
       </div>
-    </section>
+      <div class="fade-to-solid"></div>
+    </div>
 
     <!-- Dashboard Content -->
     <section class="py-12">
       <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <a href="/admin/users-management.html"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
-              </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Total Users</h3>
-            </div>
-            <p class="text-3xl font-bold" id="totalUsers">-</p>
-          </a>
-
-          <a href="/admin/application-management-admin.html"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="award" class="w-5 h-5 text-success"></i>
-              </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Active Scholarships</h3>
-            </div>
-            <p class="text-3xl font-bold" id="activeScholarships">-</p>
-          </a>
-
-          <a href="/admin/applications-management.html"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="file-text" class="w-5 h-5 text-yellow-600"></i>
-              </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Pending Applications</h3>
-            </div>
-            <p class="text-3xl font-bold" id="pendingApps">-</p>
-          </a>
-
-          <a href="/admin/system-analytics.html"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="check-circle" class="w-5 h-5 text-purple-600"></i>
-              </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Approved This Month</h3>
-            </div>
-            <p class="text-3xl font-bold" id="approvedMonth">-</p>
-          </a>
-        </div>
-
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           <a href="/admin/users-management.html"
@@ -164,90 +173,85 @@
               <h3 class="font-semibold">System Settings</h3>
             </div>
           </a>
-
-
-
         </div>
 
+        <!-- Analytics Section -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8" id="analytics-section">
+          <h2 class="text-2xl font-bold mb-6">System Analytics</h2>
 
-      </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Application Trends (Bar Chart) -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-border shadow-sm">
+              <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Application Trends</h3>
+                <div class="flex gap-3 mt-4 md:mt-0">
+                  <select id="timeRange" class="px-4 py-2 bg-background border border-input rounded-lg">
+                    <option value="all">All Time</option>
+                    <option value="year">Past Year</option>
+                    <option value="month">Past Month</option>
+                    <option value="week">Past Week</option>
+                  </select>
+                  <button onclick="exportCSV()"
+                    class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                    title="Export CSV">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="relative h-96 w-full">
+                <canvas id="analyticsChart"></canvas>
+              </div>
+            </div>
 
-      <!-- Analytics Section -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8" id="analytics-section">
-        <h2 class="text-2xl font-bold mb-6">System Analytics</h2>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <!-- Application Trends (Bar Chart) -->
-          <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-border shadow-sm">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">Application Trends</h3>
-              <div class="flex gap-3 mt-4 md:mt-0">
-                <select id="timeRange" class="px-4 py-2 bg-background border border-input rounded-lg">
-                  <option value="all">All Time</option>
-                  <option value="year">Past Year</option>
-                  <option value="month">Past Month</option>
-                  <option value="week">Past Week</option>
-                </select>
-                <button onclick="exportCSV()"
+            <!-- User Distribution (Pie Chart) -->
+            <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">User Distribution</h3>
+                <button onclick="exportUserCSV()"
                   class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
                   title="Export CSV">
                   <i data-lucide="download" class="w-4 h-4"></i>
                 </button>
               </div>
-            </div>
-            <div class="relative h-96 w-full">
-              <canvas id="analyticsChart"></canvas>
+              <div class="relative h-64 w-full flex justify-center">
+                <canvas id="userChart"></canvas>
+              </div>
+              <div class="mt-6 space-y-2" id="userLegend"></div>
             </div>
           </div>
 
-          <!-- User Distribution (Pie Chart) -->
-          <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">User Distribution</h3>
-              <button onclick="exportUserCSV()"
-                class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
-                title="Export CSV">
-                <i data-lucide="download" class="w-4 h-4"></i>
-              </button>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Award Distribution -->
+            <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Award Distribution</h3>
+                <button onclick="exportAwardCSV()"
+                  class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                  title="Export CSV">
+                  <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="relative h-64 w-full">
+                <canvas id="awardChart"></canvas>
+              </div>
+              <p class="text-sm text-muted-foreground mt-4">Awarded applications per scholarship</p>
             </div>
-            <div class="relative h-64 w-full flex justify-center">
-              <canvas id="userChart"></canvas>
-            </div>
-            <div class="mt-6 space-y-2" id="userLegend"></div>
-          </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Award Distribution -->
-          <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">Award Distribution</h3>
-              <button onclick="exportAwardCSV()"
-                class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
-                title="Export CSV">
-                <i data-lucide="download" class="w-4 h-4"></i>
-              </button>
+            <!-- Application Success Rate -->
+            <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Status Distribution</h3>
+                <button onclick="exportStatusCSV()"
+                  class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                  title="Export CSV">
+                  <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="relative h-64 w-full">
+                <canvas id="statusChart"></canvas>
+              </div>
+              <p class="text-sm text-muted-foreground mt-4">Overall success rate and application pipeline</p>
             </div>
-            <div class="relative h-64 w-full">
-              <canvas id="awardChart"></canvas>
-            </div>
-            <p class="text-sm text-muted-foreground mt-4">Approved applications per scholarship</p>
-          </div>
-
-          <!-- Application Success Rate -->
-          <div class="bg-white p-6 rounded-xl border border-border shadow-sm">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">Status Distribution</h3>
-              <button onclick="exportStatusCSV()"
-                class="p-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
-                title="Export CSV">
-                <i data-lucide="download" class="w-4 h-4"></i>
-              </button>
-            </div>
-            <div class="relative h-64 w-full">
-              <canvas id="statusChart"></canvas>
-            </div>
-            <p class="text-sm text-muted-foreground mt-4">Overall success rate and application pipeline</p>
           </div>
         </div>
       </div>
@@ -282,7 +286,7 @@
         if (document.getElementById('totalUsers')) document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
         if (document.getElementById('activeScholarships')) document.getElementById('activeScholarships').textContent = stats.activeScholarships || 0;
         if (document.getElementById('pendingApps')) document.getElementById('pendingApps').textContent = stats.pendingApps || 0;
-        if (document.getElementById('approvedMonth')) document.getElementById('approvedMonth').textContent = stats.approvedMonth || 0;
+        if (document.getElementById('awardedMonth')) document.getElementById('awardedMonth').textContent = stats.awardedMonth || 0;
 
         // Update Charts
         updateChart(stats.trends || {});

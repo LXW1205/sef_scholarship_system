@@ -69,7 +69,7 @@
             <option value="">All Applications</option>
             <option value="Pending">Pending</option>
             <option value="Under Review">Under Review</option>
-            <option value="Approved">Approved</option>
+            <option value="Awarded">Awarded</option>
             <option value="Rejected">Rejected</option>
           </select>
         </div>
@@ -158,7 +158,7 @@
                       </div>
                       <div class="flex items-center gap-2 text-sm">
                         <i data-lucide="info" class="w-4 h-4 text-muted-foreground"></i>
-                        <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Approved' ? 'bg-success/10 text-success' :
+                        <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Awarded' ? 'bg-success/10 text-success' :
           app.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
             app.status === 'Under Review' ? 'bg-blue-500/10 text-blue-600' :
               app.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :

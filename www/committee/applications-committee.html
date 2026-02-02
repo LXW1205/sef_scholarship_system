@@ -79,7 +79,7 @@
               <option value="">All Statuses</option>
               <option value="Pending">Pending Decision</option>
               <option value="Shortlisted">Shortlisted</option>
-              <option value="Approved">Approved</option>
+              <option value="Awarded">Awarded</option>
               <option value="Rejected">Rejected</option>
             </select>
           </div>
@@ -138,7 +138,7 @@
       // Only show applications relevant to committee (Reviewed or further)
       // Unless they want to see everything, but usually committee acts on Reviewed
       if (!statusFilter) {
-        filtered = filtered.filter(a => ['Reviewed', 'Shortlisted', 'Approved', 'Rejected'].includes(a.status));
+        filtered = filtered.filter(a => ['Reviewed', 'Shortlisted', 'Awarded', 'Rejected'].includes(a.status));
       } else {
         filtered = filtered.filter(a => a.status === statusFilter);
       }
@@ -193,7 +193,7 @@
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-2">
                   <h3 class="text-xl font-bold">${app.fullname || 'Anonymous'}</h3>
-                  <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Approved' ? 'bg-success/10 text-success' :
+                  <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Awarded' ? 'bg-success/10 text-success' :
             app.status === 'Shortlisted' ? 'bg-blue-500/10 text-blue-600' :
               app.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
                 'bg-yellow-500/10 text-yellow-600'

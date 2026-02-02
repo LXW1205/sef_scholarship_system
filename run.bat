@@ -13,5 +13,5 @@ if %errorlevel% neq 0 (
 )
 
 echo Running...
-java -cp "bin;lib/*" scholarship.Main
+java -cp "bin;lib/*" Main
 pause

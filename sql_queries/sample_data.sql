@@ -8,7 +8,7 @@ INSERT INTO ApplicationStatusLookup (statusValue) VALUES
 ('Pending'),
 ('Reviewing'),
 ('Reviewed'),
-('Approved'),
+('Awarded'),
 ('Rejected'),
 ('Withdrawn');
 

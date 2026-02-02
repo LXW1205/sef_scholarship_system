@@ -13,8 +13,6 @@
         extend: {
           colors: {
             border: 'hsl(214.3 31.8% 91.4%)',
-            input: 'hsl(214.3 31.8% 91.4%)',
-            ring: 'hsl(222.2 84% 4.9%)',
             background: 'hsl(0 0% 100%)',
             foreground: 'hsl(222.2 84% 4.9%)',
             primary: {
@@ -24,10 +22,6 @@
             secondary: {
               DEFAULT: 'hsl(210 40% 96.1%)',
               foreground: 'hsl(222.2 47.4% 11.2%)',
-            },
-            destructive: {
-              DEFAULT: 'hsl(0 84.2% 60.2%)',
-              foreground: 'hsl(210 40% 98%)',
             },
             muted: {
               DEFAULT: 'hsl(210 40% 96.1%)',
@@ -41,6 +35,10 @@
               DEFAULT: 'hsl(142.1 76.2% 36.3%)',
               foreground: 'hsl(355.7 100% 97.3%)',
             },
+            destructive: {
+              DEFAULT: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+            },
           },
         }
       }
@@ -53,72 +51,81 @@
   <div id="header-container"></div>
 
   <main class="min-h-screen">
-    <!-- Welcome Header -->
-    <section class="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
-      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 bg-primary-foreground/10 rounded-full flex items-center justify-center">
-            <i data-lucide="user-circle" class="w-10 h-10"></i>
+    <!-- Hero Section with Embedded Stats -->
+    <div class="hero-image-bg min-h-[350px] flex flex-col justify-center relative pt-24 pb-8">
+      <div class="hero-overlay"></div>
+      <div class="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-6 mb-6">
+          <div
+            class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 shadow-xl">
+            <i data-lucide="user-circle" class="w-8 h-8 text-white"></i>
           </div>
           <div>
-            <h2 class="text-3xl font-bold" id="welcomeMessage">Welcome back!</h2>
-            <p class="text-primary-foreground/80 mt-1">Manage your scholarship applications and discover new
+            <h2 class="text-4xl font-black text-white tracking-tight drop-shadow-md" id="welcomeMessage">Welcome back!
+            </h2>
+            <p class="text-white/80 mt-2 text-lg font-medium drop-shadow-sm">Manage your scholarship applications and
+              discover new
               opportunities</p>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Dashboard Content -->
-    <section class="py-12">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <!-- Quick Stats Grid moved inside Hero -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
           <a href="/student/scholarships-student.html"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="award" class="w-5 h-5 text-primary"></i>
+              <div
+                class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                <i data-lucide="award" class="w-5 h-5 text-primary group-hover:text-white"></i>
               </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Available</h3>
+              <h3 class="font-semibold text-slate-600 text-sm">Available</h3>
             </div>
-            <p class="text-3xl font-bold" id="availableCount">-</p>
+            <p class="text-3xl font-bold text-slate-800" id="availableCount">-</p>
           </a>
 
           <a href="/student/applications-student.html"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="send" class="w-5 h-5 text-success"></i>
+              <div
+                class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center group-hover:bg-success group-hover:text-white transition-colors">
+                <i data-lucide="send" class="w-5 h-5 text-success group-hover:text-white"></i>
               </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Submitted</h3>
+              <h3 class="font-semibold text-slate-600 text-sm">Submitted</h3>
             </div>
-            <p class="text-3xl font-bold" id="submittedCount">-</p>
+            <p class="text-3xl font-bold text-slate-800" id="submittedCount">-</p>
           </a>
 
           <a href="/student/applications-student.html?status=Pending"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="clock" class="w-5 h-5 text-yellow-600"></i>
+              <div
+                class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                <i data-lucide="clock" class="w-5 h-5 text-yellow-600 group-hover:text-white"></i>
               </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Pending</h3>
+              <h3 class="font-semibold text-slate-600 text-sm">Pending</h3>
             </div>
-            <p class="text-3xl font-bold" id="pendingCount">-</p>
+            <p class="text-3xl font-bold text-slate-800" id="pendingCount">-</p>
           </a>
 
-          <a href="/student/applications-student.html?status=Approved"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
+          <a href="/student/applications-student.html?status=Awarded"
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="check-circle" class="w-5 h-5 text-success"></i>
+              <div
+                class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center group-hover:bg-success group-hover:text-white transition-colors">
+                <i data-lucide="check-circle" class="w-5 h-5 text-success group-hover:text-white"></i>
               </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Approved</h3>
+              <h3 class="font-semibold text-slate-600 text-sm">Awarded</h3>
             </div>
-            <p class="text-3xl font-bold" id="approvedCount">-</p>
+            <p class="text-3xl font-bold text-slate-800" id="approvedCount">-</p>
           </a>
         </div>
+      </div>
+      <div class="fade-to-solid"></div>
+    </div>
 
+    <!-- Dashboard Content -->
+    <section class="py-12">
+      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <a href="/student/scholarships-student.html"
@@ -212,7 +219,7 @@
         document.getElementById('availableCount').textContent = scholarshipsData.scholarships?.length || 0;
         document.getElementById('submittedCount').textContent = appsData.applications?.length || 0;
         document.getElementById('pendingCount').textContent = appsData.applications?.filter(a => a.status === 'Pending').length || 0;
-        document.getElementById('approvedCount').textContent = appsData.applications?.filter(a => a.status === 'Approved').length || 0;
+        document.getElementById('approvedCount').textContent = appsData.applications?.filter(a => a.status === 'Awarded').length || 0;
 
         // Display recent applications
         const recentApps = appsData.applications?.slice(0, 5) || [];
@@ -225,14 +232,14 @@
                 <div class="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
                   <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <i data-lucide="award" class="w-5 h-5 text-primary"></i>
+                       <i data-lucide="award" class="w-5 h-5 text-primary"></i>
                     </div>
                     <div>
                       <h4 class="font-semibold">${app.scholarship_title}</h4>
                       <p class="text-sm text-muted-foreground">Submitted ${new Date(app.submissiondate).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Approved' ? 'bg-success/10 text-success' :
+                  <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Awarded' ? 'bg-success/10 text-success' :
               app.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-600' :
                 app.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
                   'bg-muted text-muted-foreground'

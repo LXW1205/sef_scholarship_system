@@ -55,68 +55,77 @@
   <div id="header-container"></div>
 
   <main>
-    <!-- Hero section with Tailwind gradient and modern styling -->
-    <section class="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-20 lg:py-32">
-      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto">
-          <h2 class="text-4xl lg:text-6xl font-bold mb-6 text-balance">Find Your Future</h2>
-          <p class="text-xl lg:text-2xl mb-8 text-primary-foreground/90 leading-relaxed">Discover scholarship
-            opportunities to support your academic journey</p>
-          <div class="flex flex-col gap-4 items-center">
-            <div class="flex flex-col sm:flex-row gap-4 justify-center w-full">
+    <!-- Hero section with background image -->
+    <div class="hero-image-bg">
+      <div class="hero-overlay"></div>
+
+      <section class="min-h-screen flex items-center justify-center relative">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 hero-content">
+          <div class="text-center max-w-3xl mx-auto">
+            <h2 class="text-5xl lg:text-8xl font-black mb-6 text-white drop-shadow-2xl tracking-tight">Find Your Future
+            </h2>
+            <p class="text-xl lg:text-2xl mb-12 text-white/90 leading-relaxed font-medium drop-shadow-lg">
+              Discover scholarship opportunities to support your academic journey
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <a href="/scholarships.html"
-                class="px-8 py-3 bg-background text-foreground rounded-lg hover:bg-background/90 transition-colors font-medium flex items-center justify-center gap-2">
-                <i data-lucide="search" class="w-5 h-5"></i>
+                class="px-10 py-5 bg-white text-[#0f172a] rounded-full hover:bg-white/90 transition-all font-bold flex items-center justify-center gap-2 shadow-2xl hover:scale-110 active:scale-95 btn-3d shine-effect min-w-[200px]">
+                <i data-lucide="search" class="w-6 h-6"></i>
                 Browse Scholarships</a>
+              <a href="/login.html"
+                class="px-10 py-5 bg-white text-[#0f172a] rounded-full hover:bg-white/90 transition-all font-bold flex items-center justify-center gap-2 shadow-2xl hover:scale-110 active:scale-95 btn-3d shine-effect min-w-[200px]">
+                <i data-lucide="log-in" class="w-6 h-6"></i>
+                Login Now</a>
               <a href="/register.html"
-                class="px-8 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors font-medium flex items-center justify-center gap-2">
-                <i data-lucide="user-plus" class="w-5 h-5"></i>
+                class="px-10 py-5 bg-[#0c0a09] text-white rounded-full transition-all font-bold flex items-center justify-center gap-2 shadow-2xl hover:scale-110 active:scale-95 btn-3d shine-effect animate-pulse-soft min-w-[200px]">
+                <i data-lucide="user-plus" class="w-6 h-6"></i>
                 Get Started</a>
             </div>
-            <a href="/login.html"
-              class="px-8 py-3 bg-primary text-primary-foreground border border-white/20 rounded-lg hover:bg-primary/90 transition-colors font-medium w-full sm:w-auto min-w-[200px] flex items-center justify-center gap-2">
-              <i data-lucide="log-in" class="w-5 h-5"></i>
-              Login Now</a>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Features grid with card components -->
-    <section class="py-16 lg:py-24 bg-muted/30">
-      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <h3 class="text-3xl lg:text-4xl font-bold text-center mb-12">Why Choose Our Portal?</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Replaced emojis with Lucide icons -->
-          <div
-            class="bg-card text-card-foreground p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
-            <i data-lucide="graduation-cap" class="w-12 h-12 text-primary mb-4"></i>
-            <h4 class="text-xl font-semibold mb-2">Easy Application</h4>
-            <p class="text-muted-foreground leading-relaxed">Submit applications to multiple scholarships with a
-              streamlined process</p>
-          </div>
-          <div
-            class="bg-card text-card-foreground p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
-            <i data-lucide="bar-chart-3" class="w-12 h-12 text-primary mb-4"></i>
-            <h4 class="text-xl font-semibold mb-2">Track Progress</h4>
-            <p class="text-muted-foreground leading-relaxed">Monitor your application status in real-time</p>
-          </div>
-          <div
-            class="bg-card text-card-foreground p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
-            <i data-lucide="coins" class="w-12 h-12 text-primary mb-4"></i>
-            <h4 class="text-xl font-semibold mb-2">Multiple Opportunities</h4>
-            <p class="text-muted-foreground leading-relaxed">Access a wide range of scholarship programs</p>
-          </div>
-          <div
-            class="bg-card text-card-foreground p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
-            <i data-lucide="bell" class="w-12 h-12 text-primary mb-4"></i>
-            <h4 class="text-xl font-semibold mb-2">Stay Updated</h4>
-            <p class="text-muted-foreground leading-relaxed">Get notifications about deadlines and application updates
-            </p>
+      <!-- Features grid integrated with background -->
+      <section class="py-24 relative z-10 hero-content">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <h3 class="text-4xl lg:text-5xl font-black text-center mb-16 text-white drop-shadow-lg">Why Our Portal?</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div
+              class="bg-white/90 backdrop-blur-xl p-8 rounded-3xl border border-white/20 hover:bg-white transition-all group hover:-translate-y-2 shadow-xl">
+              <i data-lucide="graduation-cap"
+                class="w-14 h-14 text-[#0f172a] mb-6 group-hover:scale-110 transition-transform"></i>
+              <h4 class="text-2xl font-bold mb-3 text-[#0f172a]">Easy Application</h4>
+              <p class="text-[#475569] leading-relaxed">Submit applications to multiple scholarships with a streamlined
+                process</p>
+            </div>
+            <div
+              class="bg-white/90 backdrop-blur-xl p-8 rounded-3xl border border-white/20 hover:bg-white transition-all group hover:-translate-y-2 shadow-xl">
+              <i data-lucide="bar-chart-3"
+                class="w-14 h-14 text-[#0f172a] mb-6 group-hover:scale-110 transition-transform"></i>
+              <h4 class="text-2xl font-bold mb-3 text-[#0f172a]">Track Progress</h4>
+              <p class="text-[#475569] leading-relaxed">Monitor your application status in real-time</p>
+            </div>
+            <div
+              class="bg-white/90 backdrop-blur-xl p-8 rounded-3xl border border-white/20 hover:bg-white transition-all group hover:-translate-y-2 shadow-xl">
+              <i data-lucide="coins"
+                class="w-14 h-14 text-[#0f172a] mb-6 group-hover:scale-110 transition-transform"></i>
+              <h4 class="text-2xl font-bold mb-3 text-[#0f172a]">Multiple Opportunities</h4>
+              <p class="text-[#475569] leading-relaxed">Access a wide range of scholarship programs</p>
+            </div>
+            <div
+              class="bg-white/90 backdrop-blur-xl p-8 rounded-3xl border border-white/20 hover:bg-white transition-all group hover:-translate-y-2 shadow-xl">
+              <i data-lucide="bell"
+                class="w-14 h-14 text-[#0f172a] mb-6 group-hover:scale-110 transition-transform"></i>
+              <h4 class="text-2xl font-bold mb-3 text-[#0f172a]">Stay Updated</h4>
+              <p class="text-[#475569] leading-relaxed">Get notifications about deadlines and updates</p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <div class="fade-to-solid"></div>
+    </div>
+
   </main>
 
   <div id="footer-container"></div>

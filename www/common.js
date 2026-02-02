@@ -52,17 +52,204 @@ function injectGlobalStyles() {
             font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
             background-color: #f8fafc !important; /* Subtle slate-50 background tint */
             scroll-behavior: smooth;
+            overflow-x: hidden !important; /* Eliminate horizontal scrollbar */
         }
 
         /* Glassmorphism for Header */
         nav {
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
-            background-color: rgba(15, 23, 42, 0.85) !important; /* Primary color with transparency */
-            position: sticky !important;
-            top: 0;
-            z-index: 50;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            background-color: transparent !important;
+            position: fixed !important;
+            top: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 1000 !important;
+            width: fit-content !important;
+            min-width: 600px !important;
+            max-width: 95% !important;
+            border-radius: 9999px !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .hero-image-bg {
+            background-image: url('/assets/images/mmu.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            width: 100%;
+            left: 50%;
+            transform: translateX(-50%); /* Better centering than margin hacks */
+            margin: 0;
+        }
+
+        .hero-image-bg.h-64 {
+            min-height: 256px !important;
+            height: 256px !important;
+        }
+
+        /* Seamless Fade to Solid Technique */
+        .fade-to-solid {
+            /* Linear gradient matching body background #f8fafc */
+            background: linear-gradient(to bottom, 
+                rgba(248, 250, 252, 0) 0%, 
+                rgba(248, 250, 252, 0.8) 70%, 
+                rgba(248, 250, 252, 1) 100%
+            ) !important;
+            position: absolute;
+            bottom: -1px; /* Ensure no gaps */
+            left: 0;
+            right: 0;
+            height: 200px; /* Increased height for smoother transition */
+            z-index: 2;
+        }
+
+        .hero-overlay {
+            background: rgba(15, 23, 42, 0.4); /* Slightly darker for better text readability */
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Entrance Animations */
+        @keyframes formEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .animate-form {
+            animation: formEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* 3D Button Effects */
+        .btn-3d {
+            position: relative;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #000;
+            border: 1px solid #000 !important;
+        }
+
+        .btn-3d:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #000;
+        }
+
+        .btn-3d:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #000;
+        }
+
+        /* Shine Effect Animation */
+        @keyframes shine {
+            100% {
+                left: 125%;
+            }
+        }
+
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shine-effect::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(30deg);
+            transition: none;
+        }
+
+        .shine-effect:hover::after {
+            animation: shine 0.7s ease-in-out;
+        }
+
+        /* Float Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse-soft {
+            0% { box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(15, 23, 42, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(15, 23, 42, 0); }
+        }
+
+        .animate-pulse-soft {
+            animation: pulse-soft 2s infinite;
+        }
+
+        /* Darker overlay for actors */
+        .actor-page .hero-overlay {
+            background: rgba(15, 23, 42, 0.6) !important;
+        }
+
+        .nav-link {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #475569;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: #0f172a;
+        }
+        
+        .pill-btn-black {
+            background-color: #0c0a09 !important;
+            color: white !important;
+            padding: 8px 20px !important;
+            border-radius: 9999px !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            transition: all 0.2s !important;
+        }
+
+        .pill-btn-black:hover {
+            background-color: #1c1917 !important;
+            transform: scale(1.05);
+        }
+
+        /* Content Spacing for Fixed Header */
+        body {
+            padding-top: 0 !important;
+        }
+        main, .portal-content {
+            padding-top: 0px !important;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
         /* 3D Visuals for major action elements */
@@ -320,6 +507,7 @@ function isProfileComplete(user) {
         user.major &&
         user.cgpa !== undefined && user.cgpa !== null &&
         user.yearOfStudy &&
+        user.expectedGraduation &&
         user.familyIncome !== undefined && user.familyIncome !== null;
 }
 
@@ -371,212 +559,215 @@ function injectHeader() {
 
 function injectPublicHeader(container) {
     container.innerHTML = `
-    <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold"><a href="/index.html">ScholarNet</a></h1>
-                </div>
-                <div class="flex items-center gap-8" id="navLinks">
-                    <a href="/index.html" class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap">
-                        <i data-lucide="home" class="w-4 h-4"></i>
-                        <span>Home</span>
-                    </a>
-                    <a href="/scholarships.html" class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap">
-                        <i data-lucide="book-open" class="w-4 h-4"></i>
-                        <span>Scholarships</span>
-                    </a>
-                    <a href="/login.html" id="loginLink" class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap">
-                        <i data-lucide="log-in" class="w-4 h-4"></i>
-                        <span>Login</span>
-                    </a>
-                    <a href="/register.html" id="registerLink" class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        <span>Register</span>
-                    </a>
-                    <a href="#" id="dashboardLink" style="display: none;" class="hover:text-muted-foreground transition-colors inline-flex items-center gap-2 whitespace-nowrap">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <button id="logoutBtn" style="display: none;" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors inline-flex items-center gap-2 whitespace-nowrap">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        <span>Logout</span>
-                    </button>
-                </div>
+    <nav class="flex items-center px-4 py-2">
+        <div class="flex items-center gap-6 w-full justify-between">
+            <div class="flex items-center gap-2 pl-4">
+                <i data-lucide="graduation-cap" class="w-6 h-6 text-[#0f172a]"></i>
+                <span class="text-xl font-bold tracking-tight text-[#0f172a]"><a href="/index.html">ScholarNet</a></span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8" id="navLinks">
+                <a href="/index.html" class="nav-link flex items-center gap-2">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/scholarships.html" class="nav-link flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    <span>Scholarships</span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4 pr-2">
+                <a href="/login.html" id="loginLink" class="nav-link px-4">Login</a>
+                <a href="/register.html" id="registerLink" class="pill-btn-black">Register</a>
+                <a href="#" id="dashboardLink" style="display: none;" class="nav-link px-4">Dashboard</a>
+                <button id="logoutBtn" style="display: none;" class="pill-btn-black">Logout</button>
             </div>
         </div>
     </nav>
     `;
+    // Re-initialize icons since we injected new ones
+    if (window.lucide) window.lucide.createIcons();
 }
 
 function injectAdminHeader(container) {
     const currentPath = window.location.pathname;
     container.innerHTML = `
-    <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold"><a href="/admin/dashboard-admin.html">Admin Portal</a></h1>
-                </div>
-                <div class="flex items-center gap-6">
-                    <a href="/admin/dashboard-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
-                    </a>
-                    <a href="/admin/users-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('users') ? 'font-semibold' : ''}">
-                        <i data-lucide="users" class="w-4 h-4"></i> Users
-                    </a>
-                    <a href="/admin/application-management-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('application-management-admin') ? 'font-semibold' : ''}">
-                        <i data-lucide="award" class="w-4 h-4"></i> Scholarships
-                    </a>
-                    <a href="/admin/applications-management.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
-                        <i data-lucide="clipboard-check" class="w-4 h-4"></i> Applications
-                    </a>
-                    <a href="/admin/notifications-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
-                        <i data-lucide="bell" class="w-4 h-4"></i> Notifications
-                        <span id="notif-badge" class="flex items-center justify-center w-5 h-5 bg-muted text-muted-foreground opacity-30 text-[10px] font-bold rounded-full text-center">0</span>
-                    </a>
-                    <a href="/admin/inquiry-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('inquiry') ? 'font-semibold' : ''}">
-                        <i data-lucide="message-square" class="w-4 h-4"></i> Inquiries
-                    </a>
-                    <a href="/admin/profile-admin.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
-                        <i data-lucide="user" class="w-4 h-4"></i> Profile
-                    </a>
-                    <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-                        <i data-lucide="log-out" class="w-4 h-4"></i> Logout
-                    </button>
-                </div>
+    <nav class="flex items-center px-4 py-2">
+        <div class="flex items-center gap-4 w-full">
+            <div class="flex items-center gap-2 pl-2 border-r border-slate-200 pr-4">
+                <i data-lucide="graduation-cap" class="w-5 h-5 text-primary"></i>
+                <span class="text-sm font-bold tracking-tight text-[#0f172a]">Admin</span>
+            </div>
+            <div class="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
+                <a href="/admin/dashboard-admin.html" class="nav-link flex items-center gap-1 ${currentPath.includes('dashboard') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/admin/users-management.html" class="nav-link flex items-center gap-1 ${currentPath.includes('users') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="users" class="w-4 h-4"></i> Users
+                </a>
+                <a href="/admin/application-management-admin.html" class="nav-link flex items-center gap-1 ${currentPath.includes('application-management-admin') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="award" class="w-4 h-4"></i> Scholarships
+                </a>
+                <a href="/admin/applications-management.html" class="nav-link flex items-center gap-1 ${currentPath.includes('applications') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="clipboard-check" class="w-4 h-4"></i> Applications
+                </a>
+                <a href="/admin/notifications-admin.html" class="nav-link flex items-center gap-2 ${currentPath.includes('notifications') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span>Notifications</span>
+                    <span id="notif-badge" class="flex items-center justify-center w-4 h-4 bg-slate-100 text-[9px] rounded-full">0</span>
+                </a>
+                <a href="/admin/inquiry-admin.html" class="nav-link flex items-center gap-1 ${currentPath.includes('inquiry') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="message-square" class="w-4 h-4"></i> Inquiries
+                </a>
+                <a href="/admin/system-settings.html" class="nav-link group flex items-center gap-1 ${currentPath.includes('system-settings') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="settings" class="w-4 h-4 text-blue-600 transition-transform duration-300 group-hover:rotate-90"></i> Settings
+                </a>
+                <a href="/admin/profile-admin.html" class="nav-link flex items-center gap-1 ${currentPath.includes('profile') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="user" class="w-4 h-4"></i> Profile
+                </a>
+            </div>
+            <div class="ml-auto pl-2 border-l border-slate-200">
+                <button id="logoutBtn" class="pill-btn-black">Logout</button>
             </div>
         </div>
     </nav>
+    <!-- Spacer (only for non-dashboard pages) -->
+    ${currentPath.includes('dashboard') ? '' : '<div class="h-28"></div>'}
     `;
+    if (window.lucide) window.lucide.createIcons();
 }
 
 function injectStudentHeader(container) {
     const currentPath = window.location.pathname;
     container.innerHTML = `
-    <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold"><a href="/student/dashboard-student.html">Student Portal</a></h1>
-                </div>
-                <div class="flex items-center gap-6">
-                    <a href="/student/dashboard-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
-                    </a>
-                    <a href="/student/scholarships-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('scholarships') ? 'font-semibold' : ''}">
-                        <i data-lucide="award" class="w-4 h-4"></i> Scholarships
-                    </a>
-                    <a href="/student/applications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
-                        <i data-lucide="file-text" class="w-4 h-4"></i> My Applications
-                    </a>
-                    <a href="/student/interviews-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('interviews') ? 'font-semibold' : ''}">
-                        <i data-lucide="video" class="w-4 h-4"></i> Interviews
-                    </a>
-                    <a href="/student/notifications-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
-                        <i data-lucide="bell" class="w-4 h-4"></i> Notifications
-                        <span id="notif-badge" class="flex items-center justify-center w-5 h-5 bg-muted text-muted-foreground opacity-30 text-[10px] font-bold rounded-full text-center">0</span>
-                    </a>
-                    <a href="/student/inquiry-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('inquiry') ? 'font-semibold' : ''}">
-                        <i data-lucide="help-circle" class="w-4 h-4"></i> My Inquiries
-                    </a>
-                    <a href="/student/profile-student.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
-                        <i data-lucide="user" class="w-4 h-4"></i> Profile
-                    </a>
-                    <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-                        <i data-lucide="log-out" class="w-4 h-4"></i> Logout
-                    </button>
-                </div>
+    <nav class="flex items-center px-4 py-2">
+        <div class="flex items-center gap-4 w-full">
+            <div class="flex items-center gap-2 pl-2 border-r border-slate-200 pr-4">
+                <i data-lucide="graduation-cap" class="w-5 h-5 text-primary"></i>
+                <span class="text-sm font-bold tracking-tight text-[#0f172a]">Student</span>
+            </div>
+            <div class="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
+                <a href="/student/dashboard-student.html" class="nav-link flex items-center gap-1 ${currentPath.includes('dashboard') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/student/scholarships-student.html" class="nav-link flex items-center gap-1 ${currentPath.includes('scholarships') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="award" class="w-4 h-4"></i> Scholarships
+                </a>
+                <a href="/student/applications-student.html" class="nav-link flex items-center gap-1 ${currentPath.includes('applications') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> My Apps
+                </a>
+                <a href="/student/interviews-student.html" class="nav-link flex items-center gap-1 ${currentPath.includes('interviews') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="video" class="w-4 h-4"></i> Interviews
+                </a>
+                <a href="/student/notifications-student.html" class="nav-link flex items-center gap-2 ${currentPath.includes('notifications') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span>Notifications</span>
+                    <span id="notif-badge" class="flex items-center justify-center w-4 h-4 bg-slate-100 text-[9px] rounded-full">0</span>
+                </a>
+                <a href="/student/inquiry-student.html" class="nav-link flex items-center gap-1 ${currentPath.includes('inquiry') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="help-circle" class="w-4 h-4"></i> Inquiries
+                </a>
+                <a href="/student/profile-student.html" class="nav-link flex items-center gap-1 ${currentPath.includes('profile') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="user" class="w-4 h-4"></i> Profile
+                </a>
+            </div>
+            <div class="ml-auto pl-2 border-l border-slate-200">
+                <button id="logoutBtn" class="pill-btn-black">Logout</button>
             </div>
         </div>
     </nav>
+    <!-- Spacer (only for non-dashboard pages) -->
+    ${currentPath.includes('dashboard') ? '' : '<div class="h-28"></div>'}
     `;
+    if (window.lucide) window.lucide.createIcons();
 }
 
 function injectReviewerHeader(container) {
     const currentPath = window.location.pathname;
     container.innerHTML = `
-    <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold"><a href="/reviewer/dashboard-reviewer.html">Reviewer Portal</a></h1>
-                </div>
-                <div class="flex items-center gap-6">
-                    <a href="/reviewer/dashboard-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
-                    </a>
-                    <a href="/reviewer/application-assignments.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('assignments') ? 'font-semibold' : ''}">
-                        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Assignments
-                    </a>
-                    <a href="/reviewer/notifications-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
-                        <i data-lucide="bell" class="w-4 h-4"></i> Notifications
-                        <span id="notif-badge" class="flex items-center justify-center w-5 h-5 bg-muted text-muted-foreground opacity-30 text-[10px] font-bold rounded-full text-center">0</span>
-                    </a>
-                    <a href="/reviewer/clarification-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('clarification') ? 'font-semibold' : ''}">
-                        <i data-lucide="message-circle-question" class="w-4 h-4"></i> Clarifications
-                    </a>
-                    <a href="/reviewer/profile-reviewer.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
-                        <i data-lucide="user" class="w-4 h-4"></i> Profile
-                    </a>
-                    <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1">
-                        <i data-lucide="log-out" class="w-4 h-4"></i> Logout
-                    </button>
-                </div>
+    <nav class="flex items-center px-4 py-2">
+        <div class="flex items-center gap-4 w-full">
+            <div class="flex items-center gap-2 pl-2 border-r border-slate-200 pr-4">
+                <i data-lucide="graduation-cap" class="w-5 h-5 text-primary"></i>
+                <span class="text-sm font-bold tracking-tight text-[#0f172a]">Reviewer</span>
+            </div>
+            <div class="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
+                <a href="/reviewer/dashboard-reviewer.html" class="nav-link flex items-center gap-1 ${currentPath.includes('dashboard') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/reviewer/application-assignments.html" class="nav-link flex items-center gap-1 ${currentPath.includes('assignments') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Assignments
+                </a>
+                <a href="/reviewer/notifications-reviewer.html" class="nav-link flex items-center gap-2 ${currentPath.includes('notifications') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span>Notifications</span>
+                    <span id="notif-badge" class="flex items-center justify-center w-4 h-4 bg-slate-100 text-[9px] rounded-full">0</span>
+                </a>
+                <a href="/reviewer/clarification-reviewer.html" class="nav-link flex items-center gap-1 ${currentPath.includes('clarification') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="message-circle-question" class="w-4 h-4"></i> Clarifications
+                </a>
+                <a href="/reviewer/profile-reviewer.html" class="nav-link flex items-center gap-1 ${currentPath.includes('profile') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="user" class="w-4 h-4"></i> Profile
+                </a>
+            </div>
+            <div class="ml-auto pl-2 border-l border-slate-200">
+                <button id="logoutBtn" class="pill-btn-black">Logout</button>
             </div>
         </div>
     </nav>
+    <!-- Spacer (only for non-dashboard pages) -->
+    ${currentPath.includes('dashboard') ? '' : '<div class="h-28"></div>'}
     `;
+    if (window.lucide) window.lucide.createIcons();
 }
 
 function injectCommitteeHeader(container) {
     const currentPath = window.location.pathname;
     container.innerHTML = `
-    <nav class="bg-primary text-primary-foreground border-b border-border">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    <h1 class="text-xl font-bold"><a href="/committee/dashboard-committee.html">Committee Portal</a></h1>
-                </div>
-                <div class="flex items-center gap-6">
-                    <a href="/committee/dashboard-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('dashboard') ? 'font-semibold' : ''}">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
-                    </a>
-                    <a href="/committee/applications-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('applications') ? 'font-semibold' : ''}">
-                        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Applications
-                    </a>
-                    <a href="/committee/application-decisions.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('decisions') ? 'font-semibold' : ''}">
-                        <i data-lucide="gavel" class="w-4 h-4"></i> Decisions
-                    </a>
-                    <a href="/committee/application-management-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('application-management-committee') ? 'font-semibold' : ''}">
-                        <i data-lucide="award" class="w-4 h-4"></i> Scholarships
-                    </a>
-                    <a href="/committee/schedule-interviews.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('interviews') ? 'font-semibold' : ''}">
-                        <i data-lucide="calendar" class="w-4 h-4"></i> Interviews
-                    </a>
-                    <a href="/committee/clarification-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('clarification') ? 'font-semibold' : ''}">
-                        <i data-lucide="message-circle-question" class="w-4 h-4"></i> Clarifications
-                    </a>
-                    <a href="/committee/notifications-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-2 ${currentPath.includes('notifications') ? 'font-semibold' : ''}">
-                        <i data-lucide="bell" class="w-4 h-4"></i> Notifications
-                        <span id="notif-badge" class="flex items-center justify-center w-5 h-5 bg-muted text-muted-foreground opacity-30 text-[10px] font-bold rounded-full text-center">0</span>
-                    </a>
-                    <a href="/committee/profile-committee.html" class="hover:text-muted-foreground transition-colors flex items-center gap-1 ${currentPath.includes('profile') ? 'font-semibold' : ''}">
-                        <i data-lucide="user" class="w-4 h-4"></i> Profile
-                    </a>
-                    <button id="logoutBtn" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-2">
-                        <i data-lucide="log-out" class="w-4 h-4"></i> Logout
-                    </button>
-                </div>
+    <nav class="flex items-center px-4 py-2">
+        <div class="flex items-center gap-4 w-full">
+            <div class="flex items-center gap-2 pl-2 border-r border-slate-200 pr-4">
+                <i data-lucide="graduation-cap" class="w-5 h-5 text-primary"></i>
+                <span class="text-sm font-bold tracking-tight text-[#0f172a]">Committee</span>
+            </div>
+            <div class="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
+                <a href="/committee/dashboard-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('dashboard') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/committee/applications-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('applications') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Apps
+                </a>
+                <a href="/committee/application-decisions.html" class="nav-link flex items-center gap-2 ${currentPath.includes('decisions') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="gavel" class="w-4 h-4"></i> Decisions
+                </a>
+                <a href="/committee/application-management-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('application-management-committee') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="award" class="w-4 h-4"></i> Scholarships
+                </a>
+                <a href="/committee/schedule-interviews.html" class="nav-link flex items-center gap-2 ${currentPath.includes('interviews') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Interviews
+                </a>
+                <a href="/committee/clarification-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('clarification') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="message-circle-question" class="w-4 h-4"></i> Clarifications
+                </a>
+                <a href="/committee/notifications-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('notifications') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span>Notifications</span>
+                    <span id="notif-badge" class="flex items-center justify-center w-4 h-4 bg-slate-100 text-[9px] rounded-full">0</span>
+                </a>
+                <a href="/committee/profile-committee.html" class="nav-link flex items-center gap-1 ${currentPath.includes('profile') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="user" class="w-4 h-4"></i> Profile
+                </a>
+            </div>
+            <div class="ml-auto pl-2 border-l border-slate-200">
+                <button id="logoutBtn" class="pill-btn-black">Logout</button>
             </div>
         </div>
     </nav>
+    <!-- Spacer (only for non-dashboard pages) -->
+    ${currentPath.includes('dashboard') ? '' : '<div class="h-28"></div>'}
     `;
+    if (window.lucide) window.lucide.createIcons();
 }
 
 function injectFooter() {

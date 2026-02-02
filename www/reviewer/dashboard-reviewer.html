@@ -47,59 +47,68 @@
   <div id="header-container"></div>
 
   <main class="min-h-screen">
-    <!-- Welcome Header -->
-    <section class="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
-      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 bg-primary-foreground/10 rounded-full flex items-center justify-center">
-            <i data-lucide="user-check" class="w-10 h-10"></i>
+    <!-- Hero Section with Embedded Stats -->
+    <div class="hero-image-bg min-h-[350px] flex flex-col justify-center relative pt-24 pb-8">
+      <div class="hero-overlay"></div>
+      <div class="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-6 mb-6">
+          <div
+            class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 shadow-xl">
+            <i data-lucide="user-check" class="w-8 h-8 text-white"></i>
           </div>
           <div>
-            <h2 class="text-3xl font-bold" id="welcomeMessage">Welcome, Reviewer!</h2>
-            <p class="text-primary-foreground/80 mt-1">Review and evaluate scholarship applications</p>
+            <h2 class="text-4xl font-black text-white tracking-tight drop-shadow-md" id="welcomeMessage">Welcome back!
+            </h2>
+            <p class="text-white/80 mt-2 text-lg font-medium drop-shadow-sm">Review and evaluate scholarship
+              applications</p>
           </div>
         </div>
+
+        <!-- Quick Stats Grid moved inside Hero -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <a href="/reviewer/application-assignments.html"
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
+            <div class="flex items-center gap-3 mb-2">
+              <div
+                class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                <i data-lucide="clock" class="w-5 h-5 text-yellow-600 group-hover:text-white"></i>
+              </div>
+              <h3 class="font-semibold text-slate-600 text-sm">Pending Reviews</h3>
+            </div>
+            <p class="text-3xl font-bold text-slate-800" id="pendingCount">-</p>
+          </a>
+
+          <a href="/reviewer/application-assignments.html?status=In Progress"
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
+            <div class="flex items-center gap-3 mb-2">
+              <div
+                class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                <i data-lucide="hourglass" class="w-5 h-5 text-blue-600 group-hover:text-white"></i>
+              </div>
+              <h3 class="font-semibold text-slate-600 text-sm">In Progress</h3>
+            </div>
+            <p class="text-3xl font-bold text-slate-800" id="inProgressCount">-</p>
+          </a>
+
+          <a href="/reviewer/application-assignments.html?status=Reviewed"
+            class="bg-white/95 backdrop-blur-sm rounded-xl border border-white/20 p-6 hover:bg-white transition-all hover:scale-[1.02] shadow-lg group block">
+            <div class="flex items-center gap-3 mb-2">
+              <div
+                class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center group-hover:bg-success group-hover:text-white transition-colors">
+                <i data-lucide="check-circle" class="w-5 h-5 text-success group-hover:text-white"></i>
+              </div>
+              <h3 class="font-semibold text-slate-600 text-sm">Completed</h3>
+            </div>
+            <p class="text-3xl font-bold text-slate-800" id="completedCount">-</p>
+          </a>
+        </div>
       </div>
-    </section>
+      <div class="fade-to-solid"></div>
+    </div>
 
     <!-- Dashboard Content -->
     <section class="py-12">
       <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <a href="/reviewer/application-assignments.html"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="clock" class="w-5 h-5 text-yellow-600"></i>
-              </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Pending Reviews</h3>
-            </div>
-            <p class="text-3xl font-bold" id="pendingCount">-</p>
-          </a>
-
-          <a href="/reviewer/application-assignments.html?status=In Progress"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="hourglass" class="w-5 h-5 text-blue-600"></i>
-              </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">In Progress</h3>
-            </div>
-            <p class="text-3xl font-bold" id="inProgressCount">-</p>
-          </a>
-
-          <a href="/reviewer/application-assignments.html?status=Reviewed"
-            class="bg-card rounded-xl border border-border p-6 hover:border-primary transition-all hover:shadow-md block">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-                <i data-lucide="check-circle" class="w-5 h-5 text-success"></i>
-              </div>
-              <h3 class="font-semibold text-muted-foreground text-sm">Completed</h3>
-            </div>
-            <p class="text-3xl font-bold" id="completedCount">-</p>
-          </a>
-        </div>
 
         <!-- Assigned Applications -->
         <div class="bg-card rounded-xl border border-border p-6 mb-6">
@@ -143,7 +152,7 @@
       window.location.href = '/login.html';
     }
 
-    document.getElementById('welcomeMessage').textContent = `Welcome, ${user.fullName || 'Reviewer'}!`;
+    document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.fullName || 'Reviewer'}!`;
 
 
 

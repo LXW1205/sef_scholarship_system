@@ -258,7 +258,7 @@
         }
 
         // Check if review should be closed
-        const finalizedStatuses = ['Reviewed', 'Shortlisted', 'Approved', 'Rejected', 'Withdrawn'];
+        const finalizedStatuses = ['Reviewed', 'Shortlisted', 'Awarded', 'Rejected', 'Withdrawn'];
         if (finalizedStatuses.includes(app.status)) {
           disableForm(app);
         }

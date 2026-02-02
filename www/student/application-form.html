@@ -258,8 +258,15 @@
           document.getElementById('familyIncome').value = profile.familyIncome ? `RM ${profile.familyIncome}` : "N/A";
 
           // Validate profile completion
-          const requiredFields = ['major', 'cgpa', 'yearOfStudy', 'expectedGraduation'];
-          const missingFields = requiredFields.filter(field => !profile[field] || profile[field] === "0.00");
+          const requiredFields = ['major', 'cgpa', 'qualification', 'yearOfStudy', 'expectedGraduation', 'familyIncome'];
+          const missingFields = requiredFields.filter(field => {
+            const val = profile[field];
+            // Allow 0 for familyIncome, but check for empty strings or null/undefined
+            if (field === 'familyIncome') {
+              return val === undefined || val === null || val === "";
+            }
+            return !val || val === "0.00";
+          });
 
           if (missingFields.length > 0) {
             sessionStorage.setItem('profileRedirect', 'true');
