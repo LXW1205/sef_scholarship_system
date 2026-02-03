@@ -1,11 +1,15 @@
 package tests;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import model.*;
 import utils.JsonUtils;
 import utils.StatusValidator;
+import dao.UserDAO;
+import dao.InquiryDAO;
+import dao.ScholarshipDAO;
+import db.DatabaseConnection;
 
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DigitalScholarshipSystemTest {
 
     // --- Application Model Tests ---
@@ -273,5 +278,229 @@ public class DigitalScholarshipSystemTest {
         assertEquals("UPDATE", log.getAction());
         assertEquals("Application", log.getEntityType());
         assertEquals("101", log.getEntityID());
+    }
+
+    // --- UserDAO Integration Tests ---
+
+    private static UserDAO userDAO;
+    private static final String TEST_EMAIL = "integration_test_user@mmu.edu.my";
+    private static final String TEST_PASSWORD = "password123";
+    private static final String TEST_NAME = "Integration Test User";
+    private static final String TEST_STUDENT_ID = "S123456789";
+
+    @BeforeAll
+    static void setUp() {
+        // Initialize all DAOs
+        userDAO = new UserDAO();
+        inquiryDAO = new InquiryDAO();
+        scholarshipDAO = new ScholarshipDAO();
+
+        // Set up test data
+        cleanUpTestData();
+        createTestStudent();
+        createInquiryTestStudent();
+    }
+
+    @AfterAll
+    static void tearDown() {
+        cleanUpTestData();
+        cleanUpInquiryData();
+    }
+
+    private static void cleanUpTestData() {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            PreparedStatement pstmt = conn.prepareStatement("DELETE FROM Student WHERE email = ?");
+            pstmt.setString(1, TEST_EMAIL);
+            pstmt.executeUpdate();
+
+            pstmt = conn.prepareStatement("DELETE FROM \"User\" WHERE email = ?");
+            pstmt.setString(1, TEST_EMAIL);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+        }
+    }
+
+    private static void createTestStudent() {
+        String sql = "INSERT INTO Student (fullName, email, password, role, isActive, studentID, cgpa, major) " +
+                "VALUES (?, ?, ?, 'Student', true, ?, 3.8, 'Computer Science')";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, TEST_NAME);
+            pstmt.setString(2, TEST_EMAIL);
+            pstmt.setString(3, TEST_PASSWORD);
+            pstmt.setString(4, TEST_STUDENT_ID);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Setup failed: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(100)
+    void testAuthenticateSuccess() {
+        User user = userDAO.authenticate(TEST_EMAIL, TEST_PASSWORD);
+        assertNotNull(user, "Auth failed for email: " + TEST_EMAIL);
+        assertEquals(TEST_NAME, user.getFullName());
+    }
+
+    @Test
+    @Order(101)
+    void testAuthenticateByStudentID() {
+        User user = userDAO.authenticate(TEST_STUDENT_ID, TEST_PASSWORD);
+        assertNotNull(user, "Auth failed for ID: " + TEST_STUDENT_ID);
+    }
+
+    // --- InquiryDAO Integration Tests ---
+
+    private static InquiryDAO inquiryDAO;
+    private static final String INQUIRY_TEST_STUDENT_ID = "S987654321";
+    private static int testInquiryID;
+
+    private static void createInquiryTestStudent() {
+        String sql = "INSERT INTO Student (fullName, email, password, role, isActive, studentID) " +
+                "VALUES ('Inquiry Test Student', 'inquiry_test@mmu.edu.my', 'pass', 'Student', true, ?) " +
+                "ON CONFLICT (studentID) DO NOTHING";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, INQUIRY_TEST_STUDENT_ID);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+        }
+    }
+
+    private static void cleanUpInquiryData() {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String sql1 = "DELETE FROM Inquiry WHERE studentID = ?";
+            try (PreparedStatement p1 = conn.prepareStatement(sql1)) {
+                p1.setString(1, INQUIRY_TEST_STUDENT_ID);
+                p1.executeUpdate();
+            }
+            String sql2 = "DELETE FROM Student WHERE studentID = ?";
+            try (PreparedStatement p2 = conn.prepareStatement(sql2)) {
+                p2.setString(1, INQUIRY_TEST_STUDENT_ID);
+                p2.executeUpdate();
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    @Test
+    @Order(200)
+    void testCreateInquiry() {
+        Inquiry i = new Inquiry(0, INQUIRY_TEST_STUDENT_ID, "This is a test question?", null);
+        boolean created = inquiryDAO.create(i);
+        assertTrue(created);
+
+        List<Inquiry> studentInquiries = inquiryDAO.findByStudentId(INQUIRY_TEST_STUDENT_ID);
+        assertFalse(studentInquiries.isEmpty());
+        testInquiryID = studentInquiries.get(0).getInquiryID();
+    }
+
+    @Test
+    @Order(201)
+    void testInquiryFindById() {
+        if (testInquiryID == 0)
+            testCreateInquiry();
+        Inquiry found = inquiryDAO.findById(testInquiryID);
+        assertNotNull(found);
+        assertEquals(INQUIRY_TEST_STUDENT_ID, found.getStudentID());
+        assertEquals("Pending", found.getStatus());
+    }
+
+    @Test
+    @Order(202)
+    void testUpdateInquiryAnswer() {
+        if (testInquiryID == 0)
+            testCreateInquiry();
+        String answer = "This is a test answer from admin.";
+        boolean updated = inquiryDAO.updateAnswer(testInquiryID, answer);
+        assertTrue(updated);
+
+        Inquiry verified = inquiryDAO.findById(testInquiryID);
+        assertEquals("Answered", verified.getStatus());
+        assertEquals(answer, verified.getAnswer());
+        assertNotNull(verified.getAnsweredAt());
+    }
+
+    @Test
+    @Order(203)
+    void testFindAllInquiriesWithDetails() {
+        if (testInquiryID == 0)
+            testCreateInquiry();
+        List<Map<String, Object>> details = inquiryDAO.findAllWithDetails();
+        assertFalse(details.isEmpty());
+        assertTrue(details.stream().anyMatch(m -> (int) m.get("inquiryID") == testInquiryID));
+    }
+
+    // --- ScholarshipDAO Integration Tests ---
+
+    private static ScholarshipDAO scholarshipDAO;
+    private static int testScholarshipID;
+    private static final String TEST_SCHOLARSHIP_TITLE = "Integration Test Scholarship";
+
+    @Test
+    @Order(300)
+    void testCreateScholarship() {
+        Scholarship s = new Scholarship(0, TEST_SCHOLARSHIP_TITLE, "Test Description", "1000", "Degree", null, 3.5,
+                5000.0, true);
+
+        List<Criterion> criteria = new ArrayList<>();
+        criteria.add(new Criterion(0, 0, "Academic", 60, 4.0, "cgpa"));
+        criteria.add(new Criterion(0, 0, "Financial", 40, 1000.0, "familyIncome"));
+        s.setCriteria(criteria);
+
+        testScholarshipID = scholarshipDAO.create(s);
+        assertTrue(testScholarshipID > 0, "Scholarship should be created and return valid ID");
+    }
+
+    @Test
+    @Order(301)
+    void testScholarshipFindById() {
+        if (testScholarshipID == 0)
+            testCreateScholarship();
+        Scholarship found = scholarshipDAO.findById(testScholarshipID);
+        assertNotNull(found);
+        assertEquals(TEST_SCHOLARSHIP_TITLE, found.getTitle());
+        assertEquals(2, found.getCriteria().size(), "Should have 2 criteria");
+    }
+
+    @Test
+    @Order(302)
+    void testFindAllActiveScholarships() {
+        if (testScholarshipID == 0)
+            testCreateScholarship();
+        List<Scholarship> active = scholarshipDAO.findAllActive();
+        assertTrue(active.stream().anyMatch(s -> s.getScholarshipID() == testScholarshipID));
+    }
+
+    @Test
+    @Order(303)
+    void testUpdateScholarship() {
+        if (testScholarshipID == 0)
+            testCreateScholarship();
+        Scholarship s = scholarshipDAO.findById(testScholarshipID);
+        assertNotNull(s);
+
+        String updatedTitle = "Updated Integration Scholarship";
+        s.setTitle(updatedTitle);
+        s.setActive(false);
+
+        boolean updated = scholarshipDAO.update(s);
+        assertTrue(updated);
+
+        Scholarship verified = scholarshipDAO.findById(testScholarshipID);
+        assertEquals(updatedTitle, verified.getTitle());
+        assertFalse(verified.isActive());
+    }
+
+    @Test
+    @Order(304)
+    void testDeleteScholarship() {
+        if (testScholarshipID == 0)
+            testCreateScholarship();
+        boolean deleted = scholarshipDAO.delete(testScholarshipID);
+        assertTrue(deleted);
+
+        assertNull(scholarshipDAO.findById(testScholarshipID));
     }
 }
