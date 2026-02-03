@@ -13,5 +13,5 @@ if %errorlevel% neq 0 (
 )
 
 echo Running Tests...
-java -jar lib/junit-platform-console-standalone-1.10.1.jar execute -cp "bin" --scan-class-path
+java -jar lib/junit-platform-console-standalone-1.10.1.jar execute -cp "bin;lib/postgresql-42.7.8.jar" --scan-class-path
 pause

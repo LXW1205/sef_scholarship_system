@@ -422,7 +422,8 @@ public class UserDAO {
                 return null;
         }
 
-        String sql = "SELECT userID, fullName, email, role, isActive FROM " + table + " WHERE " + idColumn + " = ?";
+        String sql = "SELECT userID, fullName, email, role, isActive FROM " + table + " WHERE UPPER(" + idColumn
+                + ") = UPPER(?)";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 

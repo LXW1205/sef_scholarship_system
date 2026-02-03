@@ -34,6 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
  * Injects global CSS for UI/UX enhancements.
  */
 function injectGlobalStyles() {
+    const path = window.location.pathname;
+    const isActorPage = path.includes('/student/') || path.includes('/admin/') ||
+        path.includes('/reviewer/') || path.includes('/committee/');
+
+    // Define colors based on page type
+    // Actor pages: Soft Slate Grey #7A8691 (RGB: 122, 134, 145)
+    // Public pages: Slate-50 #f8fafc (RGB: 248, 250, 252)
+    const bgColor = isActorPage ? '#7A8691' : '#f8fafc';
+    const bgRgb = isActorPage ? '122, 134, 145' : '248, 250, 252';
+
     const style = document.createElement('style');
     style.textContent = `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -50,7 +60,7 @@ function injectGlobalStyles() {
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-            background-color: #f8fafc !important; /* Subtle slate-50 background tint */
+            background-color: ${bgColor} !important;
             scroll-behavior: smooth;
             overflow-x: hidden !important; /* Eliminate horizontal scrollbar */
         }
@@ -94,11 +104,11 @@ function injectGlobalStyles() {
 
         /* Seamless Fade to Solid Technique */
         .fade-to-solid {
-            /* Linear gradient matching body background #f8fafc */
+            /* Linear gradient matching body background */
             background: linear-gradient(to bottom, 
-                rgba(248, 250, 252, 0) 0%, 
-                rgba(248, 250, 252, 0.8) 70%, 
-                rgba(248, 250, 252, 1) 100%
+                rgba(${bgRgb}, 0) 0%, 
+                rgba(${bgRgb}, 0.8) 70%, 
+                rgba(${bgRgb}, 1) 100%
             ) !important;
             position: absolute;
             bottom: -1px; /* Ensure no gaps */

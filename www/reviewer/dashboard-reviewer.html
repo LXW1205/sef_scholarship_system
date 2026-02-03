@@ -42,7 +42,7 @@
   </script>
 </head>
 
-<body class="font-sans antialiased bg-muted/30">
+<body class="font-sans antialiased bg-[#7A8691]">
   <!-- Reviewer Navigation -->
   <div id="header-container"></div>
 
@@ -130,7 +130,7 @@
             <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-600 flex-shrink-0"></i>
             <div>
               <h3 class="font-bold text-lg mb-2">Upcoming Deadlines</h3>
-              <p class="text-sm text-muted-foreground mb-4" id="deadlineText">You have reviews due soon. Please complete
+              <p class="text-sm text-black mb-4" id="deadlineText">You have reviews due soon. Please complete
                 them on time.</p>
               <a href="/reviewer/application-assignments.html"
                 class="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1">
@@ -193,7 +193,7 @@
                     </div>
                     <div>
                       <h4 class="font-semibold">${app.fullname || 'Anonymous Applicant'} <span class="text-xs font-normal text-muted-foreground">(${app.studentid || 'N/A'})</span></h4>
-                      <p class="text-xs text-muted-foreground">${app.scholarship_title || 'Application'} | ${app.major || 'No Major'}</p>
+                      <p class="text-xs text-black">${app.scholarship_title || 'Application'} | ${app.major || 'No Major'}</p>
                       <p class="text-xs text-muted-foreground mt-1">ID: ${app.applicationid || app.id} | Submitted: ${app.submissiondate ? new Date(app.submissiondate).toLocaleDateString() : 'N/A'}</p>
                     </div>
                   </div>
