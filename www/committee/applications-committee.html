@@ -76,9 +76,11 @@
             <label class="block text-sm font-medium mb-2">Status</label>
             <select id="statusFilter"
               class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-              <option value="">All Statuses</option>
-              <option value="Pending">Pending Decision</option>
+              <option value="">Active Applications</option>
+              <option value="Reviewed">Reviewed</option>
               <option value="Shortlisted">Shortlisted</option>
+              <option value="Interviewed">Interviewed</option>
+              <option value="Waitlisted">Waitlisted</option>
               <option value="Awarded">Awarded</option>
               <option value="Rejected">Rejected</option>
             </select>
@@ -135,10 +137,9 @@
 
       let filtered = [...allApplications];
 
-      // Only show applications relevant to committee (Reviewed or further)
-      // Unless they want to see everything, but usually committee acts on Reviewed
+      // Default: Show active applications (exclude finalized)
       if (!statusFilter) {
-        filtered = filtered.filter(a => ['Reviewed', 'Shortlisted', 'Awarded', 'Rejected'].includes(a.status));
+        filtered = filtered.filter(a => ['Reviewed', 'Shortlisted', 'Interviewed', 'Waitlisted'].includes(a.status));
       } else {
         filtered = filtered.filter(a => a.status === statusFilter);
       }

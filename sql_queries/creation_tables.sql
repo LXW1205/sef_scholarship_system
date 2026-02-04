@@ -72,6 +72,7 @@ CREATE TABLE Scholarship (
     deadline DATE,
     minCGPA DECIMAL(3,2) DEFAULT 0.0,
     maxFamilyIncome DECIMAL(12,2) DEFAULT 0.0,
+    requiresInterview BOOLEAN DEFAULT FALSE,
     isActive BOOLEAN DEFAULT TRUE
 );
 

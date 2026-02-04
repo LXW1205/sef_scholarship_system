@@ -235,12 +235,23 @@ public class DigitalScholarshipSystemTest {
 
     @Test
     void testScholarshipModel() {
-        Scholarship s = new Scholarship(1, "Scholarship A", "Desc", "5000", "Degree", null, 3.5, 50000.0, true);
+        Scholarship s = new Scholarship(1, "Scholarship A", "Desc", "5000", "Degree", null, 3.5, 50000.0, true, true);
         assertEquals(1, s.getScholarshipID());
         assertEquals("Scholarship A", s.getTitle());
         assertEquals("5000", s.getAmount());
+        assertEquals("5000", s.getAmount());
         assertEquals(3.5, s.getMinCGPA());
+        assertTrue(s.requiresInterview());
         assertTrue(s.isActive());
+    }
+
+    @Test
+    void testScholarshipRequiresInterview() {
+        Scholarship s = new Scholarship(1, "S", "D", "100", "D", null, 3.0, 1000.0, false, true);
+        assertFalse(s.requiresInterview());
+
+        s.setRequiresInterview(true);
+        assertTrue(s.requiresInterview());
     }
 
     @Test
@@ -442,7 +453,7 @@ public class DigitalScholarshipSystemTest {
     @Order(300)
     void testCreateScholarship() {
         Scholarship s = new Scholarship(0, TEST_SCHOLARSHIP_TITLE, "Test Description", "1000", "Degree", null, 3.5,
-                5000.0, true);
+                5000.0, true, true);
 
         List<Criterion> criteria = new ArrayList<>();
         criteria.add(new Criterion(0, 0, "Academic", 60, 4.0, "cgpa"));
@@ -484,6 +495,7 @@ public class DigitalScholarshipSystemTest {
         String updatedTitle = "Updated Integration Scholarship";
         s.setTitle(updatedTitle);
         s.setActive(false);
+        s.setRequiresInterview(false);
 
         boolean updated = scholarshipDAO.update(s);
         assertTrue(updated);
@@ -491,6 +503,7 @@ public class DigitalScholarshipSystemTest {
         Scholarship verified = scholarshipDAO.findById(testScholarshipID);
         assertEquals(updatedTitle, verified.getTitle());
         assertFalse(verified.isActive());
+        assertFalse(verified.requiresInterview());
     }
 
     @Test

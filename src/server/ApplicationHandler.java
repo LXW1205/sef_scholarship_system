@@ -346,9 +346,31 @@ public class ApplicationHandler implements HttpHandler {
                 return;
             }
 
+            // Prevent changing status if already finalized
+            if (StatusValidator.APP_AWARDED.equals(app.getStatus()) ||
+                    StatusValidator.APP_REJECTED.equals(app.getStatus()) ||
+                    StatusValidator.APP_WITHDRAWN.equals(app.getStatus())) {
+                sendError(exchange, 400, "Application has already been finalized (" + app.getStatus() + ").");
+                return;
+            }
+
             if (!StatusValidator.isValidTransition(app.getStatus(), decision, "application")) {
                 sendError(exchange, 400, "Invalid status transition from " + app.getStatus() + " to " + decision);
                 return;
+            }
+
+            // Check mandatory interview requirement
+            if (StatusValidator.APP_AWARDED.equals(decision)) {
+                dao.ScholarshipDAO sDAO = new dao.ScholarshipDAO();
+                model.Scholarship scholarship = sDAO.findById(app.getScholarshipID());
+                if (scholarship != null && scholarship.requiresInterview()) {
+                    // Must be Interviewed or Waitlisted (which implies interview)
+                    if (!StatusValidator.APP_INTERVIEWED.equals(app.getStatus()) &&
+                            !StatusValidator.APP_WAITLISTED.equals(app.getStatus())) {
+                        sendError(exchange, 400, "This scholarship requires an interview before awarding.");
+                        return;
+                    }
+                }
             }
 
             if (applicationDAO.updateStatus(appId, decision, comments)) {

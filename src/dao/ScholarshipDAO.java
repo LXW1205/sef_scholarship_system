@@ -36,6 +36,7 @@ public class ScholarshipDAO {
                         rs.getDate("deadline"),
                         rs.getDouble("minCGPA"),
                         rs.getDouble("maxFamilyIncome"),
+                        rs.getBoolean("requiresInterview"),
                         rs.getBoolean("isActive"));
                 s.setCriteria(findCriteriaByScholarshipId(s.getScholarshipID(), conn));
                 scholarships.add(s);
@@ -63,6 +64,7 @@ public class ScholarshipDAO {
                             rs.getDate("deadline"),
                             rs.getDouble("minCGPA"),
                             rs.getDouble("maxFamilyIncome"),
+                            rs.getBoolean("requiresInterview"),
                             rs.getBoolean("isActive"));
                     s.setCriteria(findCriteriaByScholarshipId(id, conn));
                     return s;
@@ -75,7 +77,7 @@ public class ScholarshipDAO {
     }
 
     public int create(Scholarship s) {
-        String sql = "INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING scholarshipID";
+        String sql = "INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, requiresInterview, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING scholarshipID";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -86,7 +88,8 @@ public class ScholarshipDAO {
             pstmt.setDate(5, s.getDeadline());
             pstmt.setDouble(6, s.getMinCGPA());
             pstmt.setDouble(7, s.getMaxFamilyIncome());
-            pstmt.setBoolean(8, s.isActive());
+            pstmt.setBoolean(8, s.requiresInterview());
+            pstmt.setBoolean(9, s.isActive());
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -106,7 +109,7 @@ public class ScholarshipDAO {
     }
 
     public boolean update(Scholarship s) {
-        String sql = "UPDATE Scholarship SET title = ?, description = ?, amount = ?, forQualification = ?, deadline = ?, minCGPA = ?, maxFamilyIncome = ?, isActive = ? WHERE scholarshipID = ?";
+        String sql = "UPDATE Scholarship SET title = ?, description = ?, amount = ?, forQualification = ?, deadline = ?, minCGPA = ?, maxFamilyIncome = ?, requiresInterview = ?, isActive = ? WHERE scholarshipID = ?";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -117,8 +120,9 @@ public class ScholarshipDAO {
             pstmt.setDate(5, s.getDeadline());
             pstmt.setDouble(6, s.getMinCGPA());
             pstmt.setDouble(7, s.getMaxFamilyIncome());
-            pstmt.setBoolean(8, s.isActive());
-            pstmt.setInt(9, s.getScholarshipID());
+            pstmt.setBoolean(8, s.requiresInterview());
+            pstmt.setBoolean(9, s.isActive());
+            pstmt.setInt(10, s.getScholarshipID());
 
             int updated = pstmt.executeUpdate();
             if (updated > 0) {
