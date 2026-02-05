@@ -75,6 +75,9 @@
 
         <form id="newInquiryForm" class="hidden mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <h3 class="text-lg font-bold mb-4">Submit a Question</h3>
+
+
+
             <div class="mb-4">
                 <label class="block text-sm font-medium mb-1 text-gray-700">Your Question</label>
                 <textarea id="questionInput" rows="3"
@@ -103,6 +106,7 @@
                         <div class="flex items-center gap-3 mb-2">
                             <span
                                 class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
+
                             <span class="date-text text-xs text-gray-400"></span>
                         </div>
                         <p
@@ -171,10 +175,14 @@
 
             loadInquiries();
 
+
             document.getElementById('newInquiryForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const question = document.getElementById('questionInput').value;
+
                 const btn = e.target.querySelector('button[type="submit"]');
+
+
 
                 btn.disabled = true;
                 btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting...';
@@ -188,6 +196,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({ message: question })
+
                     });
 
                     if (res.ok) {
@@ -207,6 +216,8 @@
                 }
             });
         });
+
+
 
         async function loadInquiries() {
             const container = document.getElementById('inquiriesList');
@@ -248,6 +259,7 @@
                     ? ' bg-green-50 text-green-700 border border-green-100'
                     : ' bg-amber-50 text-amber-700 border border-amber-100';
 
+
                 clone.querySelector('.date-text').textContent = new Date(i.submittedAt).toLocaleDateString('en-GB', {
                     day: 'numeric', month: 'short', year: 'numeric'
                 });
@@ -265,6 +277,7 @@
 
             if (window.lucide) lucide.createIcons();
         }
+
     </script>
 </body>
 

@@ -8,9 +8,18 @@ INSERT INTO ApplicationStatusLookup (statusValue) VALUES
 ('Pending'),
 ('Reviewing'),
 ('Reviewed'),
+('Shortlisted'),
+('Interviewed'),
 ('Awarded'),
 ('Rejected'),
 ('Withdrawn');
+
+INSERT INTO InquiryStatusLookup (statusValue) VALUES 
+('Pending'),
+('Answered'),
+('Resolved');
+
+
 
 INSERT INTO EvaluationStatusLookup (statusValue) VALUES 
 ('Pending'),
@@ -66,19 +75,19 @@ VALUES ('Lim Chong Wei', 'Committee@123', 'committee3@mmu.edu.my', 'Committee', 
 
 -- Insert Scholarships (New Fields: description, amount, forQualification)
 INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
-VALUES ('MMU Chancellor Scholarship', 'Full scholarship for high achievers.', 'RM 50,000', 'Degree', '2025-08-31', 3.75, 0.00, TRUE);
+VALUES ('MMU Chancellor Scholarship', 'Full scholarship for high achievers.', 'RM 50,000', 'Degree', '2026-08-31', 3.75, 0.00, TRUE);
 
 INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
-VALUES ('MMU President Scholarship', 'Partial scholarship for Foundation students.', 'RM 15,000', 'Foundation', '2025-08-31', 3.50, 5000.00, TRUE);
+VALUES ('MMU President Scholarship', 'Partial scholarship for Foundation students.', 'RM 15,000', 'Foundation', '2026-08-31', 3.50, 5000.00, TRUE);
 
 INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
-VALUES ('MMU Merit Scholarship', 'Merit-based award for outstanding academic results.', 'RM 20,000', 'All', '2025-08-31', 3.00, 0.00, TRUE);
+VALUES ('MMU Merit Scholarship', 'Merit-based award for outstanding academic results.', 'RM 20,000', 'All', '2026-08-31', 3.00, 0.00, TRUE);
 
 INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
-VALUES ('MMU Sports Talent', 'For state/national players.', 'RM 10,000', 'All', '2025-08-31', 2.50, 0.00, TRUE);
+VALUES ('MMU Sports Talent', 'For state/national players.', 'RM 10,000', 'All', '2026-08-31', 2.50, 0.00, TRUE);
 
 INSERT INTO Scholarship (title, description, amount, forQualification, deadline, minCGPA, maxFamilyIncome, isActive)
-VALUES ('Star Education Fund', 'External scholarship for Engineering.', 'RM 40,000', 'Degree', '2025-07-31', 3.80, 0.00, TRUE);
+VALUES ('Star Education Fund', 'External scholarship for Engineering.', 'RM 40,000', 'Degree', '2026-07-31', 3.80, 0.00, TRUE);
 
 -- Scholarship 1: MMU Chancellor Scholarship
 INSERT INTO Criteria (scholarshipID, name, weightage, maxScore) VALUES (1, 'Academic Excellence', 50, 100);

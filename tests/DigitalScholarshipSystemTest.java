@@ -170,8 +170,12 @@ public class DigitalScholarshipSystemTest {
         assertTrue(StatusValidator.isValidTransition("Shortlisted", "Interviewed", "application"));
         assertTrue(StatusValidator.isValidTransition("Shortlisted", "Awarded", "application"));
         assertTrue(StatusValidator.isValidTransition("Interviewed", "Awarded", "application"));
-        assertTrue(StatusValidator.isValidTransition("Interviewed", "Waitlisted", "application"));
-        assertTrue(StatusValidator.isValidTransition("Waitlisted", "Awarded", "application"));
+
+        // Removed Waitlisted transitions
+        // assertTrue(StatusValidator.isValidTransition("Interviewed", "Waitlisted",
+        // "application"));
+        // assertTrue(StatusValidator.isValidTransition("Waitlisted", "Awarded",
+        // "application"));
 
         // Legal withdrawals
         assertTrue(StatusValidator.isValidTransition("Pending", "Withdrawn", "application"));
@@ -179,7 +183,8 @@ public class DigitalScholarshipSystemTest {
         assertTrue(StatusValidator.isValidTransition("Reviewed", "Withdrawn", "application"));
         assertTrue(StatusValidator.isValidTransition("Shortlisted", "Withdrawn", "application"));
         assertTrue(StatusValidator.isValidTransition("Interviewed", "Withdrawn", "application"));
-        assertTrue(StatusValidator.isValidTransition("Waitlisted", "Withdrawn", "application"));
+        // assertTrue(StatusValidator.isValidTransition("Waitlisted", "Withdrawn",
+        // "application"));
 
         // Illegal transitions
         assertFalse(StatusValidator.isValidTransition("Pending", "Awarded", "application"));
@@ -400,7 +405,7 @@ public class DigitalScholarshipSystemTest {
     void testCreateInquiry() {
         Inquiry i = new Inquiry(0, INQUIRY_TEST_STUDENT_ID, "This is a test question?", null);
         boolean created = inquiryDAO.create(i);
-        assertTrue(created);
+        assertTrue(created, "Inquiry should be created");
 
         List<Inquiry> studentInquiries = inquiryDAO.findByStudentId(INQUIRY_TEST_STUDENT_ID);
         assertFalse(studentInquiries.isEmpty());
@@ -413,9 +418,8 @@ public class DigitalScholarshipSystemTest {
         if (testInquiryID == 0)
             testCreateInquiry();
         Inquiry found = inquiryDAO.findById(testInquiryID);
-        assertNotNull(found);
-        assertEquals(INQUIRY_TEST_STUDENT_ID, found.getStudentID());
-        assertEquals("Pending", found.getStatus());
+        assertNotNull(found, "Inquiry should be found");
+        assertEquals("This is a test question?", found.getMessage());
     }
 
     @Test

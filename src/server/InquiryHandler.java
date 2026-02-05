@@ -58,28 +58,6 @@ public class InquiryHandler implements HttpHandler {
         }
     }
 
-    private void handleGet(HttpExchange exchange, String path, int userId, String role)
-            throws SQLException, IOException {
-        List<Map<String, Object>> responseList;
-
-        if (role.equalsIgnoreCase("Admin")) {
-            responseList = inquiryDAO.findAllWithDetails();
-        } else if (role.equalsIgnoreCase("Student")) {
-            String studentID = getStudentID(userId);
-            if (studentID == null) {
-                sendError(exchange, 400, "Student record not found for user ID: " + userId);
-                return;
-            }
-            responseList = inquiryDAO.findByStudentIdWithDetails(studentID);
-        } else {
-            sendError(exchange, 403, "Access denied. Only Admins and Students can view inquiries.");
-            return;
-        }
-
-        String jsonResponse = JsonUtils.toJson(responseList);
-        sendResponse(exchange, 200, jsonResponse);
-    }
-
     private void handlePost(HttpExchange exchange, String path, int userId, String role)
             throws IOException, SQLException {
         String[] pathParts = path.split("/");
@@ -104,6 +82,35 @@ public class InquiryHandler implements HttpHandler {
         }
     }
 
+    private void handleGet(HttpExchange exchange, String path, int userId, String role)
+            throws SQLException, IOException {
+        String query = exchange.getRequestURI().getQuery();
+
+        if (query != null && query.contains("types=true")) {
+            sendError(exchange, 404, "Inquiry types endpoint has been removed.");
+            return;
+        }
+
+        List<Map<String, Object>> responseList;
+
+        if (role.equalsIgnoreCase("Admin")) {
+            responseList = inquiryDAO.findAllWithDetails();
+        } else if (role.equalsIgnoreCase("Student")) {
+            String studentID = getStudentID(userId);
+            if (studentID == null) {
+                sendError(exchange, 400, "Student record not found for user ID: " + userId);
+                return;
+            }
+            responseList = inquiryDAO.findByStudentIdWithDetails(studentID);
+        } else {
+            sendError(exchange, 403, "Access denied. Only Admins and Students can view inquiries.");
+            return;
+        }
+
+        String jsonResponse = JsonUtils.toJson(responseList);
+        sendResponse(exchange, 200, jsonResponse);
+    }
+
     private void createInquiry(HttpExchange exchange, int userId) throws IOException, SQLException {
         Map<String, String> body = JsonUtils.parseBody(exchange.getRequestBody());
         String message = body.get("message");
@@ -120,6 +127,7 @@ public class InquiryHandler implements HttpHandler {
         }
 
         Inquiry inquiry = new Inquiry(0, studentID, message, null); // ID auto-gen
+
         if (inquiryDAO.create(inquiry)) {
             dao.AuditLogDAO.log(userId, studentID, "Inquiry Submitted", "Inquiry",
                     "N/A", "Student " + studentID + " submitted a new inquiry", null);

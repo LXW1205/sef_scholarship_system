@@ -364,13 +364,13 @@ public class ApplicationHandler implements HttpHandler {
                 dao.ScholarshipDAO sDAO = new dao.ScholarshipDAO();
                 model.Scholarship scholarship = sDAO.findById(app.getScholarshipID());
                 if (scholarship != null && scholarship.requiresInterview()) {
-                    // Must be Interviewed or Waitlisted (which implies interview)
-                    if (!StatusValidator.APP_INTERVIEWED.equals(app.getStatus()) &&
-                            !StatusValidator.APP_WAITLISTED.equals(app.getStatus())) {
+                    // Must be Interviewed
+                    if (!StatusValidator.APP_INTERVIEWED.equals(app.getStatus())) {
                         sendError(exchange, 400, "This scholarship requires an interview before awarding.");
                         return;
                     }
                 }
+
             }
 
             if (applicationDAO.updateStatus(appId, decision, comments)) {

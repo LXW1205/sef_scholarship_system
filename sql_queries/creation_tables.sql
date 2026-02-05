@@ -1,8 +1,11 @@
 -- Drop tables in reverse dependency order to avoid FK violations
+DROP TABLE IF EXISTS InquiryStatusLookup CASCADE;
+
 DROP TABLE IF EXISTS ClarificationStatusLookup CASCADE;
 DROP TABLE IF EXISTS InterviewStatusLookup CASCADE;
 DROP TABLE IF EXISTS EvaluationStatusLookup CASCADE;
 DROP TABLE IF EXISTS ApplicationStatusLookup CASCADE;
+
 DROP TABLE IF EXISTS UserRoleLookup CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
 DROP TABLE IF EXISTS Report CASCADE;
@@ -24,6 +27,17 @@ DROP TABLE IF EXISTS AuditLog CASCADE;
 
 -- Create Tables
 
+-- Lookups
+CREATE TABLE UserRoleLookup ( roleValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE ApplicationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE EvaluationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE InterviewStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE ClarificationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+CREATE TABLE InquiryStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
+
+
+-- Main Tables
+
 CREATE TABLE "User" (
     userID SERIAL PRIMARY KEY,
     fullName VARCHAR(100) NOT NULL,
@@ -36,14 +50,15 @@ CREATE TABLE "User" (
 
 CREATE TABLE Student (
     studentID VARCHAR(20) PRIMARY KEY,
-    cgpa DECIMAL(3,2),
+    cgpa DECIMAL(3, 2),
     major VARCHAR(100),
-    qualification VARCHAR(20),
-    yearOfStudy VARCHAR(20),
+    yearOfStudy VARCHAR(10),
+    qualification VARCHAR(50),
     expectedGraduation DATE,
-    familyIncome DECIMAL(12,2),
-    UNIQUE (email)
+    familyIncome DECIMAL(10, 2)
 ) INHERITS ("User");
+
+
 
 CREATE TABLE Reviewer (
     reviewerID VARCHAR(20) PRIMARY KEY,
@@ -86,8 +101,10 @@ CREATE TABLE Application (
     otherScholarships TEXT,
     decisionComments TEXT,
     CONSTRAINT FK_Application_Student FOREIGN KEY (studentID) REFERENCES Student(studentID) ON DELETE CASCADE,
-    CONSTRAINT FK_Application_Scholarship FOREIGN KEY (scholarshipID) REFERENCES Scholarship(scholarshipID) ON DELETE CASCADE
+    CONSTRAINT FK_Application_Scholarship FOREIGN KEY (scholarshipID) REFERENCES Scholarship(scholarshipID) ON DELETE CASCADE,
+    CONSTRAINT FK_Application_Status FOREIGN KEY (status) REFERENCES ApplicationStatusLookup(statusValue) ON UPDATE CASCADE
 );
+
 
 -- Dependent Tables (Updated keys where necessary)
 
@@ -103,14 +120,17 @@ CREATE TABLE Criteria (
 
 CREATE TABLE Inquiry (
     inquiryID SERIAL PRIMARY KEY,
-    studentID VARCHAR(20) NOT NULL, -- Matched Student.studentID type
+    studentID VARCHAR(20) NOT NULL, 
     message TEXT,
     answer TEXT,
     status VARCHAR(20) DEFAULT 'Pending',
     submittedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     answeredAt TIMESTAMP,
-    CONSTRAINT FK_Inquiry_Student FOREIGN KEY (studentID) REFERENCES Student(studentID) ON DELETE CASCADE
+    CONSTRAINT FK_Inquiry_Student FOREIGN KEY (studentID) REFERENCES Student(studentID) ON DELETE CASCADE,
+    CONSTRAINT FK_Inquiry_Status FOREIGN KEY (status) REFERENCES InquiryStatusLookup(statusValue) ON UPDATE CASCADE
 );
+
+
 
 CREATE TABLE Document (
     docID SERIAL PRIMARY KEY,
@@ -194,9 +214,3 @@ CREATE TABLE AuditLog (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Lookups (Optional, kept/added for completeness if needed later)
-CREATE TABLE UserRoleLookup ( roleValue VARCHAR(20) PRIMARY KEY );
-CREATE TABLE ApplicationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
-CREATE TABLE EvaluationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
-CREATE TABLE InterviewStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );
-CREATE TABLE ClarificationStatusLookup ( statusValue VARCHAR(20) PRIMARY KEY );

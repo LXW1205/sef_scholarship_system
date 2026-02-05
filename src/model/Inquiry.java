@@ -57,4 +57,5 @@ public class Inquiry {
     public void setAnsweredAt(Timestamp answeredAt) {
         this.answeredAt = answeredAt;
     }
+
 }

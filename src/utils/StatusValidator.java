@@ -14,7 +14,6 @@ public class StatusValidator {
     public static final String APP_SHORTLISTED = "Shortlisted";
     public static final String APP_INTERVIEWED = "Interviewed";
     public static final String APP_AWARDED = "Awarded";
-    public static final String APP_WAITLISTED = "Waitlisted";
     public static final String APP_REJECTED = "Rejected";
     public static final String APP_WITHDRAWN = "Withdrawn";
 
@@ -43,8 +42,7 @@ public class StatusValidator {
         APP_TRANSITIONS.put(APP_REVIEWING, Arrays.asList(APP_REVIEWED, APP_WITHDRAWN));
         APP_TRANSITIONS.put(APP_REVIEWED, Arrays.asList(APP_SHORTLISTED, APP_REJECTED, APP_WITHDRAWN));
         APP_TRANSITIONS.put(APP_SHORTLISTED, Arrays.asList(APP_INTERVIEWED, APP_AWARDED, APP_REJECTED, APP_WITHDRAWN));
-        APP_TRANSITIONS.put(APP_INTERVIEWED, Arrays.asList(APP_AWARDED, APP_WAITLISTED, APP_REJECTED, APP_WITHDRAWN));
-        APP_TRANSITIONS.put(APP_WAITLISTED, Arrays.asList(APP_AWARDED, APP_REJECTED, APP_WITHDRAWN));
+        APP_TRANSITIONS.put(APP_INTERVIEWED, Arrays.asList(APP_AWARDED, APP_REJECTED, APP_WITHDRAWN));
         // States like Awarded, Rejected, Withdrawn are terminal or have no outgoing
         // transitions in this scope
 

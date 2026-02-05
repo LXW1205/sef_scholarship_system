@@ -80,10 +80,10 @@
               <option value="Reviewed">Reviewed</option>
               <option value="Shortlisted">Shortlisted</option>
               <option value="Interviewed">Interviewed</option>
-              <option value="Waitlisted">Waitlisted</option>
               <option value="Awarded">Awarded</option>
               <option value="Rejected">Rejected</option>
             </select>
+
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Sort By</label>
@@ -139,8 +139,9 @@
 
       // Default: Show active applications (exclude finalized)
       if (!statusFilter) {
-        filtered = filtered.filter(a => ['Reviewed', 'Shortlisted', 'Interviewed', 'Waitlisted'].includes(a.status));
+        filtered = filtered.filter(a => ['Reviewed', 'Shortlisted', 'Interviewed'].includes(a.status));
       } else {
+
         filtered = filtered.filter(a => a.status === statusFilter);
       }
 
