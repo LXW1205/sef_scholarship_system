@@ -875,3 +875,34 @@ async function updateNotificationBadge() {
         console.error("Failed to update notification badge", e);
     }
 }
+/**
+ * Formats a date string, object, or timestamp to DD/MM/YYYY.
+ * @param {string|Date|number} dateInput - The date to format.
+ * @param {boolean} includeTime - Whether to include HH:mm.
+ * @returns {string} The formatted date string.
+ */
+function formatDate(dateInput, includeTime = false) {
+    if (!dateInput) return 'N/A';
+    
+    try {
+        const date = new Date(dateInput);
+        if (isNaN(date.getTime())) return 'N/A';
+        
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        let result = `${day}/${month}/${year}`;
+        
+        if (includeTime) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            result += ` ${hours}:${minutes}`;
+        }
+        
+        return result;
+    } catch (e) {
+        console.error("Date formatting failed", e);
+        return 'N/A';
+    }
+}

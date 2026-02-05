@@ -236,7 +236,7 @@
                     </div>
                     <div>
                       <h4 class="font-semibold">${app.scholarship_title}</h4>
-                      <p class="text-sm text-black">Submitted ${new Date(app.submissiondate).toLocaleDateString()}</p>
+                      <p class="text-sm text-black">Submitted ${formatDate(app.submissiondate)}</p>
                     </div>
                   </div>
                   <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Awarded' ? 'bg-success/10 text-success' :

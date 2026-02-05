@@ -32,7 +32,7 @@ public class SystemHandler implements HttpHandler {
                     List<model.Scholarship> all = sDAO.findAll();
                     long now = System.currentTimeMillis();
                     long days7 = 7L * 24 * 60 * 60 * 1000L;
-                    SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
                     for (model.Scholarship s : all) {
                         if (s.isActive() && s.getDeadline() != null) {
@@ -229,7 +229,7 @@ public class SystemHandler implements HttpHandler {
             // Sort by last modified (newest first)
             Arrays.sort(backupFiles, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             boolean first = true;
             for (File f : backupFiles) {
                 if (!first)
@@ -305,7 +305,7 @@ public class SystemHandler implements HttpHandler {
             List<AuditLog> logs = dao.getAll(limit);
 
             StringBuilder json = new StringBuilder("[");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             boolean first = true;
 
             for (AuditLog log : logs) {

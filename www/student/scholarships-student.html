@@ -195,7 +195,7 @@
             </div>
             <div class="flex items-center gap-2 text-sm text-muted-foreground pt-2">
               <i data-lucide="calendar" class="w-4 h-4"></i>
-              <span>Deadline: ${scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'N/A'}</span>
+              <span>Deadline: ${scholarship.deadline ? formatDate(scholarship.deadline) : 'N/A'}</span>
             </div>
           </div>
           <a href="/student/scholarship-details.html?id=${scholarship.id}" 

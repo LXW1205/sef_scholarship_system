@@ -168,7 +168,7 @@
 
         document.getElementById('scholarshipTitle').textContent = application.scholarship_title || 'Scholarship Application';
         document.getElementById('appId').textContent = application.id;
-        document.getElementById('submissionDate').textContent = application.submissiondate ? new Date(application.submissiondate).toLocaleDateString() : 'N/A';
+        document.getElementById('submissionDate').textContent = application.submissiondate ? formatDate(application.submissiondate) : 'N/A';
 
         const statusBadge = document.getElementById('statusBadge');
         statusBadge.textContent = application.status;
@@ -262,7 +262,7 @@
             <div class="flex-1 pb-8">
               <h3 class="font-semibold mb-1">${item.status}</h3>
               <p class="text-sm text-black mb-1">${item.description}</p>
-              ${item.date ? `<p class="text-xs text-muted-foreground">${item.date.toLocaleDateString()}</p>` : ''}
+              ${item.date ? `<p class="text-xs text-muted-foreground">${formatDate(item.date)}</p>` : ''}
             </div>
           </div>
         `).join('');

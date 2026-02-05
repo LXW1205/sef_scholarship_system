@@ -143,7 +143,7 @@ public class InterviewHandler implements HttpHandler {
                     if (app != null) {
                         model.User student = userDAO.findUserByRoleID(app.getStudentID(), "Student");
                         if (student != null) {
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
                             String msg = String.format(
                                     "An interview has been scheduled for your application '%s' on %s. Venue/Link: %s",
                                     app.getScholarshipTitle(),

@@ -154,11 +154,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                   <div class="flex items-center gap-2 text-muted-foreground">
                     <i data-lucide="calendar-plus" class="w-4 h-4"></i>
-                    <span>Assigned: ${new Date(assignment.assignedDate).toLocaleDateString()}</span>
+                    <span>Assigned: ${formatDate(assignment.assignedDate)}</span>
                   </div>
                   <div class="flex items-center gap-2 text-muted-foreground">
                     <i data-lucide="calendar-clock" class="w-4 h-4"></i>
-                    <span>Due: ${new Date(assignment.dueDate).toLocaleDateString()}</span>
+                    <span>Due: ${formatDate(assignment.dueDate)}</span>
                   </div>
                   <div class="flex items-center gap-2">
                     <span class="px-3 py-1 text-xs font-medium rounded-full ${assignment.status === 'Under Review' ? 'bg-yellow-500/10 text-yellow-600' :

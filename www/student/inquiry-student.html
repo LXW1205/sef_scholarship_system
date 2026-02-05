@@ -260,9 +260,7 @@
                     : ' bg-amber-50 text-amber-700 border border-amber-100';
 
 
-                clone.querySelector('.date-text').textContent = new Date(i.submittedAt).toLocaleDateString('en-GB', {
-                    day: 'numeric', month: 'short', year: 'numeric'
-                });
+                clone.querySelector('.date-text').textContent = formatDate(i.submittedAt, true);
                 clone.querySelector('.question-preview').textContent = i.message;
                 clone.querySelector('.question-full').textContent = i.message;
 
@@ -274,6 +272,7 @@
 
                 container.appendChild(clone);
             });
+
 
             if (window.lucide) lucide.createIcons();
         }

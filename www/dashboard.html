@@ -141,7 +141,7 @@
                       ${data.applications.map(app => `
                         <tr class="hover:bg-muted/30 transition-colors">
                           <td class="px-6 py-4 font-medium">${app.scholarship_title}</td>
-                          <td class="px-6 py-4 text-muted-foreground">${new Date(app.submissiondate).toLocaleDateString()}</td>
+                          <td class="px-6 py-4 text-muted-foreground">${formatDate(app.submissiondate)}</td>
                           <td class="px-6 py-4">
                             <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Awarded' ? 'bg-green-100 text-green-800' :
                 app.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -149,7 +149,7 @@
                     'bg-gray-100 text-gray-800'
               }">${app.status}</span>
                           </td>
-                          <td class="px-6 py-4 text-muted-foreground">${app.deadline ? new Date(app.deadline).toLocaleDateString() : 'N/A'}</td>
+                          <td class="px-6 py-4 text-muted-foreground">${app.deadline ? formatDate(app.deadline) : 'N/A'}</td>
                         </tr>
                       `).join('')}
                     </tbody>

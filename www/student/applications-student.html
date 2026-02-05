@@ -150,11 +150,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div class="flex items-center gap-2 text-sm text-muted-foreground">
                         <i data-lucide="calendar" class="w-4 h-4"></i>
-                        <span>Submitted: ${new Date(app.submissiondate).toLocaleDateString()}</span>
+                        <span>Submitted: ${formatDate(app.submissiondate)}</span>
                       </div>
                       <div class="flex items-center gap-2 text-sm text-muted-foreground">
                         <i data-lucide="clock" class="w-4 h-4"></i>
-                        <span>Deadline: ${app.deadline ? new Date(app.deadline).toLocaleDateString() : 'N/A'}</span>
+                        <span>Deadline: ${app.deadline ? formatDate(app.deadline) : 'N/A'}</span>
                       </div>
                       <div class="flex items-center gap-2 text-sm">
                         <i data-lucide="info" class="w-4 h-4 text-muted-foreground"></i>

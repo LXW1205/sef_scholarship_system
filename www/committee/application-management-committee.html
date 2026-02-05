@@ -280,7 +280,7 @@
             </div>
             <div class="flex items-center gap-2 text-sm text-muted-foreground">
               <i data-lucide="calendar" class="w-4 h-4"></i>
-              <span>Deadline: ${s.deadline ? new Date(s.deadline).toLocaleDateString() : 'N/A'}</span>
+              <span>Deadline: ${s.deadline ? formatDate(s.deadline) : 'N/A'}</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-muted-foreground">
               <i data-lucide="users" class="w-4 h-4"></i>
