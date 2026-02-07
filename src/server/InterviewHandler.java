@@ -132,8 +132,8 @@ public class InterviewHandler implements HttpHandler {
                 // Determine Application ID and Update Status
                 int appId = getAppIdFromEvalId(evalId);
                 if (appId > 0) {
-                    applicationDAO.updateStatus(appId, StatusValidator.APP_INTERVIEWED);
-                    System.out.println("[INFO] Application " + appId + " transitioned to Interviewed");
+                    applicationDAO.updateStatus(appId, StatusValidator.APP_PENDING_INTERVIEW);
+                    System.out.println("[INFO] Application " + appId + " transitioned to Pending Interview");
                 }
 
                 // Notify student

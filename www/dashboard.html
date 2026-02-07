@@ -134,7 +134,6 @@
                         <th class="px-6 py-4 text-left text-sm font-semibold">Scholarship</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold">Submission Date</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold">Deadline</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
@@ -149,7 +148,6 @@
                     'bg-gray-100 text-gray-800'
               }">${app.status}</span>
                           </td>
-                          <td class="px-6 py-4 text-muted-foreground">${app.deadline ? formatDate(app.deadline) : 'N/A'}</td>
                         </tr>
                       `).join('')}
                     </tbody>

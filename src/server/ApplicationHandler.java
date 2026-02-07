@@ -475,16 +475,58 @@ public class ApplicationHandler implements HttpHandler {
         sendResponse(exchange, statusCode, response);
     }
 
+    private void updateInterviewStatus(int interviewId, String status) {
+        String sql = "UPDATE Interview SET status = ? WHERE interviewID = ?";
+        try (java.sql.Connection conn = db.DatabaseConnection.getConnection();
+                java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, status);
+            pstmt.setInt(2, interviewId);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private String getApplicationsJson() {
+        checkAndAutoUpdateInterviewStatus();
         return formatApplicationsJson(applicationDAO.findAll());
     }
 
     private String getApplicationsJsonByStudentId(String studentId) {
+        checkAndAutoUpdateInterviewStatus();
         return formatApplicationsJson(applicationDAO.findByStudentID(studentId));
     }
 
     private String getApplicationsJsonByReviewerId(String reviewerId) {
+        // No auto-update needed here usually, but safe to add if needed.
         return formatApplicationsJson(applicationDAO.findByReviewerID(reviewerId));
+    }
+
+    // New method to check and auto-update statuses
+    private void checkAndAutoUpdateInterviewStatus() {
+        try {
+            List<Application> apps = applicationDAO.findAll();
+            for (Application app : apps) {
+                if (StatusValidator.APP_PENDING_INTERVIEW.equals(app.getStatus())) {
+                    // Check interview date
+                    Evaluation eval = evaluationDAO.findByAppId(app.getAppID());
+                    if (eval != null) {
+                        model.Interview interview = evaluationDAO.findInterviewByEvalId(eval.getEvalID());
+                        if (interview != null && interview.getDateTime() != null) {
+                            if (interview.getDateTime().toLocalDateTime().isBefore(java.time.LocalDateTime.now())) {
+                                System.out.println(
+                                        "[INFO] Auto-updating Application " + app.getAppID() + " to Interviewed");
+                                applicationDAO.updateStatus(app.getAppID(), StatusValidator.APP_INTERVIEWED);
+                                // Also update interview status to Completed
+                                updateInterviewStatus(interview.getInterviewID(), "Completed");
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[ERROR] Failed to auto-update interview statuses: " + e.getMessage());
+        }
     }
 
     private String formatApplicationsJson(List<Application> apps) {

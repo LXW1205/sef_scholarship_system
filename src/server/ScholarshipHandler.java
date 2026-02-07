@@ -113,7 +113,14 @@ public class ScholarshipHandler implements HttpHandler {
             s.setDescription(description);
             s.setAmount(amount);
             s.setForQualification(eligibility);
-            s.setDeadline(java.sql.Date.valueOf(deadlineStr));
+            // Validate Deadline
+            java.sql.Date deadline = java.sql.Date.valueOf(deadlineStr);
+            if (deadline.toLocalDate().isBefore(java.time.LocalDate.now())) {
+                sendError(exchange, 400, "Deadline cannot be in the past");
+                return;
+            }
+            s.setDeadline(deadline);
+
             s.setMinCGPA(minCGPAStr != null ? Double.parseDouble(minCGPAStr) : 0.0);
             s.setMaxFamilyIncome(maxIncomeStr != null ? Double.parseDouble(maxIncomeStr) : 0.0);
             s.setActive("Open".equalsIgnoreCase(status) || "Active".equalsIgnoreCase(status));
@@ -143,7 +150,8 @@ public class ScholarshipHandler implements HttpHandler {
                             Criterion c = new Criterion();
                             c.setName(cName);
                             c.setWeightage(cWeight != null ? Integer.parseInt(cWeight) : 0);
-                            c.setMaxScore(cMax != null ? Double.parseDouble(cMax) : 0);
+                            // Default max score to 100 if not provided
+                            c.setMaxScore(cMax != null ? Double.parseDouble(cMax) : 100.0);
                             c.setMappedField(cMap != null ? cMap : "none");
                             criteriaList.add(c);
                         }

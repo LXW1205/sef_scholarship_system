@@ -11,7 +11,8 @@ public class StatusValidator {
     public static final String APP_PENDING = "Pending";
     public static final String APP_REVIEWING = "Reviewing";
     public static final String APP_REVIEWED = "Reviewed";
-    public static final String APP_SHORTLISTED = "Shortlisted";
+    public static final String APP_PENDING_INTERVIEW = "Pending Interview";
+    public static final String APP_SHORTLISTED = "Shortlisted"; // Deprecated/Legacy
     public static final String APP_INTERVIEWED = "Interviewed";
     public static final String APP_AWARDED = "Awarded";
     public static final String APP_REJECTED = "Rejected";
@@ -40,8 +41,18 @@ public class StatusValidator {
         // Application Transitions
         APP_TRANSITIONS.put(APP_PENDING, Arrays.asList(APP_REVIEWING, APP_WITHDRAWN));
         APP_TRANSITIONS.put(APP_REVIEWING, Arrays.asList(APP_REVIEWED, APP_WITHDRAWN));
-        APP_TRANSITIONS.put(APP_REVIEWED, Arrays.asList(APP_SHORTLISTED, APP_REJECTED, APP_WITHDRAWN));
-        APP_TRANSITIONS.put(APP_SHORTLISTED, Arrays.asList(APP_INTERVIEWED, APP_AWARDED, APP_REJECTED, APP_WITHDRAWN));
+        // Reviewed -> Pending Interview (Logic: "Schedule Interview") or Rejected
+        // Reviewed -> Pending Interview OR Shortlisted (Legacy) OR Rejected
+        APP_TRANSITIONS.put(APP_REVIEWED,
+                Arrays.asList(APP_PENDING_INTERVIEW, APP_SHORTLISTED, APP_REJECTED, APP_WITHDRAWN));
+
+        // Pending Interview -> Interviewed (Auto-update) or Rejected/Withdrawn
+        APP_TRANSITIONS.put(APP_PENDING_INTERVIEW, Arrays.asList(APP_INTERVIEWED, APP_REJECTED, APP_WITHDRAWN));
+
+        // Legacy compatibility
+        APP_TRANSITIONS.put(APP_SHORTLISTED,
+                Arrays.asList(APP_PENDING_INTERVIEW, APP_INTERVIEWED, APP_AWARDED, APP_REJECTED, APP_WITHDRAWN));
+
         APP_TRANSITIONS.put(APP_INTERVIEWED, Arrays.asList(APP_AWARDED, APP_REJECTED, APP_WITHDRAWN));
         // States like Awarded, Rejected, Withdrawn are terminal or have no outgoing
         // transitions in this scope

@@ -314,6 +314,13 @@
       document.getElementById('formSuccess').style.display = 'none';
       document.getElementById('formError').style.display = 'none';
 
+      document.getElementById('status').value = 'Open'; // Default status
+
+      // Set min date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('deadline').min = today;
+      document.getElementById('deadline').value = '';
+
       modal.style.display = 'flex';
       lucide.createIcons();
     });
@@ -357,6 +364,19 @@
         status: document.getElementById('status').value,
         criteria: criteria
       };
+
+      // Client-side validation for deadline
+      const selectedDate = new Date(formData.deadline);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time part for accurate comparison
+
+      // Only check if it's a new scholarship or if the date is being changed to something in the past
+      // But for simplicity, we enforce deadline >= today for all saves as per requirement "can be set to the pass"
+      if (selectedDate < today) {
+        document.getElementById('formErrorText').textContent = 'Deadline cannot be in the past.';
+        document.getElementById('formError').style.display = 'flex';
+        return;
+      }
 
       if (currentScholarshipId) {
         formData.id = currentScholarshipId;
@@ -414,7 +434,12 @@
       document.getElementById('title').value = s.title;
       document.getElementById('description').value = s.description;
       document.getElementById('amount').value = s.amount ? s.amount.replace(/[^0-9.]/g, '') : '';
-      document.getElementById('deadline').value = s.deadline ? s.deadline.split('T')[0] : '';
+
+      const today = new Date().toISOString().split('T')[0];
+      const deadlineInput = document.getElementById('deadline');
+      deadlineInput.min = today;
+      deadlineInput.value = s.deadline ? s.deadline.split('T')[0] : '';
+
       document.getElementById('qualification').value = s.forQualification || 'Any';
       document.getElementById('minCGPA').value = s.minCGPA || 0;
       document.getElementById('maxFamilyIncome').value = s.maxFamilyIncome || 0;

@@ -745,15 +745,16 @@ function injectCommitteeHeader(container) {
                 <a href="/committee/dashboard-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('dashboard') ? 'text-primary font-semibold' : ''}">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </a>
-                <a href="/committee/applications-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('applications') ? 'text-primary font-semibold' : ''}">
-                    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Apps
-                </a>
-                <a href="/committee/application-decisions.html" class="nav-link flex items-center gap-2 ${currentPath.includes('decisions') ? 'text-primary font-semibold' : ''}">
-                    <i data-lucide="gavel" class="w-4 h-4"></i> Decisions
-                </a>
                 <a href="/committee/application-management-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('application-management-committee') ? 'text-primary font-semibold' : ''}">
                     <i data-lucide="award" class="w-4 h-4"></i> Scholarships
                 </a>
+                <a href="/committee/applications-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('applications') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Apps
+                </a>
+                <!-- Decisions page removed as it is redundant -->
+                <!-- <a href="/committee/application-decisions.html" class="nav-link flex items-center gap-2 ${currentPath.includes('decisions') ? 'text-primary font-semibold' : ''}">
+                    <i data-lucide="gavel" class="w-4 h-4"></i> Decisions
+                </a> -->
                 <a href="/committee/schedule-interviews.html" class="nav-link flex items-center gap-2 ${currentPath.includes('interviews') ? 'text-primary font-semibold' : ''}">
                     <i data-lucide="calendar" class="w-4 h-4"></i> Interviews
                 </a>
@@ -883,23 +884,23 @@ async function updateNotificationBadge() {
  */
 function formatDate(dateInput, includeTime = false) {
     if (!dateInput) return 'N/A';
-    
+
     try {
         const date = new Date(dateInput);
         if (isNaN(date.getTime())) return 'N/A';
-        
+
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        
+
         let result = `${day}/${month}/${year}`;
-        
+
         if (includeTime) {
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             result += ` ${hours}:${minutes}`;
         }
-        
+
         return result;
     } catch (e) {
         console.error("Date formatting failed", e);

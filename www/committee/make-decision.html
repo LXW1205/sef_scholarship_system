@@ -286,23 +286,35 @@
       if (app.status === 'Reviewed') {
         decisionContainer.innerHTML = `
                   <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
-                    <input type="radio" name="decision" value="Shortlisted" required class="w-4 h-4 text-primary">
-                    <span class="ml-3 font-medium">Shortlist for Interview</span>
+                    <input type="radio" name="decision" value="Pending Interview" required class="w-4 h-4 text-primary">
+                    <span class="ml-3 font-medium">Schedule Interview (Shortlist)</span>
                   </label>
                   <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     <input type="radio" name="decision" value="Rejected" required class="w-4 h-4 text-primary">
                     <span class="ml-3 font-medium">Reject</span>
                   </label>
           `;
-      } else if (app.status === 'Shortlisted') {
+      } else if (app.status === 'Pending Interview') {
         decisionContainer.innerHTML = `
+                  <div class="p-3 bg-blue-50 text-blue-700 rounded-lg mb-4">
+                    <p class="font-medium">Interview Pending</p>
+                    <p class="text-sm">This application is awaiting an interview. The status will automatically update to 'Interviewed' after the scheduled time.</p>
+                  </div>
+                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                    <input type="radio" name="decision" value="Rejected" required class="w-4 h-4 text-primary">
+                    <span class="ml-3 font-medium">Reject</span>
+                  </label>
+          `;
+      } else if (app.status === 'Shortlisted') {
+        // Legacy support
+        decisionContainer.innerHTML = `
+                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                    <input type="radio" name="decision" value="Pending Interview" required class="w-4 h-4 text-primary">
+                    <span class="ml-3 font-medium">Update to Pending Interview</span>
+                  </label>
                   <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     <input type="radio" name="decision" value="Interviewed" required class="w-4 h-4 text-primary">
                     <span class="ml-3 font-medium">Interview Completed</span>
-                  </label>
-                  <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
-                    <input type="radio" name="decision" value="Awarded" required class="w-4 h-4 text-primary">
-                    <span class="ml-3 font-medium">Award Scholarship (Approve)</span>
                   </label>
                   <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     <input type="radio" name="decision" value="Rejected" required class="w-4 h-4 text-primary">
@@ -315,7 +327,6 @@
                     <input type="radio" name="decision" value="Awarded" required class="w-4 h-4 text-primary">
                     <span class="ml-3 font-medium">Award Scholarship (Approve)</span>
                   </label>
-                  <!-- Waitlisted removed -->
                   <label class="flex items-center p-3 border border-input rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
                     <input type="radio" name="decision" value="Rejected" required class="w-4 h-4 text-primary">
                     <span class="ml-3 font-medium">Reject</span>

@@ -78,7 +78,7 @@
               class="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
               <option value="">Active Applications</option>
               <option value="Reviewed">Reviewed</option>
-              <option value="Shortlisted">Shortlisted</option>
+              <option value="Pending Interview">Pending Interview</option>
               <option value="Interviewed">Interviewed</option>
               <option value="Awarded">Awarded</option>
               <option value="Rejected">Rejected</option>
@@ -139,7 +139,7 @@
 
       // Default: Show active applications (exclude finalized)
       if (!statusFilter) {
-        filtered = filtered.filter(a => ['Reviewed', 'Shortlisted', 'Interviewed'].includes(a.status));
+        filtered = filtered.filter(a => ['Reviewed', 'Pending Interview', 'Shortlisted', 'Interviewed'].includes(a.status));
       } else {
 
         filtered = filtered.filter(a => a.status === statusFilter);
@@ -197,8 +197,9 @@
                   <h3 class="text-xl font-bold">${app.fullname || 'Anonymous'}</h3>
                   <span class="px-3 py-1 text-xs font-medium rounded-full ${app.status === 'Awarded' ? 'bg-success/10 text-success' :
             app.status === 'Shortlisted' ? 'bg-blue-500/10 text-blue-600' :
-              app.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
-                'bg-yellow-500/10 text-yellow-600'
+              app.status === 'Pending Interview' ? 'bg-purple-500/10 text-purple-600' :
+                app.status === 'Rejected' ? 'bg-destructive/10 text-destructive' :
+                  'bg-yellow-500/10 text-yellow-600'
           }">${app.status}</span>
                 </div>
                 <p class="text-muted-foreground mb-3">${app.scholarship_title}</p>
@@ -219,11 +220,15 @@
               </div>
             </div>
             <div class="flex gap-2">
-              <a href="/committee/make-decision.html?id=${app.applicationid}" 
-                class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium inline-flex items-center gap-2">
-                <i data-lucide="gavel" class="w-4 h-4"></i>
-                ${app.status === 'Reviewed' ? 'Shortlist / Reject' : 'Final Decision'}
-              </a>
+              ${['Awarded', 'Rejected', 'Withdrawn'].includes(app.status) ?
+            `<span class="px-4 py-2 text-muted-foreground text-sm font-medium border border-border rounded-lg bg-muted/20">Decision Finalized</span>` :
+            `<a href="/committee/make-decision.html?id=${app.applicationid}" 
+                  class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium inline-flex items-center gap-2">
+                  <i data-lucide="gavel" class="w-4 h-4"></i>
+                  ${app.status === 'Reviewed' ? 'Shortlist / Reject' :
+              app.status === 'Pending Interview' ? 'Manage Interview' : 'Final Decision'}
+                </a>`
+          }
             </div>
           </div>
         </div>

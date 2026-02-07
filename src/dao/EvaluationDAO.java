@@ -142,4 +142,25 @@ public class EvaluationDAO {
         }
         return null;
     }
+
+    public model.Interview findInterviewByEvalId(int evalId) {
+        String sql = "SELECT * FROM Interview WHERE evalID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, evalId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new model.Interview(
+                            rs.getInt("interviewID"),
+                            rs.getInt("evalID"),
+                            rs.getTimestamp("dateTime"),
+                            rs.getString("venueOrLink"),
+                            rs.getString("status"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
