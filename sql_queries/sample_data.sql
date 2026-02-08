@@ -8,8 +8,8 @@ INSERT INTO ApplicationStatusLookup (statusValue) VALUES
 ('Pending'),
 ('Reviewing'),
 ('Reviewed'),
-('Pending Interview'), -- New Status
-('Shortlisted'), -- Kept for backward compatibility if needed, or removed if strictly replacing. Plan said "Rename", but maybe better to keep both for now to avoid breaking existing data immediately? User said "name it appropriately", "status change from that to interviewed". I'll add it.
+('Pending Interview'),
+('Shortlisted'),
 ('Interviewed'),
 ('Awarded'),
 ('Rejected'),

@@ -749,12 +749,8 @@ function injectCommitteeHeader(container) {
                     <i data-lucide="award" class="w-4 h-4"></i> Scholarships
                 </a>
                 <a href="/committee/applications-committee.html" class="nav-link flex items-center gap-2 ${currentPath.includes('applications') ? 'text-primary font-semibold' : ''}">
-                    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Apps
+                    <i data-lucide="gavel" class="w-4 h-4"></i> Apps
                 </a>
-                <!-- Decisions page removed as it is redundant -->
-                <!-- <a href="/committee/application-decisions.html" class="nav-link flex items-center gap-2 ${currentPath.includes('decisions') ? 'text-primary font-semibold' : ''}">
-                    <i data-lucide="gavel" class="w-4 h-4"></i> Decisions
-                </a> -->
                 <a href="/committee/schedule-interviews.html" class="nav-link flex items-center gap-2 ${currentPath.includes('interviews') ? 'text-primary font-semibold' : ''}">
                     <i data-lucide="calendar" class="w-4 h-4"></i> Interviews
                 </a>
