@@ -22,6 +22,7 @@ WORKDIR /app
 COPY --from=builder /app/bin ./bin
 COPY --from=builder /app/lib ./lib
 COPY www/ ./www/
+COPY sql_queries/ ./sql_queries/
 
 # Render sets the PORT env var — default to 8080 for local Docker runs
 EXPOSE 8080
