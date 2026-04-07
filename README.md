@@ -71,30 +71,72 @@ Use these to test the various dashboards:
 2. Run `setup.bat` to initialize the database.
 3. Run `run.bat` to start the server at `http://localhost:8080`.
 
----
+## Running Tests
 
-## 🛠 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| **Backend** | Pure Java (JDK built-in HTTP server) |
-| **Database** | PostgreSQL |
-| **DB Driver** | PostgreSQL JDBC (`postgresql-42.7.8.jar`) |
-| **Frontend** | HTML5 + CSS3 + Vanilla JavaScript |
-| **Testing** | JUnit 5 (`junit-platform-console-standalone-1.10.1.jar`) |
-| **Deployment** | Docker + Render |
+```bat
+test.bat
+```
 
 ---
 
-## 📂 Project Structure
-- `src/`: Java source code (Handler-based API).
-- `www/`: Static frontend assets (HTML, CSS, JS).
-- `sql_queries/`: Database schema and sample data.
-- `lib/`: Third-party JARs (JDBC Driver, JUnit).
-- `Dockerfile`: Multi-stage build for cloud deployment.
-- `*.bat`: Windows scripts for compilation and local execution.
+## Project Structure
+
+```
+sef_scholarship_system/
+├── src/
+│   ├── Main.java             # Entry point, HTTP server setup
+│   ├── server/               # REST API handlers
+│   ├── dao/                  # Data access objects (DB queries)
+│   ├── model/                # Domain models (Student, Application, etc.)
+│   ├── db/                   # Database connection
+│   └── utils/                # Utilities (DatabaseSetup, etc.)
+├── www/                      # Frontend (HTML, CSS, JS)
+├── lib/                      # External JAR dependencies
+├── tests/                    # JUnit test files
+├── sql_queries/              # SQL scripts
+├── db.properties             # Database config (not committed)
+├── run.bat                   # Compile and run
+├── setup.bat                 # Initialize DB schema
+├── kill.bat                  # Stop the server
+└── test.bat                  # Run tests
+```
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/register` | Register |
+| POST | `/api/auth/forgot-password` | Request password reset |
+| POST | `/api/auth/reset-password` | Reset password |
+| GET/POST | `/api/scholarships` | Manage scholarships |
+| GET/POST | `/api/applications` | Manage applications |
+| GET/PUT | `/api/users` | User management |
+| GET | `/api/admin/stats` | Admin dashboard stats |
+| GET/POST | `/api/notifications` | Notifications |
+| GET/POST | `/api/inquiries` | Student inquiries |
+| GET/POST | `/api/clarifications` | Clarification requests |
+| GET/POST | `/api/interviews` | Interview scheduling |
+
+---
+
+## Notes
+
+- `db.properties` is excluded from version control — do not commit credentials.
+- The server runs on port `8080` by default.
+- To stop the server, run `kill.bat`.
 
 ---
 
 ## 🤝 Contributions
+
+- Lee Xiu Wei
+- Lee Chee Xuan
+- Teng Ming Hein
+- Lai Seng Kung
+
 Primary development by **Lee Xiu Wei**, with collaborative design and documentation from Lee Chee Xuan, Teng Ming Hein, and Lai Seng Kung.
+
+Project deployment is also some extra work done after the submission of this academic project. 
