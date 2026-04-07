@@ -1,5 +1,5 @@
 # ── Stage 1: Build ───────────────────────────────────────────────
-FROM openjdk:17-jdk-slim AS builder
+FROM eclipse-temurin:17-jdk-alpine AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN find src -name "*.java" > sources.txt \
     && rm sources.txt
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
