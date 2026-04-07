@@ -22,43 +22,56 @@ public class DatabaseSetup {
             System.out.println("   SEF Scholarship System Database Setup");
             System.out.println("========================================");
 
-            // 1. Ask for JDBC URL
-            System.out.println("\nStep 1: Database URL");
-            System.out.println("Hint: jdbc:postgresql://127.0.0.1:5432/your_db_name");
-            System.out.print("Enter Database URL: ");
-            String url = scanner.nextLine().trim();
+            // Check for Environment Variables (for Render/Cloud)
+            String envUrl = System.getenv("DB_URL");
+            String envUser = System.getenv("DB_USER");
+            String envPassword = System.getenv("DB_PASSWORD");
 
-            // Ensure the URL starts with jdbc:
-            if (!url.startsWith("jdbc:")) {
-                if (url.startsWith("postgresql:")) {
-                    url = "jdbc:" + url;
-                } else {
-                    url = "jdbc:postgresql://" + url;
+            String url, user, password;
+
+            if (envUrl != null && envUser != null && envPassword != null) {
+                System.out.println("[INFO] Environment variables detected. Using automatic setup...");
+                url = envUrl;
+                user = envUser;
+                password = envPassword;
+            } else {
+                // 1. Ask for JDBC URL
+                System.out.println("\nStep 1: Database URL");
+                System.out.println("Hint: jdbc:postgresql://127.0.0.1:5432/your_db_name");
+                System.out.print("Enter Database URL: ");
+                url = scanner.nextLine().trim();
+
+                // Ensure the URL starts with jdbc:
+                if (!url.startsWith("jdbc:")) {
+                    if (url.startsWith("postgresql:")) {
+                        url = "jdbc:" + url;
+                    } else {
+                        url = "jdbc:postgresql://" + url;
+                    }
+                    System.out.println("-> Adjusted URL to: " + url);
                 }
-                System.out.println("-> Adjusted URL to: " + url);
-            }
-            props.setProperty("db.url", url);
 
-            // 2. Ask for Username
-            System.out.println("\nStep 2: Database User");
-            System.out.println("Hint: Default is usually 'postgres'");
-            System.out.print("Enter Database User: ");
-            String user = scanner.nextLine().trim();
-            props.setProperty("db.user", user);
+                // 2. Ask for Username
+                System.out.println("\nStep 2: Database User");
+                System.out.println("Hint: Default is usually 'postgres'");
+                System.out.print("Enter Database User: ");
+                user = scanner.nextLine().trim();
 
-            // 3. Ask for Password
-            System.out.println("\nStep 3: Database Password");
-            System.out.print("Enter Database Password: ");
-            String password = scanner.nextLine().trim();
-            props.setProperty("db.password", password);
+                // 3. Ask for Password
+                System.out.println("\nStep 3: Database Password");
+                System.out.print("Enter Database Password: ");
+                password = scanner.nextLine().trim();
 
-            // 4. Save to db.properties
-            try (FileOutputStream out = new FileOutputStream("db.properties")) {
-                props.store(out, "Database Configuration");
-                System.out.println("\n[SUCCESS] db.properties file created.");
-            } catch (IOException e) {
-                System.err.println("\n[ERROR] Failed to save db.properties: " + e.getMessage());
-                return;
+                // 4. Save to db.properties (only locally)
+                try (FileOutputStream out = new FileOutputStream("db.properties")) {
+                    props.setProperty("db.url", url);
+                    props.setProperty("db.user", user);
+                    props.setProperty("db.password", password);
+                    props.store(out, "Database Configuration");
+                    System.out.println("\n[SUCCESS] db.properties file created.");
+                } catch (IOException e) {
+                    System.err.println("\n[ERROR] Failed to save db.properties: " + e.getMessage());
+                }
             }
 
             // 5. Test Connection
@@ -69,9 +82,13 @@ public class DatabaseSetup {
                     System.out.println("[SUCCESS] Connection established.");
 
                     // 6. Populate Database
-                    System.out.print(
-                            "\nDo you want to populate the database with project tables and sample data? (y/n): ");
-                    String choice = scanner.nextLine().trim().toLowerCase();
+                    String choice = "y";
+                    if (envUrl == null) {
+                        System.out.print(
+                                "\nDo you want to populate the database with project tables and sample data? (y/n): ");
+                        choice = scanner.nextLine().trim().toLowerCase();
+                    }
+
                     if (choice.equals("y")) {
                         System.out.println("\nStep 5: Populating Database...");
 
