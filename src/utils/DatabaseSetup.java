@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -34,19 +36,46 @@ public class DatabaseSetup {
             if (envUrl != null) {
                 System.out.println("[INFO] Environment variable detected. Using automatic setup...");
                 
-                // Fix prefix
-                if (envUrl.startsWith("postgres://")) {
-                    url = "jdbc:postgresql://" + envUrl.substring(11);
-                } else if (envUrl.startsWith("postgresql://")) {
-                    url = "jdbc:postgresql://" + envUrl.substring(13);
-                } else if (!envUrl.startsWith("jdbc:postgresql://")) {
-                    url = "jdbc:postgresql://" + envUrl;
-                } else {
+                try {
+                    String uriString = envUrl;
+                    if (uriString.startsWith("jdbc:postgresql://")) {
+                        uriString = uriString.substring(5);
+                    } else if (!uriString.contains("://")) {
+                        uriString = "postgresql://" + uriString;
+                    }
+                    
+                    URI uri = new URI(uriString);
+                    String host = uri.getHost();
+                    int port = uri.getPort();
+                    if (port == -1) port = 5432;
+                    String path = uri.getPath();
+                    String userInfo = uri.getUserInfo();
+                    
+                    url = "jdbc:postgresql://" + host + ":" + port + path;
+                    
+                    if (envUser != null) {
+                        user = envUser;
+                    } else if (userInfo != null && userInfo.contains(":")) {
+                        user = userInfo.split(":")[0];
+                    } else {
+                        user = (userInfo != null) ? userInfo : "";
+                    }
+
+                    if (envPassword != null) {
+                        password = envPassword;
+                    } else if (userInfo != null && userInfo.contains(":")) {
+                        password = userInfo.split(":")[1];
+                    } else {
+                        password = "";
+                    }
+
+                } catch (URISyntaxException e) {
+                    System.err.println("[ERROR] Failed to parse DB URL: " + envUrl);
                     url = envUrl;
+                    user = (envUser != null) ? envUser : "";
+                    password = (envPassword != null) ? envPassword : "";
                 }
 
-                user = (envUser != null) ? envUser : "";
-                password = (envPassword != null) ? envPassword : "";
             } else {
                 // 1. Ask for JDBC URL
                 System.out.println("\nStep 1: Database URL");
