@@ -24,16 +24,29 @@ public class DatabaseSetup {
 
             // Check for Environment Variables (for Render/Cloud)
             String envUrl = System.getenv("DB_URL");
+            if (envUrl == null) envUrl = System.getenv("DATABASE_URL");
+            
             String envUser = System.getenv("DB_USER");
             String envPassword = System.getenv("DB_PASSWORD");
 
             String url, user, password;
 
-            if (envUrl != null && envUser != null && envPassword != null) {
-                System.out.println("[INFO] Environment variables detected. Using automatic setup...");
-                url = envUrl;
-                user = envUser;
-                password = envPassword;
+            if (envUrl != null) {
+                System.out.println("[INFO] Environment variable detected. Using automatic setup...");
+                
+                // Fix prefix
+                if (envUrl.startsWith("postgres://")) {
+                    url = "jdbc:postgresql://" + envUrl.substring(11);
+                } else if (envUrl.startsWith("postgresql://")) {
+                    url = "jdbc:postgresql://" + envUrl.substring(13);
+                } else if (!envUrl.startsWith("jdbc:postgresql://")) {
+                    url = "jdbc:postgresql://" + envUrl;
+                } else {
+                    url = envUrl;
+                }
+
+                user = (envUser != null) ? envUser : "";
+                password = (envPassword != null) ? envPassword : "";
             } else {
                 // 1. Ask for JDBC URL
                 System.out.println("\nStep 1: Database URL");

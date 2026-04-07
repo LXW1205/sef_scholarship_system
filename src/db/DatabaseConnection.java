@@ -13,27 +13,37 @@ public class DatabaseConnection {
     private static String PASSWORD;
 
     static {
-        // Prefer environment variables (used on Render/cloud), fall back to db.properties (used locally)
-        String envUrl      = System.getenv("DB_URL");
-        String envUser     = System.getenv("DB_USER");
+        // Try to find the URL in common environment variables
+        String envUrl = System.getenv("DB_URL");
+        if (envUrl == null) envUrl = System.getenv("DATABASE_URL");
+        
+        String envUser = System.getenv("DB_USER");
         String envPassword = System.getenv("DB_PASSWORD");
 
-        if (envUrl != null && envUser != null && envPassword != null) {
-            URL      = envUrl;
-            USER     = envUser;
-            PASSWORD = envPassword;
-            System.out.println("[DB] Loaded credentials from environment variables.");
+        if (envUrl != null) {
+            // Fix prefix if it's a standard Render/Heroku URL
+            if (envUrl.startsWith("postgres://")) {
+                envUrl = "jdbc:postgresql://" + envUrl.substring(11);
+            } else if (envUrl.startsWith("postgresql://")) {
+                envUrl = "jdbc:postgresql://" + envUrl.substring(13);
+            } else if (!envUrl.startsWith("jdbc:postgresql://")) {
+                envUrl = "jdbc:postgresql://" + envUrl;
+            }
+
+            URL = envUrl;
+            USER = (envUser != null) ? envUser : ""; // Often embedded in URL
+            PASSWORD = (envPassword != null) ? envPassword : "";
+            System.out.println("[DB] Using environment variable URL: " + URL.split("@")[URL.split("@").length-1]); // Log host only for safety
         } else {
             Properties prop = new Properties();
             try (FileInputStream input = new FileInputStream("db.properties")) {
                 prop.load(input);
-                URL      = prop.getProperty("db.url");
-                USER     = prop.getProperty("db.user");
+                URL = prop.getProperty("db.url");
+                USER = prop.getProperty("db.user");
                 PASSWORD = prop.getProperty("db.password");
                 System.out.println("[DB] Loaded credentials from db.properties.");
             } catch (IOException ex) {
-                System.err.println("[DB] Could not load db.properties: " + ex.getMessage());
-                ex.printStackTrace();
+                System.err.println("[DB] Error: No environment variables found AND no db.properties found.");
             }
         }
     }
