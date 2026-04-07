@@ -2,6 +2,8 @@
 
 A web-based scholarship management system built with **Pure Java** (Standard JDK HTTP Server) and a vanilla **HTML/CSS/JS** frontend. No heavyweight frameworks required.
 
+Deployment: https://sef-scholarship-system.onrender.com/
+
 ![System Preview](/sample_screen/scholarship-system-1.png)
 
 ---
