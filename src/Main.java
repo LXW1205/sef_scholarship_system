@@ -9,6 +9,17 @@ import java.net.InetSocketAddress;
 
 public class Main {
     public static void main(String[] args) throws IOException {
+        // Render Free Tier Seeding Hack
+        if ("true".equalsIgnoreCase(System.getenv("AUTO_SEED"))) {
+            System.out.println("[INIT] AUTO_SEED=true detected. Running database setup...");
+            try {
+                utils.DatabaseSetup.main(new String[0]);
+                System.out.println("[INIT] Database setup completed.");
+            } catch (Exception e) {
+                System.err.println("[ERROR] Database setup failed: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
 
         // Run database migrations
         // db.DatabaseMigration.run();
