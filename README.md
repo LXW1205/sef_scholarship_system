@@ -125,3 +125,16 @@ test.bat
 - `db.properties` is excluded from version control — do not commit credentials.
 - The server runs on port `8080` by default.
 - To stop the server, run `kill.bat`.
+
+---
+
+## Contributions
+
+- Lee Xiu Wei
+- Lee Chee Xuan
+- Teng Ming Hein
+- Lai Seng Kung
+
+While this was a collaborative project, the system implementation and technical development were primarily carried out by Xiu Wei.
+
+While the other teammates contributed more on the design side like UML diagrams and documentation.
