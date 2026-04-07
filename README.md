@@ -2,6 +2,8 @@
 
 A web-based scholarship management system built with plain Java and vanilla HTML/CSS/JavaScript — no heavyweight frameworks required.
 
+![Alt text](/sample_screen/scholarship-system-1.png)
+
 ---
 
 ## Features
