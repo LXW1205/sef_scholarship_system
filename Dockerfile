@@ -1,8 +1,30 @@
-# Use official Java image
+# ── Stage 1: Build ───────────────────────────────────────────────
+FROM openjdk:17-jdk-slim AS builder
+
+WORKDIR /app
+
+# Copy source files and dependencies
+COPY src/ ./src/
+COPY lib/ ./lib/
+
+# Compile all Java sources
+RUN find src -name "*.java" > sources.txt \
+    && mkdir -p bin \
+    && javac -d bin -cp "lib/*" @sources.txt \
+    && rm sources.txt
+
+# ── Stage 2: Runtime ─────────────────────────────────────────────
 FROM openjdk:17-jdk-slim
 
-# Copy jar file
-COPY target/*.jar app.jar
+WORKDIR /app
 
-# Run the application
-ENTRYPOINT ["java","-jar","/app.jar"]
+# Copy compiled classes, libraries, and frontend static files
+COPY --from=builder /app/bin ./bin
+COPY --from=builder /app/lib ./lib
+COPY www/ ./www/
+
+# Render sets the PORT env var — default to 8080 for local Docker runs
+EXPOSE 8080
+
+# Start the Java HTTP server
+CMD ["java", "-cp", "bin:lib/*", "Main"]

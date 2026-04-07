@@ -19,7 +19,9 @@ public class Main {
         // Init Scheduled Tasks (Deadline Notifications)
         server.SystemHandler.initScheduledTasks();
 
-        int port = 8080;
+        // Render sets the PORT env var dynamically; default to 8080 for local runs
+        String portEnv = System.getenv("PORT");
+        int port = (portEnv != null) ? Integer.parseInt(portEnv) : 8080;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
         // serve static files

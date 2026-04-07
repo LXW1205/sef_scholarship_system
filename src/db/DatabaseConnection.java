@@ -13,15 +13,28 @@ public class DatabaseConnection {
     private static String PASSWORD;
 
     static {
-        Properties prop = new Properties();
-        try (FileInputStream input = new FileInputStream("db.properties")) {
-            prop.load(input);
-            URL = prop.getProperty("db.url");
-            USER = prop.getProperty("db.user");
-            PASSWORD = prop.getProperty("db.password");
-        } catch (IOException ex) {
-            System.err.println("Could not load db.properties file: " + ex.getMessage());
-            ex.printStackTrace();
+        // Prefer environment variables (used on Render/cloud), fall back to db.properties (used locally)
+        String envUrl      = System.getenv("DB_URL");
+        String envUser     = System.getenv("DB_USER");
+        String envPassword = System.getenv("DB_PASSWORD");
+
+        if (envUrl != null && envUser != null && envPassword != null) {
+            URL      = envUrl;
+            USER     = envUser;
+            PASSWORD = envPassword;
+            System.out.println("[DB] Loaded credentials from environment variables.");
+        } else {
+            Properties prop = new Properties();
+            try (FileInputStream input = new FileInputStream("db.properties")) {
+                prop.load(input);
+                URL      = prop.getProperty("db.url");
+                USER     = prop.getProperty("db.user");
+                PASSWORD = prop.getProperty("db.password");
+                System.out.println("[DB] Loaded credentials from db.properties.");
+            } catch (IOException ex) {
+                System.err.println("[DB] Could not load db.properties: " + ex.getMessage());
+                ex.printStackTrace();
+            }
         }
     }
 
