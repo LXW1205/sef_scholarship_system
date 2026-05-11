@@ -2,8 +2,6 @@
 
 A web-based scholarship management system built with **Pure Java** (Standard JDK HTTP Server) and a vanilla **HTML/CSS/JS** frontend. No heavyweight frameworks required.
 
-Deployment: https://sef-scholarship-system.onrender.com/
-
 ![System Preview](/sample_screen/scholarship-system-1.png)
 
 ---
@@ -140,5 +138,3 @@ sef_scholarship_system/
 - Lai Seng Kung
 
 Primary development by **Lee Xiu Wei**, with collaborative design and documentation from Lee Chee Xuan, Teng Ming Hein, and Lai Seng Kung.
-
-Project deployment is also some extra work done after the submission of this academic project. 
