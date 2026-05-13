@@ -2,6 +2,8 @@
 
 A web-based scholarship management system built with **Pure Java** (Standard JDK HTTP Server) and a vanilla **HTML/CSS/JS** frontend. No heavyweight frameworks required.
 
+Deployment: https://sef-scholarship-system.onrender.com/
+
 ![System Preview](/sample_screen/scholarship-system-1.png)
 
 ---
@@ -23,22 +25,23 @@ A web-based scholarship management system built with **Pure Java** (Standard JDK
 
 ## 🚀 Live Deployment (Render)
 
-This project is configured for one-click deployment on **Render** using Docker.
+This project is configured for one-click deployment on **Render** using Docker with **Supabase** as the database.
 
-### 1. Database Setup
-1. Create a **PostgreSQL** database on Render.
-2. Copy the **Internal Database URL**.
+### 1. Database Setup (Supabase)
+1. Create a free **PostgreSQL** database at https://supabase.com
+2. Go to **Settings** → **Database** → Copy the **Connection string (URI)**
+3. Use the **Pooler port 6543** for IPv4 compatibility
 
 ### 2. Web Service Setup
-1. Create a new **Web Service** on Render and connect this repository.
-2. Select **Docker** as the runtime.
+1. Create a new **Web Service** on Render and connect this repository
+2. Select **Docker** as the runtime
 3. Add the following **Environment Variables**:
 
 | Key | Value | Note |
 |---|---|---|
-| `DB_URL` | `jdbc:postgresql://user:pass@host/db` | Convert `postgres://` to `jdbc:postgresql://` |
-| `DB_USER` | `your_db_user` | Provided by Render |
-| `DB_PASSWORD` | `your_db_password` | Provided by Render |
+| `DB_URL` | `postgresql://postgres:pass@db.project.supabase.co:6543/postgres` | Use pooler port 6543 |
+| `DB_USER` | `postgres` | Supabase default user |
+| `DB_PASSWORD` | `your_db_password` | From Supabase setup |
 | `AUTO_SEED` | `true` | **Set to 'true' only for the first run** to create tables |
 
 ---
